@@ -13,4 +13,10 @@ class EmissionSource:
         self.temporal_prof = temporal_prof
         self.spatial_proxy = spatial_proxy
 
+    def total_emiss(self, pol_name, ktn_year=False):
+        total_emiss = self.number * self.use_intensity * self.pol_ef[pol_name]
+        if ktn_year:
+            return total_emiss * 365 / 10 ** 9
+        return total_emiss
+
 
