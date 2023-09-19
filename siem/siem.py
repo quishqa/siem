@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+
 class EmissionSource:
     def __init__(self, name: str, number: int | float, use_intensity: float,
                  pol_ef: dict, spatial_proxy: xr.DataArray, 
@@ -13,7 +14,7 @@ class EmissionSource:
         self.temporal_prof = temporal_prof
         self.spatial_proxy = spatial_proxy
 
-    def total_emiss(self, pol_name, ktn_year=False):
+    def total_emiss(self, pol_name: str, ktn_year: bool = False):
         total_emiss = self.number * self.use_intensity * self.pol_ef[pol_name]
         if ktn_year:
             return total_emiss * 365 / 10 ** 9
