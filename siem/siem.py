@@ -14,10 +14,20 @@ class EmissionSource:
         self.temporal_prof = temporal_prof
         self.spatial_proxy = spatial_proxy
 
-    def total_emiss(self, pol_name: str, ktn_year: bool = False):
-        total_emiss = self.number * self.use_intensity * self.pol_ef[pol_name]
+    def total_emission(self, pol_name: str, ktn_year: bool = False):
+        total_emiss = calculate_emission(self.number,
+                                         self.use_intensity,
+                                         self.pol_ef[pol_name])
         if ktn_year:
             return total_emiss * 365 / 10 ** 9
         return total_emiss
 
+    def spatial_emission(self, pol_name: str, wrfinpit: xr.Dataset) -> xr.Dataset:
+
+        pass
+
+
+
+def calculate_emission(number_source, activity_rate, pol_ef):
+    return number_source * activity_rate * pol_ef
 
