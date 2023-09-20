@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import xarray as xr
-
+import siem.spatial as spt
 
 class EmissionSource:
     def __init__(self, name: str, number: int | float, use_intensity: float,
@@ -22,12 +22,19 @@ class EmissionSource:
             return total_emiss * 365 / 10 ** 9
         return total_emiss
 
-    def spatial_emission(self, pol_name: str, wrfinpit: xr.Dataset) -> xr.Dataset:
+    def spatial_emission(self, pol_name: str,
+                         wrfinput: xr.Dataset) -> xr.DataArray:
+        return spt.distribute_spatial_emission(self.spatial_proxy,
+                                               self.number,
+                                               wrfinput,
+                                               self.use_intensity,
+                                               self.pol_ef[pol_name],
+                                               pol_name)
 
-        pass
+
+
 
 
 
 def calculate_emission(number_source, activity_rate, pol_ef):
     return number_source * activity_rate * pol_ef
-

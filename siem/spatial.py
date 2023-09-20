@@ -1,8 +1,7 @@
 import numpy as np
 import pandas as pd
 import xarray as xr
-from siem.siem import calculate_emission
-
+import siem.siem as sm
 
 def read_spatial_proxy(proxy_path: str,
                        col_names: list = ["id", "x", "y", "urban"],
@@ -46,8 +45,8 @@ def distribute_spatial_emission(spatial_proxy: xr.DataArray,
     density_map = calculate_density_map(spatial_proxy,
                                         number_sources,
                                         cell_area)
-    spatial_emission = calculate_emission(density_map,
-                                          use_intensity,
-                                          pol_ef)
+    spatial_emission = sm.calculate_emission(density_map,
+                                             use_intensity,
+                                             pol_ef)
     spatial_emission.name = pol_name
     return spatial_emission

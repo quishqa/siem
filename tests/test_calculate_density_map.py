@@ -6,13 +6,15 @@ from siem.spatial import distribute_spatial_emission
 
 def test_calculate_density_map() -> None:
     spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
-                                       ["id", "x", "y","main", "lon", "urban"])
+                                       ["id", "x", "y","main", "lon", "urban"],
+                                       proxy="lon")
     number_source = 1_000_000
     cell_area = 10
     density_map = calculate_density_map(spatial_proxy,
                                         1_000_000,
                                         10)
     assert density_map.sum() * cell_area == number_source
+    assert density_map.min() >= 0.0
 
 
 def test_distribute_spatial_emission() -> None:
