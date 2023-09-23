@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 import siem.spatial as spt
+import siem.temporal as temp
 
 class EmissionSource:
     def __init__(self, name: str, number: int | float, use_intensity: float,
@@ -31,16 +32,20 @@ class EmissionSource:
                                                self.pol_ef[pol_name],
                                                pol_name)
 
-    def spatiotemporal_emission(self, pol_name: str,
+    def spatiotemporal_emission(self, pol_names: str | list,
                                 cell_area: int | float) -> xr.DataArray:
-        
-        spatial_emission = self.spatial_emission(pol_name, cell_area)
-        spatio_temporal = xr.concat(
-                [spatial_emission * time for time in self.temporal_prof],
-                dim=pd.Index(np.arange(0, len(self.temporal_prof)),
-                             name="Time")
-                )
-        return spatio_temporal
+        if isinstance(pol_names, str):
+            pol_names = [pol_names]
+
+        spatial_emissions = {
+                pol: self.spatial_emission(pol, cell_area)
+                for pol in pol_names
+                }
+        spatio_temporal = {
+                pol: temp.split_by_time(spatial, self.temporal_prof)
+                for pol, spatial in spatial_emissions.items()
+                }
+        return xr.merge(spatio_temporal.values())
 
 
 def calculate_emission(number_source, activity_rate, pol_ef):
