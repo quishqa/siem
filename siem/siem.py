@@ -4,6 +4,7 @@ import xarray as xr
 import siem.spatial as spt
 import siem.temporal as temp
 
+
 class EmissionSource:
     def __init__(self, name: str, number: int | float, use_intensity: float,
                  pol_ef: dict, spatial_proxy: xr.DataArray, 
@@ -46,6 +47,15 @@ class EmissionSource:
                 for pol, spatial in spatial_emissions.items()
                 }
         return xr.merge(spatio_temporal.values())
+
+
+    def speciate_emission(self, pol_name: str, pol_species: dict,
+                          cell_area: int | float) -> xr.DataArray:
+        spatio_temporal = self.spatiotemporal_emission(pol_name, cell_area)
+        for new_pol, pol_fraction in pol_species.items():
+            spatio_temporal[new_pol] = spatio_temporal[pol_name] * pol_fraction
+        return spatio_temporal
+
 
 
 def calculate_emission(number_source, activity_rate, pol_ef):
