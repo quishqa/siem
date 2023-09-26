@@ -1,9 +1,11 @@
+import xarray as xr
 from siem.siem import EmissionSource
 from siem.spatial import read_spatial_proxy
 
 spatial_proxy = read_spatial_proxy("../data/ldv_s3.txt",
                                    ["id", "x", "y", "lon", "pp", "urban"],
                                    proxy="lon")
+wrfinput = xr.open_dataset("../data/wrfinput_d01_3km")
 
 temporal_profile = [0.019, 0.012, 0.008, 0.004, 0.003, 0.003,
                     0.006, 0.017, 0.047, 0.074, 0.072, 0.064,

@@ -72,15 +72,15 @@ class EmissionSource:
 
     def to_wrfchemi(self, voc_species, pm_species, cell_area, wrfinput, pm_name,
                     voc_name):
-        spatio_temporal = self.spatiotemporal_emissions(self.pol_ef.keys(),
+        spatio_temporal = self.spatiotemporal_emission(self.pol_ef.keys(),
                                                         cell_area)
         spatio_temporal = wemi.transform_wrfchemi_units(spatio_temporal,
                                                         self.pol_ef,
                                                         pm_name)
-        speciated_emiss = em.speciate_wrfchemi(spatio_temporal,
-                                               voc_species, pm_species,
-                                               cell_area, wrfinput, voc_name,
-                                               pm_name)
+        speciated_emiss = wemi.speciate_wrfchemi(spatio_temporal,
+                                                 voc_species, pm_species,
+                                                 cell_area, wrfinput, voc_name,
+                                                 pm_name)
 
         return speciated_emiss
 
