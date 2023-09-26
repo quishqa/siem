@@ -10,7 +10,7 @@ def test_spatiotemporal_emission() -> None:
     test_source = EmissionSource("test source",
                                  1_000_000,
                                  1,
-                                 {"NOX": 1},
+                                 {"NOX": (1, 30)},
                                  spatial_proxy,
                                  np.random.normal(1, 0.5, size=24))
     spatio_temp = test_source.spatiotemporal_emission("NOX", 1)
@@ -29,7 +29,7 @@ def test_spatiotemporal_emission_pol_names() -> None:
     test_source = EmissionSource("test source",
                                  1_000_000,
                                  1,
-                                 {"NO": 1, "CO": 0.5},
+                                 {"NO": (1, 30), "CO": (0.5, 28)},
                                  spatial_proxy,
                                  np.random.normal(1, 0.5, size=24))
     spatio_temp = (test_source

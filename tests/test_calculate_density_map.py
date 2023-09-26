@@ -1,4 +1,4 @@
-from siem.siem import calculate_emission
+from siem.emiss import calculate_emission
 from siem.spatial import read_spatial_proxy
 from siem.spatial import calculate_density_map
 from siem.spatial import distribute_spatial_emission

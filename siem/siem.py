@@ -1,8 +1,8 @@
-import numpy as np
-import pandas as pd
 import xarray as xr
 import siem.spatial as spt
 import siem.temporal as temp
+import siem.emiss as em
+import siem.wrfchemi as wemi
 
 
 class EmissionSource:
@@ -17,9 +17,9 @@ class EmissionSource:
         self.temporal_prof = temporal_prof
 
     def total_emission(self, pol_name: str, ktn_year: bool = False):
-        total_emiss = calculate_emission(self.number,
-                                         self.use_intensity,
-                                         self.pol_ef[pol_name])
+        total_emiss = em.calculate_emission(self.number,
+                                            self.use_intensity,
+                                            self.pol_ef[pol_name][0])
         if ktn_year:
             return total_emiss * 365 / 10 ** 9
         return total_emiss
@@ -30,7 +30,7 @@ class EmissionSource:
                                                self.number,
                                                cell_area,
                                                self.use_intensity,
-                                               self.pol_ef[pol_name],
+                                               self.pol_ef[pol_name][0],
                                                pol_name)
 
     def spatiotemporal_emission(self, pol_names: str | list,
@@ -48,15 +48,43 @@ class EmissionSource:
                 }
         return xr.merge(spatio_temporal.values())
 
-
     def speciate_emission(self, pol_name: str, pol_species: dict,
                           cell_area: int | float) -> xr.DataArray:
         spatio_temporal = self.spatiotemporal_emission(pol_name, cell_area)
-        for new_pol, pol_fraction in pol_species.items():
-            spatio_temporal[new_pol] = spatio_temporal[pol_name] * pol_fraction
-        return spatio_temporal
+        speciated_emiss = em.speciate_emission(spatio_temporal,
+                                               pol_name, pol_species,
+                                               cell_area)
+        return speciated_emiss
+
+    def speciate_all(self, voc_species: dict, pm_species: dict,
+                     cell_area: int | float, voc_name: str = "VOC",
+                     pm_name: str = "PM"):
+        spatio_temporal = self.spatiotemporal_emission(self.pol_ef.keys(),
+                                                       cell_area)
+        speciated_emiss = em.speciate_emission(spatio_temporal,
+                                               voc_name, voc_species,
+                                               cell_area)
+        speciated_emiss = em.speciate_emission(speciated_emiss,
+                                               pm_name, pm_species,
+                                               cell_area)
+        return speciated_emiss
+
+
+    def to_wrfchemi(self, voc_species, pm_species, cell_area, wrfinput, pm_name,
+                    voc_name):
+        spatio_temporal = self.spatiotemporal_emissions(self.pol_ef.keys(),
+                                                        cell_area)
+        spatio_temporal = wemi.transform_wrfchemi_units(spatio_temporal,
+                                                        self.pol_ef,
+                                                        pm_name)
+        speciated_emiss = em.speciate_emission(spatio_temporal,
+                                               voc_name, voc_species,
+                                               cell_area)
+        speciated_emiss = em.speciate_emission(speciated_emiss,
+                                               pm_name, pm_species,
+                                               cell_area)
+        return speciated_emiss
 
 
 
-def calculate_emission(number_source, activity_rate, pol_ef):
-    return number_source * activity_rate * pol_ef
+

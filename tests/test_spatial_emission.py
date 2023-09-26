@@ -10,7 +10,7 @@ def test_spatial_emission() -> None:
     test_source = EmissionSource("test source",
                                  1_000_000,
                                  1,
-                                 {"NOX": 1},
+                                 {"NOX": (1, 30)},
                                  spatial_proxy,
                                  [])
 
