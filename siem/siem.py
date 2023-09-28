@@ -7,7 +7,7 @@ import siem.wrfchemi as wemi
 
 class EmissionSource:
     def __init__(self, name: str, number: int | float, use_intensity: float,
-                 pol_ef: dict, spatial_proxy: xr.DataArray, 
+                 pol_ef: dict, spatial_proxy: xr.DataArray,
                  temporal_prof: list):
         self.name = name
         self.number = number
@@ -69,11 +69,13 @@ class EmissionSource:
                                                cell_area)
         return speciated_emiss
 
-
-    def to_wrfchemi(self, voc_species, pm_species, cell_area, wrfinput, pm_name,
-                    voc_name):
+    def to_wrfchemi(self, voc_species: dict, pm_species: dict,
+                    cell_area: int | float, wrfinput: xr.Dataset,
+                    pm_name: str = "PM", voc_name: str = "VOC",
+                    write_netcdf: bool = False, 
+                    path: str= "../results") -> xr.Dataset:
         spatio_temporal = self.spatiotemporal_emission(self.pol_ef.keys(),
-                                                        cell_area)
+                                                       cell_area)
         spatio_temporal = wemi.transform_wrfchemi_units(spatio_temporal,
                                                         self.pol_ef,
                                                         pm_name)
@@ -81,8 +83,12 @@ class EmissionSource:
                                                  voc_species, pm_species,
                                                  cell_area, wrfinput, voc_name,
                                                  pm_name)
+        wrfchemi_netcdf = wemi.prepare_wrfchemi_netcdf(speciated_emiss,
+                                                       wrfinput)
 
-        return speciated_emiss
+        if write_netcdf:
+            wemi.write_wrfchemi_netcdf(wrfchemi_netcdf, path)
+        return wrfchemi_netcdf
 
 
 

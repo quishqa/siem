@@ -1,11 +1,5 @@
-'''
-Functions to create wrfchemi file
-- Change units for gas and pm
-- speciate
-- write attributes for species
-- write global attributes
-- add date and vertical dimension
-'''
+import numpy as np
+import pandas as pd
 import xarray as xr
 from siem.emiss import speciate_emission
 
@@ -50,7 +44,69 @@ def speciate_wrfchemi(spatial_emiss_units: xr.Dataset,
                                            cell_area)
     if add_attr:
         speciated_wrfchemi = add_emission_attributes(speciated_wrfchemi,
-                                                     voc_species, pm_species, pm_name,
+                                                     voc_species, pm_species,
+                                                     pm_name,
                                                      wrfinput)
     return speciated_wrfchemi
+
+
+def create_date_s19(start_date: str, periods: int = 24) -> np.ndarray:
+    date_format = "%Y-%m-%d_%H:%M:%S"
+    date_start = pd.to_datetime(start_date,
+                                format=date_format)
+    dates = pd.date_range(date_start, periods=periods, freq="H")
+    dates_s19 = np.array(
+            dates.strftime(date_format).values,
+            dtype=np.dtype(("S", 19))
+            )
+    return dates_s19
+
+
+def prepare_wrfchemi_netcdf(speciated_wrfchemi: xr.Dataset,
+                            wrfinput: xr.Dataset) -> xr.Dataset:
+    wrfchemi = (speciated_wrfchemi
+                .assign_coords(emissions_zdim=0)
+                .expand_dims("emissions_zdim")
+                .transpose("Time", "emissions_zdim",
+                           "south_north", "west_east"))
+    wrfchemi["Times"] = create_date_s19(wrfinput.START_DATE)
+    wrfchemi["Title"] = "OUTPUT FROM LAPAT PREPROCESSOR"
+
+    for attr_name, attr_value in wrfinput.attrs.items():
+        wrfchemi.attrs[attr_name] = attr_value
+    return wrfchemi
+
+
+def create_wrfchemi_name(wrfchemi: xr.Dataset) -> str | tuple:
+    if len(wrfchemi.Times) != 24:
+        date_start = wrfchemi.DATE_START
+        return f"wrfchemi_d{wrfchemi.GRID_ID}_{date_start}"
+    else:
+        file_name_00z = f"wrfchemi_00z_d{wrfchemi.GRID_ID}"
+        file_name_12z = f"wrfchemi_12z_d{wrfchemi.GRID_ID}"
+        return (file_name_00z, file_name_12z)
+
+
+def write_netcdf(wrfchemi_netcdf: xr.Dataset, file_name: str,
+                 path: str = "../results/") -> None:
+    wrfchemi_netcdf.to_netcdf(f"{path}/{file_name}",
+                              encoding={
+                                  "Times": {"char_dim_name": "DateStrLen"}
+                                  },
+                              unlimited_dims={"Time": True},
+                              format="NETCDF3_64BIT")
+
+
+def write_wrfchemi_netcdf(wrfchemi_netcdf: xr.Dataset,
+                          path: str) -> None:
+    if len(wrfchemi_netcdf.Times) == 24:
+        file_names = create_wrfchemi_name(wrfchemi_netcdf)
+        wrfchemi00z = wrfchemi_netcdf.isel(Time=slice(0, 12))
+        wrfchemi12z = wrfchemi_netcdf.isel(Time=slice(12, 24))
+        write_netcdf(wrfchemi00z, file_names[0], path)
+        write_netcdf(wrfchemi12z, file_names[1], path)
+    else:
+        wrfchemi_netcdf(wrfchemi_netcdf,
+                        create_wrfchemi_name(wrfchemi_netcdf),
+                        path)
 
