@@ -80,10 +80,10 @@ def prepare_wrfchemi_netcdf(speciated_wrfchemi: xr.Dataset,
 def create_wrfchemi_name(wrfchemi: xr.Dataset) -> str | tuple:
     if len(wrfchemi.Times) != 24:
         date_start = wrfchemi.DATE_START
-        return f"wrfchemi_d{wrfchemi.GRID_ID}_{date_start}"
+        return f"wrfchemi_d{wrfchemi.GRID_ID:02}_{date_start}"
     else:
-        file_name_00z = f"wrfchemi_00z_d{wrfchemi.GRID_ID}"
-        file_name_12z = f"wrfchemi_12z_d{wrfchemi.GRID_ID}"
+        file_name_00z = f"wrfchemi_00z_d{wrfchemi.GRID_ID:02}"
+        file_name_12z = f"wrfchemi_12z_d{wrfchemi.GRID_ID:02}"
         return (file_name_00z, file_name_12z)
 
 
