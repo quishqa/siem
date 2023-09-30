@@ -69,7 +69,12 @@ def prepare_wrfchemi_netcdf(speciated_wrfchemi: xr.Dataset,
                 .expand_dims("emissions_zdim")
                 .transpose("Time", "emissions_zdim",
                            "south_north", "west_east"))
-    wrfchemi["Times"] = create_date_s19(wrfinput.START_DATE)
+    wrfchemi["Times"] = xr.DataArray(
+            create_date_s19(wrfinput.START_DATE),
+            dims=["Time"],
+            coords={"Time": wrfchemi.Time.values}
+            )
+
     wrfchemi["Title"] = "OUTPUT FROM LAPAT PREPROCESSOR"
 
     for attr_name, attr_value in wrfinput.attrs.items():
