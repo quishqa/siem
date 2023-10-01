@@ -47,6 +47,10 @@ def speciate_wrfchemi(spatial_emiss_units: xr.Dataset,
                                                      voc_species, pm_species,
                                                      pm_name,
                                                      wrfinput)
+
+    name_dict = {pol: f"E_{pol}" for pol in speciated_wrfchemi.data_vars}
+    speciated_wrfchemi = speciated_wrfchemi.rename(name_dict)
+
     return speciated_wrfchemi
 
 

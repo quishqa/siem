@@ -30,10 +30,10 @@ def test_speciate_wrfchemi() -> None:
                                  9, wrfinput, "VOC", "PM")
 
     assert isinstance(wrfchemi, xr.Dataset)
-    assert wrfchemi.PM.units == "ug m^-2 s^-1"
-    assert wrfchemi.PM25_I.units == "ug m^-2 s^-1"
-    assert wrfchemi.NOX.units == "mol km^-2 hr^-1"
-    assert wrfchemi.HC3.units == "mol km^-2 hr^-1"
+    assert wrfchemi.E_PM.units == "ug m^-2 s^-1"
+    assert wrfchemi.E_PM25_I.units == "ug m^-2 s^-1"
+    assert wrfchemi.E_NOX.units == "mol km^-2 hr^-1"
+    assert wrfchemi.E_HC3.units == "mol km^-2 hr^-1"
 
 
 def test_speciate_wrfchemi_add_attr() -> None:
@@ -59,8 +59,8 @@ def test_speciate_wrfchemi_add_attr() -> None:
     wrfchemi = speciate_wrfchemi(wrfchemi, voc_species, pm_species,
                                  9, wrfinput, "VOC", "PM", add_attr=False)
 
-    assert wrfchemi.PM25_I.attrs == {}
-    assert wrfchemi.NOX.attrs == {}
-    assert wrfchemi.HC3.attrs != "mol km^-2 hr^-1"
-    assert wrfchemi.PM.attrs != "ug m^-2 s^-1"
+    assert wrfchemi.E_PM25_I.attrs == {}
+    assert wrfchemi.E_NOX.attrs == {}
+    assert wrfchemi.E_HC3.attrs != "mol km^-2 hr^-1"
+    assert wrfchemi.E_PM.attrs != "ug m^-2 s^-1"
 
