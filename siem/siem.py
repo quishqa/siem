@@ -91,5 +91,24 @@ class EmissionSource:
         return wrfchemi_netcdf
 
 
+class GroupSources:
+    def __init__(self, sources_list: list[EmissionSource]):
+        self.sources = {source.name: source for source in sources_list}
+
+    def to_wrfchemi(self, voc_species: dict, pm_species: dict,
+                    cell_area: int | float, wrfinput: xr.Dataset,
+                    pm_name: str = "PM", voc_name: str = "VOC",
+                    write_netcdf: bool = False, 
+                    path: str= "../results") -> xr.Dataset:
+        wrfchemis = {source: emiss.to_wrfchemi(voc_species, pm_species,
+                                               cell_area, wrfinput, pm_name,
+                                               voc_name, write_netcdf=False)
+                     for source, emiss in self.sources.items()}
+        return wrfchemis
+        
+
+
+    
+
 
 

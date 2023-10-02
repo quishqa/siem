@@ -1,5 +1,6 @@
 import xarray as xr
 from siem.siem import EmissionSource
+from siem.siem import GroupSources
 from siem.spatial import read_spatial_proxy
 
 spatial_proxy = read_spatial_proxy("../data/ldv_s3.txt",
@@ -14,6 +15,13 @@ temporal_profile = [0.019, 0.012, 0.008, 0.004, 0.003, 0.003,
 
 gasoline_ef = {"CO": (0.173, 28), "VOC": (0.012, 100), "NOX": (0.010, 30),
                "RCHO": (0.0005, 32), "PM": (0.001, 1)}
+
+flex_gasol_ef = {"CO": (0.253, 28), "VOC": (0.019, 100), "NOX": (0.012, 30),
+                 "RCHO": (0.001, 32), "PM": (0.001, 1)}
+
+flex_ethanol_ef = {"CO": (0.338, 28), "VOC": (0.047, 100), "NOX": (0.012, 30),
+                   "RCHO": (0.0067, 32), "PM": (0.000, 1)}
+
 
 gas_voc_exa = {"ETH": 0.282625, "HC3": 0.435206, "HC5": 0.158620,
                "HC8": 0.076538, "OL2": 0.341600, "OLT": 0.143212,
@@ -41,6 +49,23 @@ gasoline_vehicles = EmissionSource("Gasoline vehicles",
                                    spatial_proxy,
                                    temporal_profile)
 
-emiss = gasoline_vehicles.speciate_emission("NOX", {"NO": 0.9, "NO2": 0.1},
-                                            9)
+flex_ethanol_vehicles = EmissionSource("Flex Ethanol vehicles",
+                                       203_893,
+                                       14_744 / 365,
+                                       flex_ethanol_ef,
+                                       spatial_proxy,
+                                       temporal_profile)
 
+flex_gasoline_vehicles = EmissionSource("Flex vehicles",
+                                        7_402_653,
+                                        14_744 / 365,
+                                        flex_gasol_ef,
+                                        spatial_proxy,
+                                        temporal_profile)
+
+gasoline_vehicles.to_wrfchemi(gas_voc_exa, pm_exa, 9, wrfinput, 
+                              write_netcdf=True)
+
+sources = [gasoline_vehicles, flex_ethanol_vehicles, flex_gasoline_vehicles]
+
+all_in_one = GroupSources(sources)
