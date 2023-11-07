@@ -8,6 +8,8 @@ import xarray as xr
 def test_transform_wrfchemi_units() -> None:
     spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
                                        ["id", "x", "y", "a", "b", "urban"])
+    voc_spc = {}
+    pm_spc = {}
     test_source = EmissionSource("test source",
                                  1_000_000,
                                  1,
@@ -15,7 +17,9 @@ def test_transform_wrfchemi_units() -> None:
                                   "PM": (1, 30),
                                   "VOC": (1, 100)},
                                  spatial_proxy,
-                                 np.random.normal(1, 0.5, size=24))
+                                 np.random.normal(1, 0.5, size=24),
+                                 voc_spc,
+                                 pm_spc)
 
     speciated = test_source.spatiotemporal_emission(test_source.pol_ef.keys(),
                                                     9)

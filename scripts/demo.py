@@ -47,24 +47,29 @@ gasoline_vehicles = EmissionSource("Gasoline vehicles",
                                    13_495 / 365,
                                    gasoline_ef,
                                    spatial_proxy,
-                                   temporal_profile)
+                                   temporal_profile,
+                                   gas_voc_exa,
+                                   pm_exa)
 
 flex_ethanol_vehicles = EmissionSource("Flex Ethanol vehicles",
                                        203_893,
                                        14_744 / 365,
                                        flex_ethanol_ef,
                                        spatial_proxy,
-                                       temporal_profile)
+                                       temporal_profile,
+                                       gas_voc_exa,
+                                       pm_exa)
 
 flex_gasoline_vehicles = EmissionSource("Flex vehicles",
                                         7_402_653,
                                         14_744 / 365,
                                         flex_gasol_ef,
                                         spatial_proxy,
-                                        temporal_profile)
-
-gasoline_vehicles.to_wrfchemi(gas_voc_exa, pm_exa, 9, wrfinput, 
-                              write_netcdf=True)
+                                        temporal_profile,
+                                        gas_voc_exa,
+                                        pm_exa)
+cell_area = 9
+gasoline_vehicles.to_wrfchemi(cell_area, wrfinput, write_netcdf=True)
 
 sources = [gasoline_vehicles, flex_ethanol_vehicles, flex_gasoline_vehicles]
 

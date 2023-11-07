@@ -10,6 +10,9 @@ import xarray as xr
 def test_prepare_wrfchemi_netcdf() -> None:
     spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
                                        ["id", "x", "y", "a", "b", "urban"])
+    voc_species = {"HC3": 0.5, "HC5": 0.25, "HC8": 0.25}
+    pm_species = {"PM10": 0.3, "PM25_I": 0.7 * 0.5, "PM25_J": 0.7 * 0.5}
+
     wrfinput = xr.open_dataset("./data/wrfinput_d01")
     test_source = EmissionSource("test source",
                                  1_000_000,
@@ -18,10 +21,9 @@ def test_prepare_wrfchemi_netcdf() -> None:
                                   "PM": (1, 30),
                                   "VOC": (1, 100)},
                                  spatial_proxy,
-                                 np.random.normal(1, 0.5, size=24))
-
-    voc_species = {"HC3": 0.5, "HC5": 0.25, "HC8": 0.25}
-    pm_species = {"PM10": 0.3, "PM25_I": 0.7 * 0.5, "PM25_J": 0.7 * 0.5}
+                                 np.random.normal(1, 0.5, size=24),
+                                 voc_species,
+                                 pm_species)
 
     speciated = test_source.spatiotemporal_emission(test_source.pol_ef.keys(),
                                                     9)

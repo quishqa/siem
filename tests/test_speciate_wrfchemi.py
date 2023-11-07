@@ -9,6 +9,9 @@ import xarray as xr
 def test_speciate_wrfchemi() -> None:
     spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
                                        ["id", "x", "y", "a", "b", "urban"])
+    voc_species = {"HC3": 0.5, "HC5": 0.25, "HC8": 0.25}
+    pm_species = {"PM10": 0.3, "PM25_I": 0.7 * 0.5, "PM25_J": 0.7 * 0.5}
+
     test_source = EmissionSource("test source",
                                  1_000_000,
                                  1,
@@ -16,17 +19,17 @@ def test_speciate_wrfchemi() -> None:
                                   "PM": (1, 30),
                                   "VOC": (1, 100)},
                                  spatial_proxy,
-                                 np.random.normal(1, 0.5, size=24))
-
-    voc_species = {"HC3": 0.5, "HC5": 0.25, "HC8": 0.25}
-    pm_species = {"PM10": 0.3, "PM25_I": 0.7 * 0.5, "PM25_J": 0.7 * 0.5}
+                                 np.random.normal(1, 0.5, size=24),
+                                 voc_species,
+                                 pm_species)
 
     wrfinput = xr.Dataset()
 
     speciated = test_source.spatiotemporal_emission(test_source.pol_ef.keys(),
                                                     9)
     wrfchemi = transform_wrfchemi_units(speciated, test_source.pol_ef)
-    wrfchemi = speciate_wrfchemi(wrfchemi, voc_species, pm_species,
+    wrfchemi = speciate_wrfchemi(wrfchemi, test_source.voc_spc,
+                                 test_source.pm_spc,
                                  9, wrfinput, "VOC", "PM")
 
     assert isinstance(wrfchemi, xr.Dataset)
@@ -39,6 +42,9 @@ def test_speciate_wrfchemi() -> None:
 def test_speciate_wrfchemi_add_attr() -> None:
     spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
                                        ["id", "x", "y", "a", "b", "urban"])
+    voc_species = {"HC3": 0.5, "HC5": 0.25, "HC8": 0.25}
+    pm_species = {"PM10": 0.3, "PM25_I": 0.7 * 0.5, "PM25_J": 0.7 * 0.5}
+
     test_source = EmissionSource("test source",
                                  1_000_000,
                                  1,
@@ -46,21 +52,20 @@ def test_speciate_wrfchemi_add_attr() -> None:
                                   "PM": (1, 30),
                                   "VOC": (1, 100)},
                                  spatial_proxy,
-                                 np.random.normal(1, 0.5, size=24))
-
-    voc_species = {"HC3": 0.5, "HC5": 0.25, "HC8": 0.25}
-    pm_species = {"PM10": 0.3, "PM25_I": 0.7 * 0.5, "PM25_J": 0.7 * 0.5}
+                                 np.random.normal(1, 0.5, size=24),
+                                 voc_species,
+                                 pm_species)
 
     wrfinput = xr.Dataset()
 
     speciated = test_source.spatiotemporal_emission(test_source.pol_ef.keys(),
                                                     9)
     wrfchemi = transform_wrfchemi_units(speciated, test_source.pol_ef)
-    wrfchemi = speciate_wrfchemi(wrfchemi, voc_species, pm_species,
+    wrfchemi = speciate_wrfchemi(wrfchemi, test_source.voc_spc,
+                                 test_source.pm_spc,
                                  9, wrfinput, "VOC", "PM", add_attr=False)
 
     assert wrfchemi.E_PM25_I.attrs == {}
     assert wrfchemi.E_NOX.attrs == {}
     assert wrfchemi.E_HC3.attrs != "mol km^-2 hr^-1"
     assert wrfchemi.E_PM.attrs != "ug m^-2 s^-1"
-

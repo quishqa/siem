@@ -7,7 +7,9 @@ def test_total_emission_default() -> None:
                                   1,
                                   {"NOX": (1., 30)},
                                   [],
-                                  [])
+                                  [],
+                                  {},
+                                  {})
     assert emiss_source.total_emission("NOX") == 1_000_000
 
 
@@ -17,8 +19,11 @@ def test_total_emission_kTn_year() -> None:
                                   1,
                                   {"NOX": (1., 30)},
                                   [],
-                                  [])
-    assert emiss_source.total_emission("NOX", ktn_year=True) == 1_000_000 * 365 / 10 **9 
+                                  [],
+                                  {},
+                                  {})
+    total_kTnYear = 1_000_000 * 365 / 10 ** 9
+    assert emiss_source.total_emission("NOX", ktn_year=True) == total_kTnYear
 
 
 

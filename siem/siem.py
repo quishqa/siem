@@ -8,13 +8,15 @@ import siem.wrfchemi as wemi
 class EmissionSource:
     def __init__(self, name: str, number: int | float, use_intensity: float,
                  pol_ef: dict, spatial_proxy: xr.DataArray,
-                 temporal_prof: list):
+                 temporal_prof: list, voc_spc: dict, pm_spc: dict):
         self.name = name
         self.number = number
         self.use_intensity = use_intensity
         self.pol_ef = pol_ef
         self.spatial_proxy = spatial_proxy
         self.temporal_prof = temporal_prof
+        self.voc_spc = voc_spc
+        self.pm_spc = pm_spc
 
     def total_emission(self, pol_name: str, ktn_year: bool = False):
         total_emiss = em.calculate_emission(self.number,
@@ -56,31 +58,29 @@ class EmissionSource:
                                                cell_area)
         return speciated_emiss
 
-    def speciate_all(self, voc_species: dict, pm_species: dict,
-                     cell_area: int | float, voc_name: str = "VOC",
+    def speciate_all(self, cell_area: int | float, voc_name: str = "VOC",
                      pm_name: str = "PM"):
         spatio_temporal = self.spatiotemporal_emission(self.pol_ef.keys(),
                                                        cell_area)
         speciated_emiss = em.speciate_emission(spatio_temporal,
-                                               voc_name, voc_species,
+                                               voc_name, self.voc_spc,
                                                cell_area)
         speciated_emiss = em.speciate_emission(speciated_emiss,
-                                               pm_name, pm_species,
+                                               pm_name, self.pm_spc,
                                                cell_area)
         return speciated_emiss
 
-    def to_wrfchemi(self, voc_species: dict, pm_species: dict,
-                    cell_area: int | float, wrfinput: xr.Dataset,
+    def to_wrfchemi(self, cell_area: int | float, wrfinput: xr.Dataset,
                     pm_name: str = "PM", voc_name: str = "VOC",
-                    write_netcdf: bool = False, 
-                    path: str= "../results") -> xr.Dataset:
+                    write_netcdf: bool = False,
+                    path: str = "../results") -> xr.Dataset:
         spatio_temporal = self.spatiotemporal_emission(self.pol_ef.keys(),
                                                        cell_area)
         spatio_temporal = wemi.transform_wrfchemi_units(spatio_temporal,
                                                         self.pol_ef,
                                                         pm_name)
         speciated_emiss = wemi.speciate_wrfchemi(spatio_temporal,
-                                                 voc_species, pm_species,
+                                                 self.voc_spc, self.pm_spc,
                                                  cell_area, wrfinput, voc_name,
                                                  pm_name)
         wrfchemi_netcdf = wemi.prepare_wrfchemi_netcdf(speciated_emiss,
@@ -95,20 +95,16 @@ class GroupSources:
     def __init__(self, sources_list: list[EmissionSource]):
         self.sources = {source.name: source for source in sources_list}
 
-    def to_wrfchemi(self, voc_species: dict, pm_species: dict,
-                    cell_area: int | float, wrfinput: xr.Dataset,
+    def names(self):
+        names = list(self.sources.keys())
+        print(names)
+        return names
+
+    def to_wrfchemi(self, cell_area: int | float, wrfinput: xr.Dataset,
                     pm_name: str = "PM", voc_name: str = "VOC",
-                    write_netcdf: bool = False, 
-                    path: str= "../results") -> xr.Dataset:
-        wrfchemis = {source: emiss.to_wrfchemi(voc_species, pm_species,
-                                               cell_area, wrfinput, pm_name,
+                    write_netcdf: bool = False,
+                    path: str = "../results") -> xr.Dataset:
+        wrfchemis = {source: emiss.to_wrfchemi(cell_area, wrfinput, pm_name,
                                                voc_name, write_netcdf=False)
                      for source, emiss in self.sources.items()}
         return wrfchemis
-        
-
-
-    
-
-
-
