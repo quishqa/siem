@@ -79,10 +79,11 @@ def prepare_wrfchemi_netcdf(speciated_wrfchemi: xr.Dataset,
             coords={"Time": wrfchemi.Time.values}
             )
 
-    wrfchemi["Title"] = "OUTPUT FROM LAPAT PREPROCESSOR"
-
     for attr_name, attr_value in wrfinput.attrs.items():
         wrfchemi.attrs[attr_name] = attr_value
+
+    wrfchemi.attrs["TITLE"] = "OUTPUT FROM LAPAT PREPROCESSOR"
+
     return wrfchemi
 
 
