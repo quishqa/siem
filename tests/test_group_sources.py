@@ -5,6 +5,7 @@ from siem.wrfchemi import transform_wrfchemi_units
 from siem.wrfchemi import speciate_wrfchemi
 from siem.wrfchemi import prepare_wrfchemi_netcdf
 import numpy as np
+import netCDF4
 import xarray as xr
 
 
