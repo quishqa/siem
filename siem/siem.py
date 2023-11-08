@@ -1,3 +1,4 @@
+import pandas as pd
 import xarray as xr
 import siem.spatial as spt
 import siem.temporal as temp
@@ -107,4 +108,14 @@ class GroupSources:
         wrfchemis = {source: emiss.to_wrfchemi(cell_area, wrfinput, pm_name,
                                                voc_name, write_netcdf=False)
                      for source, emiss in self.sources.items()}
-        return wrfchemis
+        wrfchemi = xr.concat(wrfchemis.values(),
+                             pd.Index(wrfchemis.keys(), name="source"))
+        if write_netcdf:
+            wrfchemi = wrfchemi.sum(dim="source", keep_attrs=True)
+            wrfchemi["Times"] = xr.DataArray(
+                    wemi.create_date_s19(wrfinput.START_DATE),
+                    dims=["Time"],
+                    coords={"Time": wrfchemi.Time.values}
+                    )
+            wemi.write_wrfchemi_netcdf(wrfchemi, path=path)
+        return wrfchemi

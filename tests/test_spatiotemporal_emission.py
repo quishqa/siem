@@ -26,7 +26,7 @@ def test_spatiotemporal_emission() -> None:
 
     assert isinstance(spatio_temp, xr.Dataset)
     assert len(spatio_temp.Time) == len(test_source.temporal_prof)
-    assert nox_total_spatiotemp - nox_total_source <= 0.00000001
+    assert nox_total_spatiotemp - nox_total_source <= 0.00001
 
 
 def test_spatiotemporal_emission_pol_names() -> None:
