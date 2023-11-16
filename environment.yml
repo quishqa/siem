@@ -1,9 +1,18 @@
-name: siem
+name: sem
 channels:
   - conda-forge
+  - defaults
 dependencies:
   - python=3.10
-  - numpy
+  - bottleneck
   - xarray
+  - netcdf4
+  - dask
   - ipython
-
+  - cartopy
+  - pytest
+  - coverage
+  - numpy
+  - hdbscan
+  - osmnx
+prefix: /home/quishqa/miniconda3/envs/sem
