@@ -1,5 +1,7 @@
 *.egg-info
 __pycache__
 data/wrfinput_*
+data/partial/*
+data/geo_em*
 data/*txt
 results/wrfchemi_*
