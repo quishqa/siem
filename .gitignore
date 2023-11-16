@@ -4,5 +4,5 @@ data/wrfinput_*
 data/partial/*
 data/geo_em*
 data/*txt
-script/cache/*
+scripts/cache/*
 results/wrfchemi_*
