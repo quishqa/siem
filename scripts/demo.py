@@ -3,24 +3,24 @@ from siem.siem import EmissionSource
 from siem.siem import GroupSources
 from siem.spatial import read_spatial_proxy
 
-spatial_proxy = read_spatial_proxy("../data/ldv_s3.txt",
-                                   ["id", "x", "y", "lon", "pp", "urban"],
-                                   proxy="lon")
-wrfinput = xr.open_dataset("../data/wrfinput_d01")
+spatial_proxy = read_spatial_proxy("../data/highways_ldv.csv",
+                                   ["id", "x", "y", "longKm"],
+                                   proxy="longKm")
+wrfinput = xr.open_dataset("../data/wrfinput_d02")
 
 temporal_profile = [0.019, 0.012, 0.008, 0.004, 0.003, 0.003,
                     0.006, 0.017, 0.047, 0.074, 0.072, 0.064,
                     0.055, 0.052, 0.051, 0.048, 0.052, 0.057,
                     0.068, 0.087, 0.085, 0.057, 0.035, 0.034]
 
-gasoline_ef = {"CO": (0.173, 28), "VOC": (0.012, 100), "NOX": (0.010, 30),
-               "RCHO": (0.0005, 32), "PM": (0.001, 1)}
+gasoline_ef = {"CO": (0.173, 28), "VOC": (0.012, 100), "NO": (0.010 * .9, 30),
+               "NO2": (0.010 * .1, 64), "RCHO": (0.0005, 32), "PM": (0.001, 1)}
 
-flex_gasol_ef = {"CO": (0.253, 28), "VOC": (0.019, 100), "NOX": (0.012, 30),
-                 "RCHO": (0.001, 32), "PM": (0.001, 1)}
+flex_gasol_ef = {"CO": (0.253, 28), "VOC": (0.019, 100), "NO": (0.012 * .9, 30),
+                 "NO2": (0.012 * .1, 64), "RCHO": (0.001, 32), "PM": (0.001, 1)}
 
-flex_ethanol_ef = {"CO": (0.338, 28), "VOC": (0.047, 100), "NOX": (0.012, 30),
-                   "RCHO": (0.0067, 32), "PM": (0.000, 1)}
+flex_ethanol_ef = {"CO": (0.338, 28), "VOC": (0.047, 100), "NO": (0.012 * .9, 30),
+                   "NO2": (0.012 * .1, 64), "RCHO": (0.0067, 32), "PM": (0.000, 1)}
 
 
 gas_voc_exa = {"ETH": 0.282625, "HC3": 0.435206, "HC5": 0.158620,
@@ -69,8 +69,9 @@ flex_gasoline_vehicles = EmissionSource("Flex vehicles",
                                         gas_voc_exa,
                                         pm_exa)
 cell_area = 9
-gasoline_vehicles.to_wrfchemi(cell_area, wrfinput, write_netcdf=True)
+# gasoline_vehicles.to_wrfchemi(cell_area, wrfinput, write_netcdf=True)
 
 sources = [gasoline_vehicles, flex_ethanol_vehicles, flex_gasoline_vehicles]
 
 all_in_one = GroupSources(sources)
+all_in_one.to_wrfchemi(cell_area, wrfinput, write_netcdf=True)
