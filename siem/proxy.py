@@ -33,7 +33,7 @@ def download_highways(wrf_path: str, highway_types: str,
                       add_links: bool = False,
                       save: bool = True,
                       save_path: str = "../data/partial",
-                      file_name = "highway"):
+                      file_name: str = "highway"):
 
     north, south, east, west = get_domain_extension(wrf_path)
     custom_filter = get_highway_query(highway_types, add_links)

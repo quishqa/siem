@@ -3,6 +3,7 @@ __pycache__
 data/wrfinput_*
 data/partial/*
 data/geo_em*
+data/*csv
 data/*txt
 scripts/cache/*
 results/wrfchemi_*

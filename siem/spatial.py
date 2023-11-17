@@ -12,8 +12,8 @@ def read_spatial_proxy(proxy_path: str,
                        lat_name: str = "y") -> xr.DataArray:
 
     spatial_proxy = pd.read_csv(proxy_path, names=col_names, sep=sep)
-    lon1d = spatial_proxy[lon_name].unique()
-    lat1d = spatial_proxy[lat_name].unique()
+    lon1d = spatial_proxy[lon_name].round(5).unique()
+    lat1d = spatial_proxy[lat_name].round(5).unique()
 
     lon, lat = np.meshgrid(lon1d, lat1d)
 
