@@ -1,4 +1,4 @@
-name: sem
+name: siem
 channels:
   - conda-forge
   - defaults

@@ -6,6 +6,9 @@ from siem.spatial import read_spatial_proxy
 spatial_proxy = read_spatial_proxy("../data/highways_ldv.csv",
                                    ["id", "x", "y", "longKm"],
                                    proxy="longKm")
+spatial_proxy_point = read_spatial_proxy("../data/points_fuel.csv",
+                                         ["id", "x", "y", "n"],
+                                         proxy="n")
 wrfinput = xr.open_dataset("../data/wrfinput_d02")
 
 temporal_profile = [0.019, 0.012, 0.008, 0.004, 0.003, 0.003,
@@ -68,6 +71,16 @@ flex_gasoline_vehicles = EmissionSource("Flex vehicles",
                                         temporal_profile,
                                         gas_voc_exa,
                                         pm_exa)
+fuel_stations = EmissionSource("Fuel stations",
+                               2_547,
+                               1,
+                               flex_gasol_ef,
+                               spatial_proxy_point,
+                               temporal_profile,
+                               gas_voc_exa,
+                               pm_exa)
+
+
 cell_area = 9
 # gasoline_vehicles.to_wrfchemi(cell_area, wrfinput, write_netcdf=True)
 

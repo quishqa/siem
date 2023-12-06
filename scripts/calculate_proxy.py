@@ -1,5 +1,5 @@
 import geopandas as gpd
-from siem.proxy import (create_wrf_grid, load_osmx_to_gdfs, 
+from siem.proxy import (create_wrf_grid, load_osmx_to_gdfs,
                         calculate_points_grid, calculate_highway_grid)
 
 if __name__ == "__main__":

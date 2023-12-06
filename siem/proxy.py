@@ -113,7 +113,8 @@ def calculate_points_grid(wrf_grid: gpd.GeoDataFrame,
     wrf_grid_ready = configure_grid_spatial(wrf_grid,
                                             proxy)
     proxy_in_grid = gpd.clip(proxy, wrf_grid_ready)
-    # From: https://gis.stackexchange.com/questions/336566/counting-number-of-points-in-each-grid
+    # From:
+    # https://gis.stackexchange.com/questions/336566/counting-number-of-points-in-each-grid
     points_in_grid = gpd.sjoin(proxy_in_grid, wrf_grid_ready,
                                how="left")
     points_in_grid = (points_in_grid
