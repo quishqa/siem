@@ -5,8 +5,7 @@ from siem.siem import GroupSources
 from siem.spatial import read_spatial_proxy
 
 spatial_proxy = read_spatial_proxy("../data/highways_hdv.csv",
-                                   ["id", "x", "y", "longKm"],
-                                   proxy="longKm")
+                                   ["id", "x", "y", "longKm"], proxy="longKm")
 wrfinput = xr.open_dataset("../data/wrfinput_d02")
 
 temporal_profile = [0.019, 0.012, 0.008, 0.004, 0.003, 0.003,
@@ -69,10 +68,28 @@ flex_gasoline_vehicles = EmissionSource("Flex vehicles",
                                         temporal_profile,
                                         gas_voc_exa,
                                         pm_exa)
-cell_area = 1
-# gasoline_vehicles.to_wrfchemi(cell_area, wrfinput, write_netcdf=True)
 
-sources = [gasoline_vehicles, flex_ethanol_vehicles, flex_gasoline_vehicles]
+
+fuel_station_proxy = read_spatial_proxy("../data/highways_ldv.csv",
+                                        ["id", "x", "y", "n"],
+                                        proxy="n")
+temporal_profile_fuel = np.ones(24)
+fuel_station_ef = {"VOC": (0.24, 100), "PM": (0, 1)}
+
+fuel_station = EmissionSource("Fuel stations",
+                              2_547,
+                              1,
+                              fuel_station_ef,
+                              fuel_station_proxy,
+                              temporal_profile_fuel,
+                              gas_voc_exa,
+                              pm_exa)
+
+cell_area = 1
+gasoline_vehicles.to_wrfchemi(cell_area, wrfinput, write_netcdf=True)
+
+sources = [gasoline_vehicles, flex_ethanol_vehicles, flex_gasoline_vehicles,
+           fuel_station]
 
 all_in_one = GroupSources(sources)
-all_in_one.to_wrfchemi(cell_area, wrfinput, write_netcdf=True)
+# all_in_one.to_wrfchemi(cell_area, wrfinput, write_netcdf=True)
