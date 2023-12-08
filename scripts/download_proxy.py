@@ -17,4 +17,4 @@ if __name__ == "__main__":
     print(f"Ending at: {datetime.now()}")
     print(type(SP))
 
-    # fuel = download_point_sources(wrf_path, tags={"amenity": "fuel"})
+    fuel = download_point_sources(wrf_path, tags={"amenity": "fuel"})

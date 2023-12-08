@@ -114,18 +114,18 @@ def calculate_points_grid(wrf_grid: gpd.GeoDataFrame,
                                             proxy)
     proxy_in_grid = gpd.clip(proxy, wrf_grid_ready)
     # From:
-    # https://gis.stackexchange.com/questions/336566/counting-number-of-points-in-each-grid
-    points_in_grid = gpd.sjoin(proxy_in_grid, wrf_grid_ready,
-                               how="left")
-    points_in_grid = (points_in_grid
+    # https://stackoverflow.com/questions/69644523/count-points-in-polygon-and-write-result-to-geodataframe
+    points_in_grid = (wrf_grid_ready
+                      .sjoin(proxy_in_grid)
                       .groupby("ID")
-                      .size()
-                      .reset_index(name="point_src"))
+                      .count()
+                      .geometry
+                      .rename("n_sources"))
     points_in_dom = wrf_grid.join(points_in_grid).fillna(0)
     if to_pre:
         points_in_dom["x"] = points_in_dom.centroid.geometry.x
         points_in_dom["y"] = points_in_dom.centroid.geometry.y
-        points_in_dom[["x", "y", "point_src"]].to_csv(
+        points_in_dom[["x", "y", "n_sources"]].to_csv(
                 f"{save_pre}/points_{file_name}.csv",
                 sep=" ", header=False
                 )
