@@ -5,7 +5,7 @@ from siem.proxy import (create_wrf_grid, load_osmx_to_gdfs,
 if __name__ == "__main__":
     # Creating grid based on geo_em
     wrf_path = "../data/geo_em.d02.nc"
-    hdv_path = "../data/partial/domain_hdv.graphml"
+    hdv_path = "../data/partial/domain_prim.graphml"
 
     hdv = load_osmx_to_gdfs(hdv_path)
     wrf_grid = create_wrf_grid(wrf_path, save=False)
