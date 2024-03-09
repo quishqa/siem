@@ -47,17 +47,14 @@ def test_group_sources() -> None:
                                        voc_species,
                                        pm_species)
 
-    cell_area = 9
-    test1 = test_source_one.to_wrfchemi(cell_area, wrfinput)
+    start, end = "2024-03-01", "2024-03-02"
+    test1 = test_source_one.to_wrfchemi(wrfinput, start, end)
 
     sources_list = [test_source_one, test_source_two, test_source_three]
     sources = GroupSources(sources_list)
-    wrfchemi = sources.to_wrfchemi(cell_area, wrfinput)
+    wrfchemi = sources.to_wrfchemi(wrfinput, start, end)
 
     assert len(wrfchemi.dims) == 5
     assert "source" in wrfchemi.dims
     assert ((test1.E_NOX.sum() * 3).values - wrfchemi.E_NOX.sum(dim="source").sum().values) <= 0.00001
-
-
-
 

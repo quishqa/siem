@@ -74,7 +74,7 @@ def prepare_wrfchemi_netcdf(speciated_wrfchemi: xr.Dataset,
                 .transpose("Time", "emissions_zdim",
                            "south_north", "west_east"))
     wrfchemi["Times"] = xr.DataArray(
-            create_date_s19(wrfinput.START_DATE),
+            create_date_s19(wrfinput.START_DATE, wrfchemi.sizes["Time"]),
             dims=["Time"],
             coords={"Time": wrfchemi.Time.values}
             )
@@ -89,7 +89,7 @@ def prepare_wrfchemi_netcdf(speciated_wrfchemi: xr.Dataset,
 
 def create_wrfchemi_name(wrfchemi: xr.Dataset) -> str | tuple:
     if len(wrfchemi.Times) != 24:
-        date_start = wrfchemi.DATE_START
+        date_start = wrfchemi.START_DATE
         return f"wrfchemi_d{wrfchemi.GRID_ID:02}_{date_start}"
     else:
         file_name_00z = f"wrfchemi_00z_d{wrfchemi.GRID_ID:02}"
@@ -116,7 +116,6 @@ def write_wrfchemi_netcdf(wrfchemi_netcdf: xr.Dataset,
         write_netcdf(wrfchemi00z, file_names[0], path)
         write_netcdf(wrfchemi12z, file_names[1], path)
     else:
-        wrfchemi_netcdf(wrfchemi_netcdf,
-                        create_wrfchemi_name(wrfchemi_netcdf),
-                        path)
-
+        write_netcdf(wrfchemi_netcdf,
+                     create_wrfchemi_name(wrfchemi_netcdf),
+                     path)

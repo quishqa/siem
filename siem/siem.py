@@ -71,12 +71,20 @@ class EmissionSource:
                                                cell_area)
         return speciated_emiss
 
-    def to_wrfchemi(self, cell_area: int | float, wrfinput: xr.Dataset,
+    def to_wrfchemi(self, wrfinput: xr.Dataset,
+                    start_date: str, end_date: str,
+                    week_profile: list[float] = [1],
                     pm_name: str = "PM", voc_name: str = "VOC",
                     write_netcdf: bool = False,
                     path: str = "../results") -> xr.Dataset:
+        cell_area = wrfinput.DX / 1000
         spatio_temporal = self.spatiotemporal_emission(self.pol_ef.keys(),
                                                        cell_area)
+        if len(week_profile) == 7:
+            spatio_temporal = temp.split_by_weekday(spatio_temporal,
+                                                    week_profile,
+                                                    start_date,
+                                                    end_date)
         spatio_temporal = wemi.transform_wrfchemi_units(spatio_temporal,
                                                         self.pol_ef,
                                                         pm_name)
@@ -101,11 +109,14 @@ class GroupSources:
         print(names)
         return names
 
-    def to_wrfchemi(self, cell_area: int | float, wrfinput: xr.Dataset,
+    def to_wrfchemi(self, wrfinput: xr.Dataset,
+                    start_date: str, end_date: str,
+                    week_profile: list[float] = [1],
                     pm_name: str = "PM", voc_name: str = "VOC",
                     write_netcdf: bool = False,
                     path: str = "../results") -> xr.Dataset:
-        wrfchemis = {source: emiss.to_wrfchemi(cell_area, wrfinput, pm_name,
+        wrfchemis = {source: emiss.to_wrfchemi(wrfinput, start_date, end_date,
+                                               week_profile, pm_name,
                                                voc_name, write_netcdf=False)
                      for source, emiss in self.sources.items()}
         wrfchemi = xr.concat(wrfchemis.values(),
@@ -113,7 +124,8 @@ class GroupSources:
         if write_netcdf:
             wrfchemi = wrfchemi.sum(dim="source", keep_attrs=True)
             wrfchemi["Times"] = xr.DataArray(
-                    wemi.create_date_s19(wrfinput.START_DATE),
+                    wemi.create_date_s19(wrfinput.START_DATE,
+                                         wrfchemi.sizes["Time"]),
                     dims=["Time"],
                     coords={"Time": wrfchemi.Time.values}
                     )
