@@ -14,5 +14,6 @@ dependencies:
   - numpy
   - hdbscan
   - osmnx
+  - pip
   - pip:
     - pseudonetcdf==3.1.0
