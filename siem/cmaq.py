@@ -1,3 +1,4 @@
+import typing
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -51,4 +52,15 @@ def create_tflag_variable(date: str, n_var: int) -> xr.DataArray:
     tflag.name = "TFLAG"
     return tflag
 
+
+def to_25hr_profile(temporal_profile: list[float]) -> list[float]:
+    prof_25h = [h for h in temporal_profile]
+    prof_25h.append(prof_25h[0])
+    return prof_25h
+
+
+def spatio_temporal_cmaq(spatial_emission: xr.DataArray,
+                         temporal_profile: list[float]) -> xr.DataArray:
+    profile_25hr = to_25hr_profile(temporal_profile)
+    pass
 

@@ -4,6 +4,7 @@ import siem.spatial as spt
 import siem.temporal as temp
 import siem.emiss as em
 import siem.wrfchemi as wemi
+import siem.cmaq as cmaq
 
 
 class EmissionSource:
@@ -36,8 +37,9 @@ class EmissionSource:
                                                self.pol_ef[pol_name][0],
                                                pol_name)
 
-    def spatiotemporal_emission(self, pol_names: str | list,
-                                cell_area: int | float) -> xr.DataArray:
+    def spatiotemporal_emission(self, pol_names: str | list[str],
+                                cell_area: int | float,
+                                is_cmaq: bool = False) -> xr.DataArray:
         if isinstance(pol_names, str):
             pol_names = [pol_names]
 
@@ -45,24 +47,31 @@ class EmissionSource:
                 pol: self.spatial_emission(pol, cell_area)
                 for pol in pol_names
                 }
+
+        temp_prof = self.temporal_prof
+        if is_cmaq:
+            temp_prof = cmaq.to_25hr_profile(self.temporal_prof)
+
         spatio_temporal = {
-                pol: temp.split_by_time(spatial, self.temporal_prof)
+                pol: temp.split_by_time(spatial, temp_prof)
                 for pol, spatial in spatial_emissions.items()
                 }
         return xr.merge(spatio_temporal.values())
 
     def speciate_emission(self, pol_name: str, pol_species: dict,
-                          cell_area: int | float) -> xr.DataArray:
-        spatio_temporal = self.spatiotemporal_emission(pol_name, cell_area)
+                          cell_area: int | float,
+                          is_cmaq: bool = False) -> xr.DataArray:
+        spatio_temporal = self.spatiotemporal_emission(pol_name,
+                                                       cell_area, is_cmaq)
         speciated_emiss = em.speciate_emission(spatio_temporal,
                                                pol_name, pol_species,
                                                cell_area)
         return speciated_emiss
 
     def speciate_all(self, cell_area: int | float, voc_name: str = "VOC",
-                     pm_name: str = "PM"):
+                     pm_name: str = "PM", is_cmaq: bool = False):
         spatio_temporal = self.spatiotemporal_emission(self.pol_ef.keys(),
-                                                       cell_area)
+                                                       cell_area, is_cmaq)
         speciated_emiss = em.speciate_emission(spatio_temporal,
                                                voc_name, self.voc_spc,
                                                cell_area)
