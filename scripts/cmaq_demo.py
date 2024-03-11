@@ -56,4 +56,5 @@ gasoline_vehicles = EmissionSource("Gasoline vehicles",
 emiss = gasoline_vehicles.speciate_all(1, is_cmaq=True)
 
 emiss_cmaq = prepare_netcdf_cmaq(emiss, "2018-07-01", "../data/GRIDDESC",
+                                 6,
                                  gas_voc_exa, pm_exa)

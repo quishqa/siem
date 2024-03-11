@@ -151,3 +151,25 @@ def prepare_netcdf_cmaq(speciated_cmaq: xr.Dataset, date: str,
     speciated_cmaq.attrs = create_global_attrs(speciated_cmaq,
                                                griddesc_path)
     return speciated_cmaq
+
+
+def create_cmaq_file_name(cmaq_nc: xr.Dataset) -> str:
+    file_date = (cmaq_nc
+                 .TFLAG
+                 .isel(TSTEP=0, VAR=0)
+                 .isel({"DATE-TIME": 0})
+                 .values)
+    return f'emissions_{file_date}.nc'
+
+
+def save_cmaq_file(cmaq_nc: xr.Dataset,
+                   path: str = "../results/") -> None:
+    file_name = f'{path}/{create_cmaq_file_name(cmaq_nc)}'
+    cmaq_nc.to_netcdf(file_name,
+                      unlimited_dims={"TSTEP": True},
+                      format="NETCDF3_CLASSIC")
+
+
+def create_date_range(start_date: str, end_date: str) -> list[str]:
+    date_range = pd.date_range(start_date, end_date, freq="D")
+    return date_range
