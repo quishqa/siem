@@ -1,4 +1,5 @@
 import typing
+import numpy as np
 import pandas as pd
 import xarray as xr
 import siem.spatial as spt
@@ -116,9 +117,13 @@ class EmissionSource:
                 write_netcdf: bool = False,
                 path: str = "../results") -> typing.Dict[str, xr.Dataset]:
         speciated_emiss = self.speciate_all(1, voc_name, pm_name, is_cmaq=True)
+
+        for emi in speciated_emiss.data_vars:
+            speciated_emiss[emi] = speciated_emiss[emi].astype("float32")
+
         days_factor = temp.assign_factor_simulation_days(start_date, end_date,
                                                          week_profile)
-        cmaq_files = {day: cmaq.prepare_netcdf_cmaq(speciated_emiss * fact,
+        cmaq_files = {day: cmaq.prepare_netcdf_cmaq(speciated_emiss * np.float32(fact),
                                                     day, griddesc_path, n_points,
                                                     self.voc_spc, self.pm_spc)
                       for day, fact in zip(days_factor.day, days_factor.frac)}

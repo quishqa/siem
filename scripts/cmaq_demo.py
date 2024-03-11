@@ -54,7 +54,7 @@ gasoline_vehicles = EmissionSource("Gasoline vehicles",
                                    gas_voc_exa,
                                    pm_exa)
 
-date_start, date_end = "2018-07-01", "2018-07-07"
+date_start, date_end = "2018-07-01", "2018-07-01"
 
 cmaq_files = gasoline_vehicles.to_cmaq(wrfinput, "../data/GRIDDESC",
                                        6, date_start, date_end,
