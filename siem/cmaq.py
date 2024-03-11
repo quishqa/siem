@@ -159,7 +159,7 @@ def create_cmaq_file_name(cmaq_nc: xr.Dataset) -> str:
                  .isel(TSTEP=0, VAR=0)
                  .isel({"DATE-TIME": 0})
                  .values)
-    return f'emissions_{file_date}.nc'
+    return f'cmaq_emissions_{file_date}.nc'
 
 
 def save_cmaq_file(cmaq_nc: xr.Dataset,
