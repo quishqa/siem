@@ -170,6 +170,3 @@ def save_cmaq_file(cmaq_nc: xr.Dataset,
                       format="NETCDF3_CLASSIC")
 
 
-def create_date_range(start_date: str, end_date: str) -> list[str]:
-    date_range = pd.date_range(start_date, end_date, freq="D")
-    return date_range

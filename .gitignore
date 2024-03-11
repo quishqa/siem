@@ -7,3 +7,4 @@ data/*csv
 data/*txt
 scripts/cache/*
 results/wrfchemi_*
+results/*nc

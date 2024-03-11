@@ -4,6 +4,7 @@ from siem.siem import EmissionSource
 from siem.siem import GroupSources
 from siem.spatial import read_spatial_proxy
 from siem.cmaq import prepare_netcdf_cmaq
+from siem.temporal import assign_factor_simulation_days
 
 spatial_proxy = read_spatial_proxy("../data/highways_hdv.csv",
                                    ["id", "x", "y", "longKm"], proxy="longKm")
@@ -53,8 +54,14 @@ gasoline_vehicles = EmissionSource("Gasoline vehicles",
                                    gas_voc_exa,
                                    pm_exa)
 
-emiss = gasoline_vehicles.speciate_all(1, is_cmaq=True)
+date_start, date_end = "2018-07-01", "2018-07-07"
 
-emiss_cmaq = prepare_netcdf_cmaq(emiss, "2018-07-01", "../data/GRIDDESC",
-                                 6,
-                                 gas_voc_exa, pm_exa)
+cmaq_files = gasoline_vehicles.to_cmaq(wrfinput, "../data/GRIDDESC",
+                                       6, date_start, date_end,
+                                       week_profile, write_netcdf=True)
+
+# emiss_cmaq = prepare_netcdf_cmaq(emiss, "2018-07-01", "../data/GRIDDESC",
+#                                  6,
+#                                  gas_voc_exa, pm_exa)
+#
+

@@ -1,3 +1,4 @@
+import typing
 import pandas as pd
 import xarray as xr
 import siem.spatial as spt
@@ -107,6 +108,24 @@ class EmissionSource:
         if write_netcdf:
             wemi.write_wrfchemi_netcdf(wrfchemi_netcdf, path)
         return wrfchemi_netcdf
+
+    def to_cmaq(self, wrfinput: xr.Dataset, griddesc_path: str,
+                n_points: int, start_date: str, end_date: str,
+                week_profile: list[float] = [1],
+                pm_name: str = "PM", voc_name: str = "VOC",
+                write_netcdf: bool = False,
+                path: str = "../results") -> typing.Dict[str, xr.Dataset]:
+        speciated_emiss = self.speciate_all(1, voc_name, pm_name, is_cmaq=True)
+        days_factor = temp.assign_factor_simulation_days(start_date, end_date,
+                                                         week_profile)
+        cmaq_files = {day: cmaq.prepare_netcdf_cmaq(speciated_emiss * fact,
+                                                    day, griddesc_path, n_points,
+                                                    self.voc_spc, self.pm_spc)
+                      for day, fact in zip(days_factor.day, days_factor.frac)}
+        if write_netcdf:
+            for cmaq_nc in cmaq_files.values():
+                cmaq.save_cmaq_file(cmaq_nc, path)
+        return cmaq_files
 
 
 class GroupSources:
