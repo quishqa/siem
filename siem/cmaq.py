@@ -170,3 +170,30 @@ def save_cmaq_file(cmaq_nc: xr.Dataset,
                       format="NETCDF3_CLASSIC")
 
 
+def merge_cmaq_source_emiss(cmaq_sources_day: typing.Dict) -> xr.Dataset:
+    add_day_dimension = {source: xr.concat(emiss.values(),
+                                           pd.Index(emiss.keys(), name="day"))
+                         for source, emiss in cmaq_sources_day.items()}
+    day_source_dimension = xr.concat(add_day_dimension.values(),
+                                     pd.Index(add_day_dimension.keys(),
+                                              name="source"))
+    return day_source_dimension
+
+
+def sum_cmaq_sources(day_source_dimension: xr.Dataset
+                     ) -> typing.Dict[str, xr.Dataset]:
+    sum_sources = day_source_dimension.sum(dim="source", 
+                                           keep_attrs=True)
+    sum_sources_by_day = {day: sum_sources.sel(day=day)
+                          for day in sum_sources.day.values}
+    return sum_sources_by_day
+
+
+def update_tflag_sources(sum_sources_by_day: xr.Dataset
+                         ) -> typing.Dict[str, xr.Dataset]:
+    for day, sum_source in sum_sources_by_day.items():
+        sum_source["TFLAG"] = create_tflag_variable(day,
+                                                    sum_source.sizes["VAR"])
+    sum_sources_by_day = {day: sum_source.drop_dims(["string10"])
+                          for day, sum_source in sum_sources_by_day.items()}
+    return sum_sources_by_day

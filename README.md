@@ -1,6 +1,7 @@
-# siem: SImplied Emission model
+# siem: SImplied Emission Model
 
-A simplified emission model for WRF-Chem
+This is the SImplified Emission Model. It is a python package to create emission
+file for [WRF-Chem](https://www2.acom.ucar.edu/wrf-chem) and [CMAQ](https://www.epa.gov/cmaq) air quality models.
 
 
 ## Installation

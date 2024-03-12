@@ -164,3 +164,22 @@ class GroupSources:
                     )
             wemi.write_wrfchemi_netcdf(wrfchemi, path=path)
         return wrfchemi
+
+    def to_cmaq(self, wrfinput: xr.Dataset, griddesc_path: str,
+                n_points: int, start_date: str, end_date: str,
+                week_profile: list[float] = [1],
+                pm_name: str = "PM", voc_name: str = "VOC",
+                write_netcdf: bool = False,
+                path: str = "../results") -> typing.Dict[str, dict]:
+        cmaq_files = {source: emiss.to_cmaq(wrfinput, griddesc_path,
+                                            n_points, start_date, end_date,
+                                            week_profile, pm_name, voc_name)
+                      for source, emiss in self.sources.items()}
+        cmaq_source_day = cmaq.merge_cmaq_source_emiss(cmaq_files)
+        sum_sources = cmaq.sum_cmaq_sources(cmaq_source_day)
+        cmaq_sum_by_day = cmaq.update_tflag_sources(sum_sources)
+
+        if write_netcdf:
+            for cmaq_nc in cmaq_sum_by_day.values():
+                cmaq.save_cmaq_file(cmaq_nc, path)
+        return cmaq_sum_by_day

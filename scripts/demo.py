@@ -14,14 +14,17 @@ temporal_profile = [0.019, 0.012, 0.008, 0.004, 0.003, 0.003,
                     0.068, 0.087, 0.085, 0.057, 0.035, 0.034]
 week_profile = [1.02, 1.01, 1.02, 1.03, 1.03, 0.99, 0.9]
 
-gasoline_ef = {"CO": (0.173, 28), "VOC": (0.012, 100), "NO": (0.010 * .9, 30),
-               "NO2": (0.010 * .1, 64), "RCHO": (0.0005, 32), "PM": (0.001, 1)}
+gasoline_ef = {"CO": (0.173, 28), "VOC": (0.012, 100),
+               "NO": (0.010 * .9, 30), "NO2": (0.010 * .1, 64),
+               "RCHO": (0.0005, 32), "PM": (0.001, 1)}
 
-flex_gasol_ef = {"CO": (0.253, 28), "VOC": (0.019, 100), "NO": (0.012 * .9, 30),
-                 "NO2": (0.012 * .1, 64), "RCHO": (0.001, 32), "PM": (0.001, 1)}
+flex_gasol_ef = {"CO": (0.253, 28), "VOC": (0.019, 100),
+                 "NO": (0.012 * .9, 30), "NO2": (0.012 * .1, 64),
+                 "RCHO": (0.001, 32), "PM": (0.001, 1)}
 
-flex_ethanol_ef = {"CO": (0.338, 28), "VOC": (0.047, 100), "NO": (0.012 * .9, 30),
-                   "NO2": (0.012 * .1, 64), "RCHO": (0.0067, 32), "PM": (0.000, 1)}
+flex_ethanol_ef = {"CO": (0.338, 28), "VOC": (0.047, 100),
+                   "NO": (0.012 * .9, 30), "NO2": (0.012 * .1, 64),
+                   "RCHO": (0.0067, 32), "PM": (0.000, 1)}
 
 
 gas_voc_exa = {"ETH": 0.282625, "HC3": 0.435206, "HC5": 0.158620,
@@ -70,27 +73,12 @@ flex_gasoline_vehicles = EmissionSource("Flex vehicles",
                                         gas_voc_exa,
                                         pm_exa)
 
+# Writting one emission
+# wrfchemi = gasoline_vehicles.to_wrfchemi(wrfinput, "2024-03-08", "2024-03-10",
+#                                          write_netcdf=True)
 
-fuel_station_proxy = read_spatial_proxy("../data/highways_ldv.csv",
-                                        ["id", "x", "y", "n"],
-                                        proxy="n")
-temporal_profile_fuel = np.ones(24)
-fuel_station_ef = {"VOC": (0.24, 100), "PM": (0, 1)}
-
-fuel_station = EmissionSource("Fuel stations",
-                              2_547,
-                              1,
-                              fuel_station_ef,
-                              fuel_station_proxy,
-                              temporal_profile_fuel,
-                              gas_voc_exa,
-                              pm_exa)
-
-wrfchemi = gasoline_vehicles.to_wrfchemi(wrfinput, "2024-03-08", "2024-03-10",
-                                         week_profile, write_netcdf=True)
-
-sources = [gasoline_vehicles, flex_ethanol_vehicles, flex_gasoline_vehicles,
-           fuel_station]
+# Writting multiple Emissions
+sources = [gasoline_vehicles, flex_ethanol_vehicles, flex_gasoline_vehicles]
 
 all_in_one = GroupSources(sources)
-# all_in_one.to_wrfchemi(cell_area, wrfinput, write_netcdf=True)
+all_in_one.to_wrfchemi(wrfinput, "2024-03-08", "2024-03-10", write_netcdf=True)
