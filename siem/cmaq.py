@@ -194,6 +194,4 @@ def update_tflag_sources(sum_sources_by_day: xr.Dataset
     for day, sum_source in sum_sources_by_day.items():
         sum_source["TFLAG"] = create_tflag_variable(day,
                                                     sum_source.sizes["VAR"])
-    sum_sources_by_day = {day: sum_source.drop_dims(["string10"])
-                          for day, sum_source in sum_sources_by_day.items()}
     return sum_sources_by_day
