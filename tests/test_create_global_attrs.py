@@ -1,4 +1,4 @@
-import xarray as xr
+import os
 import numpy as np
 from siem.siem import EmissionSource
 from siem.spatial import read_spatial_proxy
@@ -38,6 +38,8 @@ def test_create_global_attrs() -> None:
                                           pm_name="PM", voc_name="VOC")
 
     global_attrs = create_global_attrs(speciated_attrs, "GRIDDESC")
+
+    os.remove("GRIDDESC")
 
     assert isinstance(global_attrs, dict)
     assert len(global_attrs.keys()) == 33

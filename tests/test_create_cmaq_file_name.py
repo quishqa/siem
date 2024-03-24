@@ -1,4 +1,4 @@
-import xarray as xr
+import os
 import numpy as np
 from siem.siem import EmissionSource
 from siem.spatial import read_spatial_proxy
@@ -40,5 +40,7 @@ def test_create_cmaq_file_name() -> None:
                                           pm_species,
                                           pm_name="PM", voc_name="VOC")
     file_name = create_cmaq_file_name(speciated_attrs)
+
+    os.remove("GRIDDESC")
 
     assert file_name == "cmaq_emissions_2018182.nc"
