@@ -41,4 +41,4 @@ def test_create_cmaq_file_name() -> None:
                                           pm_name="PM", voc_name="VOC")
     file_name = create_cmaq_file_name(speciated_attrs)
 
-    assert file_name == "emissions_2018182.nc"
+    assert file_name == "cmaq_emissions_2018182.nc"
