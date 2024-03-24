@@ -1,3 +1,4 @@
+import os
 import xarray as xr
 import numpy as np
 from siem.siem import EmissionSource
@@ -38,6 +39,7 @@ def test_add_cmaq_emission_attrs() -> None:
                                           voc_species,
                                           pm_species,
                                           pm_name="PM", voc_name="VOC")
+    os.remove("GRIDDESC")
 
     assert isinstance(speciated_attrs, xr.Dataset)
     assert "TSTEP" in speciated_attrs.dims
