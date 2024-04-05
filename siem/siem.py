@@ -7,6 +7,7 @@ import siem.temporal as temp
 import siem.emiss as em
 import siem.wrfchemi as wemi
 import siem.cmaq as cmaq
+import siem.point as pt
 
 
 class EmissionSource:
@@ -131,6 +132,21 @@ class EmissionSource:
             for cmaq_nc in cmaq_files.values():
                 cmaq.save_cmaq_file(cmaq_nc, path)
         return cmaq_files
+
+
+class PointSources:
+    def __init__(self, name: str, point_path: str, sep: str, geo_path: str,
+                 lat_name: str, lon_name: str, pol_emiss: dict,
+                 temporal_prof: list[float], voc_spc: dict, pm_spc: dict):
+        self.name = name
+        self.spatial_emission = pt.point_sources_to_dataset(
+                point_path, geo_path, sep, lat_name, lon_name)
+        self.temporal_porf = temporal_prof
+        self.voc_spc = voc_spc
+        self.pm_spc = pm_spc
+
+    def to_wrfchemi():
+        pass
 
 
 class GroupSources:

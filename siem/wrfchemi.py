@@ -1,17 +1,31 @@
 import numpy as np
 import pandas as pd
 import xarray as xr
-from siem.emiss import speciate_emission
+from siem.emiss import (speciate_emission, ktn_year_to_mol_hr,
+                        ktn_year_to_ug_seg)
 
 
 def transform_wrfchemi_units(spatial_emiss: xr.DataArray,
                              pol_ef_mw: dict,
                              pm_name: str = "PM") -> xr.Dataset:
     for pol_name, pol_mw in pol_ef_mw.items():
-        spatial_emiss[pol_name] = spatial_emiss[pol_name] / pol_mw[1]
         if pol_name == pm_name:
             spatial_emiss[pm_name] = spatial_emiss[pm_name] / 3600
+        spatial_emiss[pol_name] = spatial_emiss[pol_name] / pol_mw[1]
     return spatial_emiss
+
+def transform_wrfchemi_units_point(spatial_emiss: xr.Dataset,
+                                   pols_mw: dict,
+                                   cell_area: int | float,
+                                   pm_name: str = "PM") -> xr.Dataset:
+    emiss_units = spatial_emiss.copy()
+    for pol_name, pol_mw in pols_mw.items():
+        if pol_name == pm_name:
+            emiss_units[pol_name] = ktn_year_to_ug_seg(
+                    emiss_units[pol_name]) / cell_area
+        emiss_units[pol_name] = ktn_year_to_mol_hr(emiss_units[pol_name],
+                                                   pol_mw) / cell_area
+    return emiss_units
 
 def add_emission_attributes(speciated_wrfchemi: xr.Dataset, 
                             voc_species: dict,

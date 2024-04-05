@@ -2,6 +2,7 @@ import pandas as pd
 import geopandas as gpd
 import xarray as xr
 from netCDF4 import Dataset
+from siem.proxy import create_wrf_grid, configure_grid_spatial
 from wrf import getvar, get_cartopy
 
 
@@ -50,3 +51,16 @@ def calculate_centroid(emiss_point: gpd.GeoDataFrame,
 def point_emiss_to_xarray(emiss_point_proj: pd.DataFrame) -> xr.Dataset:
     emiss_point_proj.set_index(["y", "x"], inplace=True)
     return emiss_point_proj.to_xarray()
+
+
+def point_sources_to_dataset(point_path:str, geo_path: str, sep: str = "\t",
+                             lat_name: str = "LAT", lon_name: str = "LON"
+                             ) -> xr.Dataset:
+    point_sources = create_gpd_from(point_path, sep, lat_name, lon_name)
+    wrf_grid = create_wrf_grid(geo_path, save=False)
+    wrf_grid = configure_grid_spatial(wrf_grid, point_sources)
+
+    emiss_in_grid = create_emiss_point(point_sources, wrf_grid)
+    emiss_in_grid = calculate_centroid(emiss_in_grid, geo_path)
+    return point_emiss_to_xarray(emiss_in_grid)
+
