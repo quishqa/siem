@@ -89,7 +89,7 @@ class EmissionSource:
                     pm_name: str = "PM", voc_name: str = "VOC",
                     write_netcdf: bool = False,
                     path: str = "../results") -> xr.Dataset:
-        cell_area = wrfinput.DX / 1000
+        cell_area = (wrfinput.DX / 1000) ** 2
         spatio_temporal = self.spatiotemporal_emission(self.pol_ef.keys(),
                                                        cell_area)
         if len(week_profile) == 7:
@@ -117,7 +117,12 @@ class EmissionSource:
                 pm_name: str = "PM", voc_name: str = "VOC",
                 write_netcdf: bool = False,
                 path: str = "../results") -> typing.Dict[str, xr.Dataset]:
-        speciated_emiss = self.speciate_all(1, voc_name, pm_name, is_cmaq=True)
+        cell_area = wrfinput.DX / 1000
+        spatio_temporal = self.spatiotemporal_emission(self.pol_ef.keys(),
+                                                       cell_area, is_cmaq=True)
+        # Units
+        # Speciation
+        # speciated_emiss = self.speciate_all(1, voc_name, pm_name, is_cmaq=True)
 
         for emi in speciated_emiss.data_vars:
             speciated_emiss[emi] = speciated_emiss[emi].astype("float32")
