@@ -4,6 +4,7 @@ import pandas as pd
 import xarray as xr
 import PseudoNetCDF as pnc
 import datetime as dt
+from siem.emiss import speciate_emission
 
 
 def calculate_julian(date: pd.Timestamp) -> int:
@@ -57,6 +58,29 @@ def to_25hr_profile(temporal_profile: list[float]) -> list[float]:
     prof_25h = [h for h in temporal_profile]
     prof_25h.append(prof_25h[0])
     return prof_25h
+
+
+def transform_cmaq_units(spatial_emiss: xr.DataArray,
+                         pol_ef_mw: dict, cell_area: float,
+                         pm_name: str = "PM") -> xr.Dataset:
+    for pol_name, pol_mw in pol_ef_mw.items():
+        if pol_name == pm_name:
+            spatial_emiss[pm_name] = spatial_emiss[pm_name] * cell_area / 3600
+        spatial_emiss[pol_name] = (spatial_emiss[pol_name] *
+                                   cell_area / pol_mw[1] / 3600)
+    return spatial_emiss
+
+
+def speciate_cmaq(spatial_emiss_units: xr.Dataset,
+                  voc_species: dict, pm_species: dict, cell_area: float,
+                  voc_name: str = "VOC", pm_name: str = "PM") -> xr.Dataset:
+    speciated_cmaq = speciate_emission(spatial_emiss_units,
+                                       voc_name, voc_species,
+                                       cell_area)
+    speciated_cmaq = speciate_emission(speciated_cmaq, pm_name, 
+                                        pm_species, cell_area)
+    return speciated_cmaq
+
 
 
 def add_cmaq_emission_attrs(speciated_cmaq: xr.Dataset,

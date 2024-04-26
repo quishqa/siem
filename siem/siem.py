@@ -117,12 +117,15 @@ class EmissionSource:
                 pm_name: str = "PM", voc_name: str = "VOC",
                 write_netcdf: bool = False,
                 path: str = "../results") -> typing.Dict[str, xr.Dataset]:
-        cell_area = wrfinput.DX / 1000
+        cell_area = (wrfinput.DX / 1000) ** 2
         spatio_temporal = self.spatiotemporal_emission(self.pol_ef.keys(),
                                                        cell_area, is_cmaq=True)
-        # Units
-        # Speciation
-        # speciated_emiss = self.speciate_all(1, voc_name, pm_name, is_cmaq=True)
+        spatio_temporal_units = cmaq.transform_cmaq_units(spatio_temporal,
+                                                          self.pol_ef,
+                                                          cell_area)
+        speciated_emiss = cmaq.speciate_cmaq(spatio_temporal_units,
+                                             self.voc_spc, self.pm_spc,
+                                             cell_area)
 
         for emi in speciated_emiss.data_vars:
             speciated_emiss[emi] = speciated_emiss[emi].astype("float32")

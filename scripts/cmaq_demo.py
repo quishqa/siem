@@ -75,14 +75,14 @@ flex_gasoline_vehicles = EmissionSource("Flex vehicles",
 
 date_start, date_end = "2018-07-01", "2018-07-03"
 
-# cmaq_files = gasoline_vehicles.to_cmaq(wrfinput, "../data/GRIDDESC",
-#                                        6, date_start, date_end,
-#                                        week_profile, write_netcdf=False)
-sources = [gasoline_vehicles, flex_ethanol_vehicles, flex_gasoline_vehicles]
-
-all_in_one = GroupSources(sources)
-
-
-griddesc_path = "../data/GRIDDESC"
-emiss_source = all_in_one.to_cmaq(wrfinput, griddesc_path, 6, date_start, date_end, week_profile,
-                                  write_netcdf=True) 
+cmaq_files = gasoline_vehicles.to_cmaq(wrfinput, "../data/GRIDDESC",
+                                       6, date_start, date_end,
+                                       week_profile, write_netcdf=True)
+# sources = [gasoline_vehicles, flex_ethanol_vehicles, flex_gasoline_vehicles]
+#
+# all_in_one = GroupSources(sources)
+#
+#
+# griddesc_path = "../data/GRIDDESC"
+# emiss_source = all_in_one.to_cmaq(wrfinput, griddesc_path, 6, date_start, date_end, week_profile,
+#                                   write_netcdf=True)
