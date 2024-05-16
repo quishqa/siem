@@ -53,7 +53,7 @@ def point_emiss_to_xarray(emiss_point_proj: pd.DataFrame) -> xr.Dataset:
     return emiss_point_proj.to_xarray()
 
 
-def point_sources_to_dataset(point_path:str, geo_path: str, sep: str = "\t",
+def point_sources_to_dataset(point_path: str, geo_path: str, sep: str = "\t",
                              lat_name: str = "LAT", lon_name: str = "LON"
                              ) -> xr.Dataset:
     point_sources = create_gpd_from(point_path, sep, lat_name, lon_name)

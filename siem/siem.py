@@ -149,11 +149,31 @@ class PointSources:
         self.name = name
         self.spatial_emission = pt.point_sources_to_dataset(
                 point_path, geo_path, sep, lat_name, lon_name)
-        self.temporal_porf = temporal_prof
+        self.pol_emiss = pol_emiss
+        self.temporal_prof = temporal_prof
         self.voc_spc = voc_spc
         self.pm_spc = pm_spc
 
-    def to_wrfchemi():
+
+    def to_wrfchemi(self, wrfinput: xr.Dataset,
+                    write_netcdf: bool = False,
+                    path: str = "../results/"
+                    ) -> xr.Dataset:
+        cell_area = (wrfinput.DX / 1000) ** 2
+        point = self.spatial_emission
+        point_spc = wemi.transform_wrfchemi_units_point(point, self.pol_emiss,
+                                                        cell_area)
+        point_spc_time = wemi.split_by_time_from(point_spc, self.temporal_prof)
+        point_speciated = wemi.speciate_wrfchemi(point_spc_time, self.voc_spc,
+                                                 self.pm_spc, cell_area,
+                                                 wrfinput)
+        point_speciated = point_speciated({"x": "west_east",
+                                           "y": "south_north"})
+        if write_netcdf:
+            wemi.write_wrfchemi_netcdf(point_speciated, path)
+        return point_speciated
+
+    def to_cmaq():
         pass
 
 

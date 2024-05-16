@@ -55,3 +55,6 @@ if __name__ == "__main__":
     point_spc_time = tt.split_by_time_from(point_spc, temporal_profile)
     point_speciated = wc.speciate_wrfchemi(point_spc_time, voc_spc, pm_spc,
                                            1, wrfinput)
+    point_speciated = point_speciated.rename({"x": "west_east", "y": "south_north"})
+    wrfchemi_netcdf = wc.prepare_wrfchemi_netcdf(point_speciated, wrfinput)
+
