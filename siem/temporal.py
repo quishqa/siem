@@ -12,6 +12,7 @@ def split_by_time(spatial_emiss: xr.DataArray,
             )
     return emiss_time
 
+
 def split_by_time_from(spatial_sources: xr.Dataset,
                        temporal_profile: list[float]) -> xr.Dataset:
     spatial = spatial_sources.copy()
