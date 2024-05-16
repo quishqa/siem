@@ -15,6 +15,8 @@ def create_gpd_from(point_src_path: str, sep: str = "\t",
             geometry=gpd.points_from_xy(point_sources[lon_name],
                                         point_sources[lat_name]),
             crs="EPSG:4326")
+    if "Unnamed: 0" in point_sources.columns:
+        return point_sources.drop(["Unnamed: 0", lat_name, lon_name], axis=1)
     return point_sources.drop([lat_name, lon_name], axis=1)
 
 
