@@ -154,6 +154,11 @@ class PointSources:
         self.voc_spc = voc_spc
         self.pm_spc = pm_spc
 
+    def total_emission(self, pol_name: str) -> float:
+        if pol_name in self.pol_emiss.keys():
+            return self.spatial_emission[pol_name].sum()
+        else:
+            print(f"{pol_name} not include in data")
 
     def to_wrfchemi(self, wrfinput: xr.Dataset,
                     write_netcdf: bool = False,
