@@ -49,21 +49,30 @@ if __name__ == "__main__":
     temporal_profile = np.random.random(24)
     print(len(temporal_profile))
 
-    # my_spc = PointSources(name="test source",
-    #                       point_path=emiss_path,
-    #                       sep="\t",
-    #                       geo_path=geogrid_path,
-    #                       lat_name="LAT", lon_name="LON",
-    #                       pol_emiss=pol_spc,
-    #                       temporal_prof=temporal_profile,
-    #                       voc_spc=voc_spc,
-    #                       pm_spc=pm_spc)
+    my_spc = PointSources(name="test source",
+                          point_path=emiss_path,
+                          sep="\t",
+                          geo_path=geogrid_path,
+                          lat_name="LAT", lon_name="LON",
+                          pol_emiss=pol_spc,
+                          temporal_prof=temporal_profile,
+                          voc_spc=voc_spc,
+                          pm_spc=pm_spc)
+
+    week_profile = np.random.rand(7)
+    # a = my_spc.to_wrfchemi(wrfinput, "2024-05-10", "2024-05-15",
+    #                        write_netcdf=True, week_profile=week_profile)
+    # point = pt.point_sources_to_dataset(emiss_path, geogrid_path,
+    #                                     "\t", "LAT", "LON")
+    #
+    # point_spc = wc.transform_wrfchemi_units_point(point, pol_spc, 1)
+    # point_spc_time = tt.split_by_time_from(point_spc, temporal_profile)
+    # week_profile = np.random.rand(7)
+    #
+    # point_speciated = wc.speciate_wrfchemi(point_spc_time, voc_spc, pm_spc,
+    #                                        1, wrfinput)
+    # point_speciated = point_speciated.rename({"x": "west_east", "y": "south_north"})
+    # wrfchemi_netcdf = wc.prepare_wrfchemi_netcdf(point_speciated, wrfinput)
     point = pt.point_sources_to_dataset(emiss_path, geogrid_path,
                                         "\t", "LAT", "LON")
-
-    point_spc = wc.transform_wrfchemi_units_point(point, pol_spc, 1)
-    point_spc_time = tt.split_by_time_from(point_spc, temporal_profile)
-    point_speciated = wc.speciate_wrfchemi(point_spc_time, voc_spc, pm_spc,
-                                           1, wrfinput)
-    point_speciated = point_speciated.rename({"x": "west_east", "y": "south_north"})
-    wrfchemi_netcdf = wc.prepare_wrfchemi_netcdf(point_speciated, wrfinput)
+ 

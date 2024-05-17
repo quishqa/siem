@@ -24,3 +24,14 @@ def ktn_year_to_mol_hr(spatial_emiss: xr.DataArray,
 def ktn_year_to_ug_seg(spatial_emiss: xr.DataArray) -> xr.DataArray:
     convert_factor = 1000 * 1000 * 10 ** 6 / (365 * 24 * 3600)
     return spatial_emiss * convert_factor
+
+
+def ktn_year_to_mol_seg(spatial_emiss: xr.DataArray,
+                        pol_mw: float) -> xr.DataArray:
+    convert_factor = 1000 * 1000 * 1000 / (365 * 24 * 3600 * pol_mw)
+    return spatial_emiss * convert_factor
+
+
+def ktn_year_to_g_seg(spatial_emiss: xr.DataArray) -> xr.DataArray:
+    convert_factor = 1000 * 1000 * 1000 / (365 * 24 * 3600)
+    return spatial_emiss * convert_factor

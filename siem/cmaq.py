@@ -4,7 +4,8 @@ import pandas as pd
 import xarray as xr
 import PseudoNetCDF as pnc
 import datetime as dt
-from siem.emiss import speciate_emission
+from siem.emiss import (speciate_emission, ktn_year_to_g_seg,
+                        ktn_year_to_mol_seg)
 
 
 def calculate_julian(date: pd.Timestamp) -> int:
@@ -71,13 +72,24 @@ def transform_cmaq_units(spatial_emiss: xr.DataArray,
     return spatial_emiss
 
 
+def transform_cmaq_units_point(spatial_emiss: xr.Dataset, pol_mw: dict,
+                               pm_name: str = "PM") -> xr.Dataset:
+    emiss_units = spatial_emiss.copy()
+    for pol_name, pol_mw in pol_mw.items():
+        if pol_name == pm_name:
+            emiss_units[pol_name] = ktn_year_to_g_seg(emiss_units[pol_name])
+        emiss_units[pol_name] = ktn_year_to_mol_seg(emiss_units[pol_name],
+                                                    pol_mw)
+    return emiss_units
+
+
 def speciate_cmaq(spatial_emiss_units: xr.Dataset,
                   voc_species: dict, pm_species: dict, cell_area: float,
                   voc_name: str = "VOC", pm_name: str = "PM") -> xr.Dataset:
     speciated_cmaq = speciate_emission(spatial_emiss_units,
                                        voc_name, voc_species,
                                        cell_area)
-    speciated_cmaq = speciate_emission(speciated_cmaq, pm_name, 
+    speciated_cmaq = speciate_emission(speciated_cmaq, pm_name,
                                         pm_species, cell_area)
     return speciated_cmaq
 

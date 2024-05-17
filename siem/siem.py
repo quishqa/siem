@@ -161,6 +161,8 @@ class PointSources:
             print(f"{pol_name} not include in data")
 
     def to_wrfchemi(self, wrfinput: xr.Dataset,
+                    start_date: str, end_date: str,
+                    week_profile: list[float] = [1],
                     write_netcdf: bool = False,
                     path: str = "../results/"
                     ) -> xr.Dataset:
@@ -169,6 +171,11 @@ class PointSources:
         point_spc = wemi.transform_wrfchemi_units_point(point, self.pol_emiss,
                                                         cell_area)
         point_spc_time = temp.split_by_time_from(point_spc, self.temporal_prof)
+        if len(week_profile) == 7:
+            point_spc_time = temp.split_by_weekday(point_spc_time,
+                                                   week_profile,
+                                                   start_date,
+                                                   end_date)
         point_speciated = wemi.speciate_wrfchemi(point_spc_time, self.voc_spc,
                                                  self.pm_spc, cell_area,
                                                  wrfinput)
@@ -180,12 +187,37 @@ class PointSources:
             wemi.write_wrfchemi_netcdf(wrfchemi_netcdf, path)
         return point_speciated
 
-    def to_cmaq():
+    def to_cmaq(self, wrfinput: xr.Dataset, griddesc_path: str,
+                n_points: int, start_date: str, end_date: str,
+                week_profile: list[float] = [1],
+                pm_name: str = "PM", voc_name: str = "VOC",
+                write_netcdf: bool = False,
+                path: str = "../results") -> typing.Dict[str, xr.Dataset]:
+        cell_area = (wrfinput.DX / 1000) ** 2
+        spatio_temporal = self.spatiotemporal
+        spatio_temporal_units = cmaq.transform_cmaq_units_points(
+                spatio_temporal, self.pol_emiss)
+        # speciated_emiss = cmaq.speciate_cmaq(spatio_temporal_units,
+        #                                      self.voc_spc, self.pm_spc,
+        #                                      cell_area)
+        #
+        # for emi in speciated_emiss.data_vars:
+        #     speciated_emiss[emi] = speciated_emiss[emi].astype("float32")
+        #
+        # days_factor = temp.assign_factor_simulation_days(start_date, end_date,
+        #                                                  week_profile)
+        # cmaq_files = {day: cmaq.prepare_netcdf_cmaq(speciated_emiss * np.float32(fact),
+        #                                             day, griddesc_path, n_points,
+        #                                             self.voc_spc, self.pm_spc)
+        #               for day, fact in zip(days_factor.day, days_factor.frac)}
+        # if write_netcdf:
+        #     for cmaq_nc in cmaq_files.values():
+        #         cmaq.save_cmaq_file(cmaq_nc, path)
+        # return cmaq_files
         pass
 
-
 class GroupSources:
-    def __init__(self, sources_list: list[EmissionSource]):
+    def __init__(self, sources_list: list[EmissionSource | PointSources]):
         self.sources = {source.name: source for source in sources_list}
 
     def names(self):
