@@ -73,6 +73,9 @@ if __name__ == "__main__":
     #                                        1, wrfinput)
     # point_speciated = point_speciated.rename({"x": "west_east", "y": "south_north"})
     # wrfchemi_netcdf = wc.prepare_wrfchemi_netcdf(point_speciated, wrfinput)
-    point = pt.point_sources_to_dataset(emiss_path, geogrid_path,
-                                        "\t", "LAT", "LON")
+    griddesc = "../data/GRIDDESC"
+    my_cmaq = my_spc.to_cmaq(wrfinput, griddesc, 5,
+                             "2024-05-10", "2024-05-15",
+                             week_profile)
+
  

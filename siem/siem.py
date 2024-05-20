@@ -194,16 +194,16 @@ class PointSources:
                 write_netcdf: bool = False,
                 path: str = "../results") -> typing.Dict[str, xr.Dataset]:
         cell_area = (wrfinput.DX / 1000) ** 2
-        spatio_temporal = self.spatiotemporal
-        spatio_temporal_units = cmaq.transform_cmaq_units_points(
+        spatio_temporal = self.spatial_emission
+        spatio_temporal_units = cmaq.transform_cmaq_units_point(
                 spatio_temporal, self.pol_emiss)
-        # speciated_emiss = cmaq.speciate_cmaq(spatio_temporal_units,
-        #                                      self.voc_spc, self.pm_spc,
-        #                                      cell_area)
-        #
-        # for emi in speciated_emiss.data_vars:
-        #     speciated_emiss[emi] = speciated_emiss[emi].astype("float32")
-        #
+        speciated_emiss = cmaq.speciate_cmaq(spatio_temporal_units,
+                                             self.voc_spc, self.pm_spc,
+                                             cell_area)
+
+        for emi in speciated_emiss.data_vars:
+            speciated_emiss[emi] = speciated_emiss[emi].astype("float32")
+
         # days_factor = temp.assign_factor_simulation_days(start_date, end_date,
         #                                                  week_profile)
         # cmaq_files = {day: cmaq.prepare_netcdf_cmaq(speciated_emiss * np.float32(fact),
@@ -213,8 +213,8 @@ class PointSources:
         # if write_netcdf:
         #     for cmaq_nc in cmaq_files.values():
         #         cmaq.save_cmaq_file(cmaq_nc, path)
-        # return cmaq_files
-        pass
+        return speciated_emiss
+
 
 class GroupSources:
     def __init__(self, sources_list: list[EmissionSource | PointSources]):
