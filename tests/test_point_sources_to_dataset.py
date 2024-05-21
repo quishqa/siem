@@ -8,8 +8,9 @@ from siem.point import point_sources_to_dataset
 def test_calculate_centroid() -> None:
     geo_path = "./data/geo_em.d02.nc"
     geo = xr.open_dataset(geo_path)
-    lat = np.arange(geo.XLAT_M.min(), geo.XLAT_M.max(), 0.05)
-    lon = np.linspace(geo.XLONG_M.min(), geo.XLONG_M.max(), len(lat))
+    # Testing points outside domain
+    lat = np.arange(geo.XLAT_M.min() + 2.5, geo.XLAT_M.max() + 2.5, 0.05)
+    lon = np.linspace(geo.XLONG_M.min() + 2.5, geo.XLONG_M.max() + 2.5, len(lat))
     so2 = np.random.random(len(lat)) * 10
     no2 = np.random.random(len(lat)) * 100
 

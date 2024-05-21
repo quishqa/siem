@@ -78,6 +78,8 @@ def point_sources_to_dataset(point_path: str, geo_path: str, sep: str = "\t",
     point_sources = create_gpd_from(point_path, sep, lat_name, lon_name)
     wrf_grid = create_wrf_grid(geo_path, save=False)
     wrf_grid = configure_grid_spatial(wrf_grid, point_sources)
+    # Ensure points inside domain
+    point_sources = gpd.clip(point_sources, wrf_grid)
 
     emiss_in_grid = create_emiss_point(point_sources, wrf_grid)
     emiss_in_grid = calculate_centroid(emiss_in_grid, geo_path)
