@@ -132,11 +132,14 @@ class EmissionSource:
             speciated_emiss[emi] = speciated_emiss[emi].astype("float32")
 
         days_factor = temp.assign_factor_simulation_days(start_date, end_date,
-                                                         week_profile)
-        cmaq_files = {day: cmaq.prepare_netcdf_cmaq(speciated_emiss * np.float32(fact),
-                                                    day, griddesc_path, n_points,
-                                                    self.voc_spc, self.pm_spc)
-                      for day, fact in zip(days_factor.day, days_factor.frac)}
+                                                         week_profile,
+                                                         is_cmaq=True)
+        cmaq_files = {
+                day: cmaq.prepare_netcdf_cmaq(speciated_emiss * fact,
+                                              day, griddesc_path, n_points,
+                                              self.voc_spc, self.pm_spc)
+                for day, fact in zip(days_factor.day, days_factor.frac)
+                      }
         if write_netcdf:
             for cmaq_nc in cmaq_files.values():
                 cmaq.save_cmaq_file(cmaq_nc, path)
@@ -208,9 +211,10 @@ class PointSources:
             speciated_emiss[emi] = speciated_emiss[emi].astype("float32")
 
         days_factor = temp.assign_factor_simulation_days(start_date, end_date,
-                                                         week_profile)
+                                                         week_profile,
+                                                         is_cmaq=True)
         cmaq_files = {
-                day: cmaq.prepare_netcdf_cmaq(speciated_emiss * np.float32(fact),
+                day: cmaq.prepare_netcdf_cmaq(speciated_emiss * fact,
                                               day, griddesc_path, n_points,
                                               self.voc_spc, self.pm_spc)
                 for day, fact in zip(days_factor.day, days_factor.frac)

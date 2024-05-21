@@ -30,11 +30,14 @@ def transform_week_profile_df(weekday_profile: list[float]) -> pd.DataFrame:
 
 
 def assign_factor_simulation_days(start: str, end: str,
-                                  week_profile: str) -> pd.DataFrame:
+                                  week_profile: str,
+                                  is_cmaq: bool = False) -> pd.DataFrame:
     simulation_days = pd.date_range(start, end, freq="D")
     week_prof = transform_week_profile_df(week_profile)
     days_factor = week_prof.frac.loc[simulation_days.weekday].to_frame()
     days_factor["day"] = simulation_days.strftime("%Y-%m-%d")
+    if is_cmaq:
+        days_factor["frac"] = days_factor.frac.astype("float32")
     return days_factor
 
 
