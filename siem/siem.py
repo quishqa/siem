@@ -179,8 +179,6 @@ class PointSources:
         point_speciated = wemi.speciate_wrfchemi(point_spc_time, self.voc_spc,
                                                  self.pm_spc, cell_area,
                                                  wrfinput)
-        point_speciated = point_speciated.rename({"x": "west_east",
-                                                  "y": "south_north"})
         wrfchemi_netcdf = wemi.prepare_wrfchemi_netcdf(point_speciated,
                                                        wrfinput)
         if write_netcdf:
@@ -195,25 +193,11 @@ class PointSources:
                 path: str = "../results") -> typing.Dict[str, xr.Dataset]:
         cell_area = (wrfinput.DX / 1000) ** 2
         spatio_temporal = self.spatial_emission
-        spatio_temporal_units = cmaq.transform_cmaq_units_point(
-                spatio_temporal, self.pol_emiss)
-        speciated_emiss = cmaq.speciate_cmaq(spatio_temporal_units,
-                                             self.voc_spc, self.pm_spc,
-                                             cell_area)
+        cmaq_temp_prof = cmaq.to_25hr_profile(self.temporal_prof)
 
-        for emi in speciated_emiss.data_vars:
-            speciated_emiss[emi] = speciated_emiss[emi].astype("float32")
-
-        # days_factor = temp.assign_factor_simulation_days(start_date, end_date,
-        #                                                  week_profile)
-        # cmaq_files = {day: cmaq.prepare_netcdf_cmaq(speciated_emiss * np.float32(fact),
-        #                                             day, griddesc_path, n_points,
-        #                                             self.voc_spc, self.pm_spc)
-        #               for day, fact in zip(days_factor.day, days_factor.frac)}
-        # if write_netcdf:
-        #     for cmaq_nc in cmaq_files.values():
-        #         cmaq.save_cmaq_file(cmaq_nc, path)
-        return speciated_emiss
+        point_spc_time = temp.split_by_time_from(spatio_temporal,
+                                                 cmaq_temp_prof)
+        return point_spc_time
 
 
 class GroupSources:

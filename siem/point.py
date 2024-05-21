@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import geopandas as gpd
 import xarray as xr
@@ -51,8 +52,24 @@ def calculate_centroid(emiss_point: gpd.GeoDataFrame,
 
 
 def point_emiss_to_xarray(emiss_point_proj: pd.DataFrame) -> xr.Dataset:
-    emiss_point_proj.set_index(["y", "x"], inplace=True)
-    return emiss_point_proj.to_xarray()
+    lon1d = emiss_point_proj.x.round(5).unique()
+    lat1d = emiss_point_proj.y.round(5).unique()
+    lon, lat = np.meshgrid(lon1d, lat1d)
+
+    emiss_point_proj = emiss_point_proj.rename(
+            columns={"y": "south_north", "x": "west_east"}
+            )
+
+    coords = {"XLONG": (("south_north", "west_east"), lon),
+              "XLAT": (("south_north", "west_east"), lat)}
+    emiss_point_proj.set_index(["south_north", "west_east"], inplace=True)
+    emiss_point = emiss_point_proj.to_xarray()
+    emiss_point = (
+            emiss_point
+            .assign_coords(coords)
+            .drop(["south_north", "west_east"])
+            )
+    return emiss_point
 
 
 def point_sources_to_dataset(point_path: str, geo_path: str, sep: str = "\t",
