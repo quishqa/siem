@@ -127,6 +127,7 @@ class EmissionSource:
                                              self.voc_spc, self.pm_spc,
                                              cell_area)
 
+        # TODO: Change it to a function
         for emi in speciated_emiss.data_vars:
             speciated_emiss[emi] = speciated_emiss[emi].astype("float32")
 
@@ -195,9 +196,29 @@ class PointSources:
         spatio_temporal = self.spatial_emission
         cmaq_temp_prof = cmaq.to_25hr_profile(self.temporal_prof)
 
-        point_spc_time = temp.split_by_time_from(spatio_temporal,
-                                                 cmaq_temp_prof)
-        return point_spc_time
+        point_time = temp.split_by_time_from(spatio_temporal,
+                                             cmaq_temp_prof)
+        point_time_units = cmaq.transform_cmaq_units_point(point_time,
+                                                           self.pol_emiss,
+                                                           pm_name)
+        speciated_emiss = cmaq.speciate_cmaq(point_time_units,
+                                             self.voc_spc, self.pm_spc,
+                                             cell_area)
+        for emi in speciated_emiss.data_vars:
+            speciated_emiss[emi] = speciated_emiss[emi].astype("float32")
+
+        days_factor = temp.assign_factor_simulation_days(start_date, end_date,
+                                                         week_profile)
+        cmaq_files = {
+                day: cmaq.prepare_netcdf_cmaq(speciated_emiss * np.float32(fact),
+                                              day, griddesc_path, n_points,
+                                              self.voc_spc, self.pm_spc)
+                for day, fact in zip(days_factor.day, days_factor.frac)
+                }
+        if write_netcdf:
+            for cmaq_nc in cmaq_files.values():
+                cmaq.save_cmaq_file(cmaq_nc, path)
+        return cmaq_files
 
 
 class GroupSources:

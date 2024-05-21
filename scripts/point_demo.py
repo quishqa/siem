@@ -60,8 +60,8 @@ if __name__ == "__main__":
                           pm_spc=pm_spc)
 
     week_profile = np.random.rand(7)
-    a = my_spc.to_wrfchemi(wrfinput, "2024-05-10", "2024-05-15",
-                           write_netcdf=True, week_profile=week_profile)
+    # a = my_spc.to_wrfchemi(wrfinput, "2024-05-10", "2024-05-15",
+    #                        write_netcdf=True, week_profile=week_profile)
     # point = pt.point_sources_to_dataset(emiss_path, geogrid_path,
     #                                     "\t", "LAT", "LON")
     # point_spc = wc.transform_wrfchemi_units_point(point, pol_spc, 1)
