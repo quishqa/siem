@@ -1,7 +1,6 @@
 import pandas as pd
 import xarray as xr
-from siem.siem import EmissionSource
-from siem.siem import GroupSources
+from siem.siem import EmissionSource, GroupSources, PointSources
 from siem.spatial import read_spatial_proxy
 
 spatial_proxy = read_spatial_proxy("../data/highways_hdv.csv",
@@ -73,16 +72,36 @@ flex_gasoline_vehicles = EmissionSource("Flex vehicles",
                                         pm_exa)
 
 
+emiss_path = "../data/point_emiss_veih.csv"
+geogrid_path = "../data/geo_em.d02.nc"
+pol_spc = {pol: mw[1] for pol, mw in gasoline_ef.items()}
+
+point_sources = PointSources(name="Test Source",
+                             point_path=emiss_path,
+                             sep="\t",
+                             geo_path=geogrid_path,
+                             lat_name="LAT", lon_name="LON",
+                             pol_emiss=pol_spc,
+                             temporal_prof=temporal_profile,
+                             voc_spc=gas_voc_exa,
+                             pm_spc=pm_exa)
 date_start, date_end = "2018-07-01", "2018-07-03"
 
-cmaq_files = gasoline_vehicles.to_cmaq(wrfinput, "../data/GRIDDESC",
-                                       6, date_start, date_end,
-                                       week_profile, write_netcdf=True)
-# sources = [gasoline_vehicles, flex_ethanol_vehicles, flex_gasoline_vehicles]
-#
-# all_in_one = GroupSources(sources)
-#
-#
-# griddesc_path = "../data/GRIDDESC"
-# emiss_source = all_in_one.to_cmaq(wrfinput, griddesc_path, 6, date_start, date_end, week_profile,
-#                                   write_netcdf=True)
+point_sources.to_cmaq(wrfinput=wrfinput,
+                      griddesc_path="../data/GRIDDESC",
+                      n_points=5, start_date=date_start,
+                      end_date=date_end, week_profile=week_profile)
+
+
+# cmaq_files = gasoline_vehicles.to_cmaq(wrfinput, "../data/GRIDDESC",
+#                                        6, date_start, date_end,
+#                                        week_profile, write_netcdf=True)
+sources = [gasoline_vehicles, flex_ethanol_vehicles, flex_gasoline_vehicles,
+           point_sources]
+
+all_in_one = GroupSources(sources)
+
+
+griddesc_path = "../data/GRIDDESC"
+emiss_source = all_in_one.to_cmaq(wrfinput, griddesc_path, 6, date_start, date_end, week_profile,
+                                  write_netcdf=True)
