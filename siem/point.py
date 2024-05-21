@@ -67,7 +67,7 @@ def point_emiss_to_xarray(emiss_point_proj: pd.DataFrame) -> xr.Dataset:
     emiss_point = (
             emiss_point
             .assign_coords(coords)
-            .drop(["south_north", "west_east"])
+            .drop_vars(["south_north", "west_east"])
             )
     return emiss_point
 

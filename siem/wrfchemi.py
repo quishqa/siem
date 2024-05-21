@@ -74,7 +74,7 @@ def create_date_s19(start_date: str, periods: int = 24) -> np.ndarray:
     date_format = "%Y-%m-%d_%H:%M:%S"
     date_start = pd.to_datetime(start_date,
                                 format=date_format)
-    dates = pd.date_range(date_start, periods=periods, freq="H")
+    dates = pd.date_range(date_start, periods=periods, freq="h")
     dates_s19 = np.array(
             dates.strftime(date_format).values,
             dtype=np.dtype(("S", 19))
