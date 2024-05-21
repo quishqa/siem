@@ -1,3 +1,4 @@
+import os
 import osmnx as ox
 import xarray as xr
 import numpy as np
@@ -29,6 +30,13 @@ def get_highway_query(highway_types: list[str],
     return cf
 
 
+def check_create_savedir(save_path: str) -> None:
+    if not os.path.isdir(save_path):
+        print(f'Missing directory, creating directory')
+        os.makedirs(save_path)
+    print(f'Saving in {save_path}')
+    return None
+
 def download_highways(wrf_path: str, highway_types: str,
                       add_links: bool = False,
                       save: bool = True,
@@ -41,6 +49,7 @@ def download_highways(wrf_path: str, highway_types: str,
                                   network_type="drive",
                                   custom_filter=custom_filter)
     if save:
+        check_create_savedir(save_path)
         ox.save_graphml(highways,
                         filepath=f"{save_path}/domain_{file_name}.graphml")
     return highways
@@ -59,6 +68,7 @@ def download_point_sources(wrf_path: str, tags: dict,
     print(f"Point sources: {len(point_sources_shp)}")
 
     if save:
+        check_create_savedir(save_path)
         source_type = list(tags.values())[0]
         point_sources_shp.to_file(
                 f"{save_path}/point_source_{source_type}.shp"
@@ -94,6 +104,7 @@ def create_wrf_grid(wrf_path: str, save: bool = True,
         grid_id = geo.grid_id
     wrf_grid = create_grid(xlat_c, xlon_c)
     if save:
+        check_create_savedir(save_path)
         wrf_grid.to_file(f"{save_path}/wrf_grid_d{grid_id}.shp")
     return wrf_grid
 
@@ -123,6 +134,7 @@ def calculate_points_grid(wrf_grid: gpd.GeoDataFrame,
                       .rename("n_sources"))
     points_in_dom = wrf_grid.join(points_in_grid).fillna(0)
     if to_pre:
+        check_create_savedir(save_pre)
         points_in_dom["x"] = points_in_dom.centroid.geometry.x
         points_in_dom["y"] = points_in_dom.centroid.geometry.y
         points_in_dom[["x", "y", "n_sources"]].to_csv(
@@ -157,6 +169,7 @@ def calculate_highway_grid(wrf_grid: gpd.GeoDataFrame,
     highway_dom = wrf_grid.join(highway_grid[["longKm"]]).fillna(0)
 
     if to_pre:
+        check_create_savedir(save_pre)
         highway_dom["x"] = highway_dom.geometry.centroid.x
         highway_dom["y"] = highway_dom.geometry.centroid.y
         highway_dom[["x", "y", "longKm"]].to_csv(
