@@ -31,6 +31,17 @@ class EmissionSource:
             return total_emiss * 365 / 10 ** 9
         return total_emiss
 
+    def report_emissions(self) -> pd.DataFrame:
+        total_emission = {
+                pol: self.total_emission(pol, ktn_year=True)
+                for pol in self.pol_ef.keys()
+                }
+        total_emission = pd.DataFrame.from_dict(
+                total_emission, orient="index", columns=["total_emiss"]
+                )
+        print(total_emission)
+        return total_emission
+
     def spatial_emission(self, pol_name: str,
                          cell_area: int | float) -> xr.DataArray:
         return spt.distribute_spatial_emission(self.spatial_proxy,
