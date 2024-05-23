@@ -39,7 +39,6 @@ class EmissionSource:
         total_emission = pd.DataFrame.from_dict(
                 total_emission, orient="index", columns=["total_emiss"]
                 )
-        print(total_emission)
         return total_emission
 
     def spatial_emission(self, pol_name: str,
