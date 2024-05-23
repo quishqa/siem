@@ -244,6 +244,12 @@ class GroupSources:
         print(names)
         return names
 
+    def report_emissions(self) -> pd.DataFrame:
+        total_emissions = {
+                src_name: src.report_emissions()
+                for src_name, src in self.sources.items()}
+        return pd.concat(total_emissions, names = ["src", "pol"])
+
     def to_wrfchemi(self, wrfinput: xr.Dataset,
                     start_date: str, end_date: str,
                     week_profile: list[float] = [1],
