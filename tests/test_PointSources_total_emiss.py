@@ -28,7 +28,7 @@ def test_PointSources_total_emiss() -> None:
 
     sample.to_csv("sample_geo.csv", sep="\t", index=False)
     
-    pol_spc = {"CO": 12 + 16, "SO2": 32 + 2 * 16,
+    pol_spc = {"SO2": 32 + 2 * 16,
                "NO2": 14 + 2 * 16, "VOC": 100, "PM": 1}
 
     voc_spc = {"HC2": 0.3, "ETH": 0.2, "HC8": 0.15,
@@ -47,4 +47,8 @@ def test_PointSources_total_emiss() -> None:
                                    voc_spc=voc_spc,
                                    pm_spc=pm_spc)
     os.remove("sample_geo.csv")
+
+    total_emission = my_point_source.report_emission()
     assert no2.sum() - my_point_source.total_emission("NO2") < 1e-10
+    # assert isinstance(total_emission, pd.DataFrame)
+    # assert no2.sum() - total_emission.loc["NO2"] < 1e-10

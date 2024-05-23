@@ -36,30 +36,30 @@ if __name__ == "__main__":
     wrfinput = xr.open_dataset(wrfinput_path)
     emiss = create_sample_data(geo)
     emiss.to_csv("../data/point_emiss_veih.csv", sep="\t")
- #    pol_spc = {"CO": 12 + 16, "SO2": 32 + 2 * 16,
- #               "NO2": 14 + 2 * 16, "VOC": 100, "PM": 1}
- #
- #    voc_spc = {"HC2": 0.3, "ETH": 0.2, "HC8": 0.15,
- #               "C2OH": 0.15, "ALD": 0.2}
- #
- #    pm_spc = {"PM2.5": 0.3, "PM10": 0.3, "OC": 0.2,
- #              "EC": 0.3}
- #
- #    so2_factor = 1000 * 1000 / (365 * 24 * pol_spc["SO2"])
- #    pm_factor = 1000 * 1000 * 10 ** 6 / (3600 * 24 * 365)
- #
- #    temporal_profile = np.random.random(24)
- #    print(len(temporal_profile))
- #
- #    my_spc = PointSources(name="test source",
- #                          point_path=emiss_path,
- #                          sep="\t",
- #                          geo_path=geogrid_path,
- #                          lat_name="LAT", lon_name="LON",
- #                          pol_emiss=pol_spc,
- #                          temporal_prof=temporal_profile,
- #                          voc_spc=voc_spc,
- #                          pm_spc=pm_spc)
+    pol_spc = {"CO": 12 + 16, "SO2": 32 + 2 * 16,
+               "NO2": 14 + 2 * 16, "VOC": 100, "PM": 1}
+
+    voc_spc = {"HC2": 0.3, "ETH": 0.2, "HC8": 0.15,
+               "C2OH": 0.15, "ALD": 0.2}
+
+    pm_spc = {"PM2.5": 0.3, "PM10": 0.3, "OC": 0.2,
+              "EC": 0.3}
+
+    so2_factor = 1000 * 1000 / (365 * 24 * pol_spc["SO2"])
+    pm_factor = 1000 * 1000 * 10 ** 6 / (3600 * 24 * 365)
+
+    temporal_profile = np.random.random(24)
+    print(len(temporal_profile))
+
+    my_spc = PointSources(name="test source",
+                          point_path=emiss_path,
+                          sep="\t",
+                          geo_path=geogrid_path,
+                          lat_name="LAT", lon_name="LON",
+                          pol_emiss=pol_spc,
+                          temporal_prof=temporal_profile,
+                          voc_spc=voc_spc,
+                          pm_spc=pm_spc)
  #
  #    week_profile = np.random.rand(7)
  #    # a = my_spc.to_wrfchemi(wrfinput, "2024-05-10", "2024-05-15",

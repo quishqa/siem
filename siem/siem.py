@@ -170,9 +170,19 @@ class PointSources:
 
     def total_emission(self, pol_name: str) -> float:
         if pol_name in self.pol_emiss.keys():
-            return self.spatial_emission[pol_name].sum()
+            return self.spatial_emission[pol_name].sum().values
         else:
             print(f"{pol_name} not include in data")
+
+    def report_emission(self) -> pd.DataFrame:
+        total_emission = {
+                pol: self.total_emission(pol)
+                for pol in self.pol_emiss.keys()
+                }
+        total_emission = pd.DataFrame.from_dict(
+                total_emission, orient="index", columns=["total_emiss"]
+                )
+        return total_emission
 
     def to_wrfchemi(self, wrfinput: xr.Dataset,
                     start_date: str, end_date: str,
