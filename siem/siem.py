@@ -23,6 +23,16 @@ class EmissionSource:
         self.voc_spc = voc_spc
         self.pm_spc = pm_spc
 
+    def __str__(self):
+        source_summary = (
+                f"Source name: {self.name}\n"
+                f"Number: {self.number}\n"
+                f"Pollutants: {list(self.pol_ef.keys())}\n"
+                f"Number VOC species: {len(self.voc_spc.keys())}\n"
+                f"Number PM species: {len(self.pm_spc.keys())}\n"
+                )
+        return source_summary
+
     def total_emission(self, pol_name: str, ktn_year: bool = False):
         total_emiss = em.calculate_emission(self.number,
                                             self.use_intensity,
@@ -168,6 +178,15 @@ class PointSources:
         self.voc_spc = voc_spc
         self.pm_spc = pm_spc
 
+    def __str__(self):
+        source_summary = (
+                f"Source name: {self.name}\n"
+                f"Pollutants: {list(self.pol_emiss.keys())}\n"
+                f"Number VOC species: {len(self.voc_spc.keys())}\n"
+                f"Number PM species: {len(self.pm_spc.keys())}\n"
+                )
+        return source_summary
+
     def total_emission(self, pol_name: str) -> float:
         if pol_name in self.pol_emiss.keys():
             return self.spatial_emission[pol_name].sum().values
@@ -249,16 +268,23 @@ class GroupSources:
     def __init__(self, sources_list: list[EmissionSource | PointSources]):
         self.sources = {source.name: source for source in sources_list}
 
+    def __str__(self):
+        type_of_sources = [type(source) for source in self.sources.values()]
+        source_summary = (
+                f"Number of sources: {len(self.names())}\n"
+                f"Type of sources: {set(type_of_sources)}\n"
+                )
+        return source_summary
+
     def names(self):
         names = list(self.sources.keys())
-        print(names)
         return names
 
     def report_emissions(self) -> pd.DataFrame:
         total_emissions = {
                 src_name: src.report_emissions()
                 for src_name, src in self.sources.items()}
-        return pd.concat(total_emissions, names = ["src", "pol"])
+        return pd.concat(total_emissions, names=["src", "pol"])
 
     def to_wrfchemi(self, wrfinput: xr.Dataset,
                     start_date: str, end_date: str,
