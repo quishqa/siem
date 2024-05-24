@@ -3,7 +3,7 @@ from siem.proxy import download_highways, download_point_sources
 
 if __name__ == "__main__":
     wrf_path = "../data/geo_em.d02.nc"
-    highways_hdv = ["primary"]
+    highways_hdv = ["primary", "trunk", "motorway"]
     highways_ldv = highways_hdv + ["secondary", "tertiary", "residential"]
 
     from datetime import datetime
@@ -11,7 +11,7 @@ if __name__ == "__main__":
     print(f"Starting at: {datetime.now()}")
 
     SP = download_highways(wrf_path, highways_hdv, add_links=False,
-                           save=True, file_name="prim",
+                           save=True, file_name="hdv_d02",
                            save_path="../data/partial/")
 
     print(f"Ending at: {datetime.now()}")
