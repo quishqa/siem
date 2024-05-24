@@ -193,7 +193,7 @@ class PointSources:
         else:
             print(f"{pol_name} not include in data")
 
-    def report_emission(self) -> pd.DataFrame:
+    def report_emissions(self) -> pd.DataFrame:
         total_emission = {
                 pol: self.total_emission(pol)
                 for pol in self.pol_emiss.keys()
