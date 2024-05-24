@@ -3,6 +3,7 @@ import osmnx as ox
 import xarray as xr
 import numpy as np
 from shapely.geometry import Polygon
+from siem.user import check_create_savedir
 import geopandas as gpd
 
 
@@ -29,13 +30,6 @@ def get_highway_query(highway_types: list[str],
     print(f"The custom filter is:\n {cf}")
     return cf
 
-
-def check_create_savedir(save_path: str) -> None:
-    if not os.path.isdir(save_path):
-        print(f'Missing directory, creating directory')
-        os.makedirs(save_path)
-    print(f'Saving in {save_path}')
-    return None
 
 def download_highways(wrf_path: str, highway_types: str,
                       add_links: bool = False,
