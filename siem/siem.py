@@ -206,6 +206,7 @@ class PointSources:
     def to_wrfchemi(self, wrfinput: xr.Dataset,
                     start_date: str, end_date: str,
                     week_profile: list[float] = [1],
+                    pm_name: str = "PM", voc_name: str = "VOC",
                     write_netcdf: bool = False,
                     path: str = "../results/"
                     ) -> xr.Dataset:
@@ -226,7 +227,7 @@ class PointSources:
                                                        wrfinput)
         if write_netcdf:
             wemi.write_wrfchemi_netcdf(wrfchemi_netcdf, path)
-        return point_speciated
+        return wrfchemi_netcdf
 
     def to_cmaq(self, wrfinput: xr.Dataset, griddesc_path: str,
                 n_points: int, start_date: str, end_date: str,

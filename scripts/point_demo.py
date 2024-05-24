@@ -49,7 +49,6 @@ if __name__ == "__main__":
     pm_factor = 1000 * 1000 * 10 ** 6 / (3600 * 24 * 365)
 
     temporal_profile = np.random.random(24)
-    print(len(temporal_profile))
 
     my_spc = PointSources(name="test source",
                           point_path=emiss_path,

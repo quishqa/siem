@@ -3,13 +3,10 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from siem.siem import PointSources
-from siem.point import point_sources_to_dataset
-from siem.wrfchemi import transform_wrfchemi_units_point
 
 
 def test_PointSources_total_emiss() -> None:
     geo_path = "./data/geo_em.d02.nc"
-    wrfinput_path = "./wrfpoint_emiss.csv"
     geo = xr.open_dataset(geo_path)
     lat = np.arange(geo.XLAT_M.min(), geo.XLAT_M.max(), 0.05)
     lon = np.linspace(geo.XLONG_M.min(), geo.XLONG_M.max(), len(lat))
@@ -27,7 +24,7 @@ def test_PointSources_total_emiss() -> None:
         "VOC": voc})
 
     sample.to_csv("sample_geo.csv", sep="\t", index=False)
-    
+
     pol_spc = {"SO2": 32 + 2 * 16,
                "NO2": 14 + 2 * 16, "VOC": 100, "PM": 1}
 
@@ -36,7 +33,7 @@ def test_PointSources_total_emiss() -> None:
 
     pm_spc = {"PM2.5": 0.3, "PM10": 0.3, "OC": 0.2,
               "EC": 0.3}
-    
+
     temporal_profile = np.random.random(24)
     my_point_source = PointSources(name="Test sources",
                                    point_path="sample_geo.csv", sep="\t",
@@ -48,7 +45,10 @@ def test_PointSources_total_emiss() -> None:
                                    pm_spc=pm_spc)
     os.remove("sample_geo.csv")
 
-    total_emission = my_point_source.report_emission()
+    emi_report = my_point_source.report_emissions()
+    no2_report = emi_report.total_emiss.loc["NO2"]
+
+    assert isinstance(emi_report, pd.DataFrame)
     assert no2.sum() - my_point_source.total_emission("NO2") < 1e-10
-    # assert isinstance(total_emission, pd.DataFrame)
-    # assert no2.sum() - total_emission.loc["NO2"] < 1e-10
+    assert no2.sum() - no2_report < 1e-10
+

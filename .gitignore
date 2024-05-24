@@ -6,5 +6,6 @@ data/geo_em*
 data/*csv
 data/*txt
 scripts/cache/*
+scripts/*_demo.py
 results/wrfchemi_*
 results/*nc
