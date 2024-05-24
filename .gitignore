@@ -7,6 +7,7 @@ data/*csv
 data/*txt
 scripts/cache/*
 scripts/*_demo.py
+scripts/nohup.out
 scripts/download_*
 results/wrfchemi_*
 results/*nc
