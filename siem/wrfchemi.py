@@ -29,7 +29,7 @@ def transform_wrfchemi_units_point(spatial_emiss: xr.Dataset,
     return emiss_units
 
 
-def add_emission_attributes(speciated_wrfchemi: xr.Dataset, 
+def add_emission_attributes(speciated_wrfchemi: xr.Dataset,
                             voc_species: dict,
                             pm_species: dict, pm_name: str,
                             wrfinput: xr.Dataset) -> xr.Dataset:
@@ -43,10 +43,15 @@ def add_emission_attributes(speciated_wrfchemi: xr.Dataset,
             speciated_wrfchemi[pol].attrs["units"] = 'mol km^-2 hr^-1'
         speciated_wrfchemi[pol].attrs["stagger"] = ''
         speciated_wrfchemi[pol].attrs["coordinates"] = 'XLONG XLAT'
+
+    speciated_wrfchemi.XLAT.attrs = wrfinput.XLAT.attrs
+    speciated_wrfchemi.XLONG.attrs = wrfinput.XLAT.attrs
+
     return speciated_wrfchemi
 
-def speciate_wrfchemi(spatial_emiss_units: xr.Dataset, 
-                      voc_species: dict, pm_species: dict, 
+
+def speciate_wrfchemi(spatial_emiss_units: xr.Dataset,
+                      voc_species: dict, pm_species: dict,
                       cell_area: float | int,
                       wrfinput: xr.Dataset,
                       voc_name: str = "VOC", 
