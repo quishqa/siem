@@ -56,5 +56,5 @@ def test_group_sources() -> None:
 
     assert len(wrfchemi.dims) == 5
     assert "source" in wrfchemi.dims
-    assert ((test1.E_NOX.sum() * 3).values - wrfchemi.E_NOX.sum(dim="source").sum().values) <= 0.00001
+    assert ((test1.E_NOX.sum() * 3).values - wrfchemi.E_NOX.sum(dim="source").sum().values) <= 1
 

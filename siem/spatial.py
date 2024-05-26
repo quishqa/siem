@@ -26,6 +26,8 @@ def read_spatial_proxy(proxy_path: str,
             dims=("south_north", "west_east"),
             coords={"XLAT": (("south_north", "west_east"), lat),
                     "XLONG": (("south_north", "west_east"), lon)})
+    spatial_proxy["XLAT"] = spatial_proxy.XLAT.astype("float32")
+    spatial_proxy["XLONG"] = spatial_proxy.XLONG.astype("float32")
     return spatial_proxy
 
 

@@ -49,11 +49,6 @@ def add_emission_attributes(speciated_wrfchemi: xr.Dataset,
         speciated_wrfchemi[pol].attrs["stagger"] = ''
         speciated_wrfchemi[pol].attrs["coordinates"] = 'XLONG XLAT'
 
-    speciated_wrfchemi["XLAT"] = speciated_wrfchemi.XLAT.astype("float32")
-    speciated_wrfchemi["XLONG"] = speciated_wrfchemi.XLONG.astype("float32")
-    speciated_wrfchemi.XLAT.attrs = wrfinput.XLAT.attrs
-    speciated_wrfchemi.XLONG.attrs = wrfinput.XLAT.attrs
-
     return speciated_wrfchemi
 
 
@@ -61,7 +56,7 @@ def speciate_wrfchemi(spatial_emiss_units: xr.Dataset,
                       voc_species: dict, pm_species: dict,
                       cell_area: float | int,
                       wrfinput: xr.Dataset,
-                      voc_name: str = "VOC", 
+                      voc_name: str = "VOC",
                       pm_name: str = "PM",
                       add_attr: bool = True) -> xr.Dataset:
     speciated_wrfchemi = speciate_emission(spatial_emiss_units,
@@ -75,7 +70,6 @@ def speciate_wrfchemi(spatial_emiss_units: xr.Dataset,
                                                      voc_species, pm_species,
                                                      pm_name,
                                                      wrfinput)
-
     name_dict = {pol: f"E_{pol}" for pol in speciated_wrfchemi.data_vars}
     speciated_wrfchemi = speciated_wrfchemi.rename(name_dict)
 
@@ -106,6 +100,9 @@ def prepare_wrfchemi_netcdf(speciated_wrfchemi: xr.Dataset,
             dims=["Time"],
             coords={"Time": wrfchemi.Time.values}
             )
+
+    wrfchemi.XLAT.attrs = wrfinput.XLAT.attrs
+    wrfchemi.XLONG.attrs = wrfinput.XLONG.attrs
 
     for attr_name, attr_value in wrfinput.attrs.items():
         wrfchemi.attrs[attr_name] = attr_value
