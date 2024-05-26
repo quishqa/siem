@@ -3,6 +3,7 @@ import pandas as pd
 import xarray as xr
 from siem.emiss import (speciate_emission, ktn_year_to_mol_hr,
                         ktn_year_to_ug_seg)
+from siem.user import check_create_savedir
 
 
 def transform_wrfchemi_units(spatial_emiss: xr.DataArray,
@@ -126,6 +127,7 @@ def create_wrfchemi_name(wrfchemi: xr.Dataset) -> str | tuple:
 
 def write_netcdf(wrfchemi_netcdf: xr.Dataset, file_name: str,
                  path: str = "../results/") -> None:
+    check_create_savedir(path)
     wrfchemi_netcdf.to_netcdf(f"{path}/{file_name}",
                               encoding={
                                   "Times": {"char_dim_name": "DateStrLen"}

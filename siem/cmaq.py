@@ -6,6 +6,7 @@ import PseudoNetCDF as pnc
 import datetime as dt
 from siem.emiss import (speciate_emission, ktn_year_to_g_seg,
                         ktn_year_to_mol_seg)
+from siem.user import check_create_savedir
 
 
 def calculate_julian(date: pd.Timestamp) -> int:
@@ -200,6 +201,7 @@ def create_cmaq_file_name(cmaq_nc: xr.Dataset) -> str:
 
 def save_cmaq_file(cmaq_nc: xr.Dataset,
                    path: str = "../results/") -> None:
+    check_create_savedir(path)
     file_name = f'{path}/{create_cmaq_file_name(cmaq_nc)}'
     cmaq_nc.to_netcdf(file_name,
                       unlimited_dims={"TSTEP": True},
