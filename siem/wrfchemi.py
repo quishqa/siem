@@ -10,8 +10,12 @@ def transform_wrfchemi_units(spatial_emiss: xr.DataArray,
                              pm_name: str = "PM") -> xr.Dataset:
     for pol_name, pol_mw in pol_ef_mw.items():
         if pol_name == pm_name:
-            spatial_emiss[pm_name] = spatial_emiss[pm_name] / 3600
-        spatial_emiss[pol_name] = spatial_emiss[pol_name] / pol_mw[1]
+            spatial_emiss[pm_name] = (
+                    spatial_emiss[pm_name] / 3600
+                    ).astype("float32")
+        spatial_emiss[pol_name] = (
+                spatial_emiss[pol_name] / pol_mw[1]
+                ).astype("float32")
     return spatial_emiss
 
 
@@ -44,6 +48,8 @@ def add_emission_attributes(speciated_wrfchemi: xr.Dataset,
         speciated_wrfchemi[pol].attrs["stagger"] = ''
         speciated_wrfchemi[pol].attrs["coordinates"] = 'XLONG XLAT'
 
+    speciated_wrfchemi["XLAT"] = speciated_wrfchemi.XLAT.astype("float32")
+    speciated_wrfchemi["XLONG"] = speciated_wrfchemi.XLONG.astype("float32")
     speciated_wrfchemi.XLAT.attrs = wrfinput.XLAT.attrs
     speciated_wrfchemi.XLONG.attrs = wrfinput.XLAT.attrs
 
