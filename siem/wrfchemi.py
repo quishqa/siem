@@ -103,6 +103,7 @@ def prepare_wrfchemi_netcdf(speciated_wrfchemi: xr.Dataset,
 
     wrfchemi.XLAT.attrs = wrfinput.XLAT.attrs
     wrfchemi.XLONG.attrs = wrfinput.XLONG.attrs
+    wrfchemi = wrfchemi.drop_vars("Time")
 
     for attr_name, attr_value in wrfinput.attrs.items():
         wrfchemi.attrs[attr_name] = attr_value
