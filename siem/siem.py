@@ -132,7 +132,7 @@ class EmissionSource:
         return wrfchemi_netcdf
 
     def to_cmaq(self, wrfinput: xr.Dataset, griddesc_path: str,
-                n_points: int, start_date: str, end_date: str,
+                btrim: int, start_date: str, end_date: str,
                 week_profile: list[float] = [1],
                 pm_name: str = "PM", voc_name: str = "VOC",
                 write_netcdf: bool = False,
@@ -156,7 +156,7 @@ class EmissionSource:
                                                          is_cmaq=True)
         cmaq_files = {
                 day: cmaq.prepare_netcdf_cmaq(speciated_emiss * fact,
-                                              day, griddesc_path, n_points,
+                                              day, griddesc_path, btrim,
                                               self.voc_spc, self.pm_spc)
                 for day, fact in zip(days_factor.day, days_factor.frac)
                       }
@@ -230,7 +230,7 @@ class PointSources:
         return wrfchemi_netcdf
 
     def to_cmaq(self, wrfinput: xr.Dataset, griddesc_path: str,
-                n_points: int, start_date: str, end_date: str,
+                btrim: int, start_date: str, end_date: str,
                 week_profile: list[float] = [1],
                 pm_name: str = "PM", voc_name: str = "VOC",
                 write_netcdf: bool = False,
@@ -255,7 +255,7 @@ class PointSources:
                                                          is_cmaq=True)
         cmaq_files = {
                 day: cmaq.prepare_netcdf_cmaq(speciated_emiss * fact,
-                                              day, griddesc_path, n_points,
+                                              day, griddesc_path, btrim,
                                               self.voc_spc, self.pm_spc)
                 for day, fact in zip(days_factor.day, days_factor.frac)
                 }
@@ -311,13 +311,13 @@ class GroupSources:
         return wrfchemi
 
     def to_cmaq(self, wrfinput: xr.Dataset, griddesc_path: str,
-                n_points: int, start_date: str, end_date: str,
+                btrim: int, start_date: str, end_date: str,
                 week_profile: list[float] = [1],
                 pm_name: str = "PM", voc_name: str = "VOC",
                 write_netcdf: bool = False,
                 path: str = "../results") -> typing.Dict[str, dict]:
         cmaq_files = {source: emiss.to_cmaq(wrfinput, griddesc_path,
-                                            n_points, start_date, end_date,
+                                            btrim, start_date, end_date,
                                             week_profile, pm_name, voc_name)
                       for source, emiss in self.sources.items()}
         cmaq_source_day = cmaq.merge_cmaq_source_emiss(cmaq_files)

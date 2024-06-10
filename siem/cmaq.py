@@ -162,7 +162,7 @@ def create_global_attrs(speciated_cmaq_attr: xr.Dataset,
 
 
 def prepare_netcdf_cmaq(speciated_cmaq: xr.Dataset, date: str,
-                        griddesc_path: str, n_point: int,
+                        griddesc_path: str, btrim: int,
                         voc_species: dict,
                         pm_species: dict, pm_name: str = "PM",
                         voc_name: str = "VOC") -> xr.Dataset:
@@ -183,7 +183,8 @@ def prepare_netcdf_cmaq(speciated_cmaq: xr.Dataset, date: str,
 
     ori_row, ori_col = speciated_cmaq.sizes["ROW"], speciated_cmaq.sizes["COL"]
     speciated_cmaq = speciated_cmaq.isel(
-            ROW=slice(n_point, ori_row - 6), COL=slice(n_point, ori_col - 6)
+            ROW=slice(btrim + 1, ori_row - (btrim + 1)),
+            COL=slice(btrim + 1, ori_col - (btrim + 1))
             )
     speciated_cmaq.attrs = create_global_attrs(speciated_cmaq,
                                                griddesc_path)
