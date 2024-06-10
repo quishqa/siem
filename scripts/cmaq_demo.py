@@ -89,7 +89,7 @@ date_start, date_end = "2018-07-01", "2018-07-03"
 
 point_sources.to_cmaq(wrfinput=wrfinput,
                       griddesc_path="../data/GRIDDESC",
-                      n_points=5, start_date=date_start,
+                      btrim=5, start_date=date_start,
                       end_date=date_end, week_profile=week_profile)
 
 

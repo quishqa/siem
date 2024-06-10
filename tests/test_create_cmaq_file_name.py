@@ -43,4 +43,4 @@ def test_create_cmaq_file_name() -> None:
 
     os.remove("GRIDDESC")
 
-    assert file_name == "cmaq_emissions_2018182.nc"
+    assert file_name == "cmaq_emissions_20180701.nc"
