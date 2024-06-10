@@ -197,7 +197,11 @@ def create_cmaq_file_name(cmaq_nc: xr.Dataset) -> str:
                  .isel(TSTEP=0, VAR=0)
                  .isel({"DATE-TIME": 0})
                  .values)
-    return f'cmaq_emissions_{file_date}.nc'
+    date = (dt.datetime
+            .strptime(str(file_date), "%Y%j")
+            .date()
+            .strftime("%Y%m%d"))
+    return f'cmaq_emissions_{date}.nc'
 
 
 def save_cmaq_file(cmaq_nc: xr.Dataset,
