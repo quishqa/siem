@@ -33,9 +33,9 @@ def test_add_cmaq_emission_attrs() -> None:
     speciated = test_source.speciate_all(cell_area, is_cmaq=True)
     _, ori_row, ori_col = speciated.PM10.shape
 
-    n_point = 6
+    btrim = 6
     speciated_attrs = prepare_netcdf_cmaq(speciated, "2018-07-01",
-                                          "GRIDDESC", n_point,
+                                          "GRIDDESC", btrim,
                                           voc_species,
                                           pm_species,
                                           pm_name="PM", voc_name="VOC")
@@ -49,5 +49,5 @@ def test_add_cmaq_emission_attrs() -> None:
     assert len(speciated_attrs.data_vars) == 8
     assert len(speciated_attrs.attrs.keys()) == 33
     assert len(speciated_attrs.attrs["VAR-LIST"]) == 7 * 16
-    assert speciated_attrs.sizes["ROW"] == ori_row - 2 * n_point
-    assert speciated_attrs.sizes["COL"] == ori_col - 2 * n_point
+    assert speciated_attrs.sizes["ROW"] == (ori_row - 2 * (btrim + 1))
+    assert speciated_attrs.sizes["COL"] == (ori_col - 2 * (btrim + 1))
