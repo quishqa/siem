@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 import xarray as xr
-from siem.point import point_sources_to_dataset
+from siem.point import read_point_sources
 from siem.cmaq import transform_cmaq_units_point
 
 
@@ -24,8 +24,8 @@ def test_transform_cmaq_units_point() -> None:
 
     sample.to_csv("sample_geo.csv", sep="\t", index=False)
 
-    emiss_ready = point_sources_to_dataset("sample_geo.csv", geo_path,
-                                           "\t", "LAT", "LON")
+    emiss_ready = read_point_sources("sample_geo.csv", geo_path,
+                                     "\t", "LAT", "LON")
     os.remove("sample_geo.csv")
     pols_mw = {"no2": 28, "so2": 32 + 2 * 16, "PM": 1}
     emiss_ready_units = transform_cmaq_units_point(emiss_ready,

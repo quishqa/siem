@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from siem.siem import PointSources
-from siem.point import point_sources_to_dataset
+from siem.point import read_point_sources
 from siem.wrfchemi import transform_wrfchemi_units_point
 
 
@@ -38,10 +38,13 @@ def test_PointSources() -> None:
               "EC": 0.3}
     
     temporal_profile = np.random.random(24)
+    my_point_emiss = read_point_sources(point_path="sample_geo.csv",
+                                        geo_path=geo_path,
+                                        sep="\t",
+                                        lat_name="LAT",
+                                        lon_name="LON")
     my_point_source = PointSources(name="Test sources",
-                                   point_path="sample_geo.csv", sep="\t",
-                                   geo_path=geo_path,
-                                   lat_name="LAT", lon_name="LON",
+                                   point_emiss=my_point_emiss,
                                    pol_emiss=pol_spc,
                                    temporal_prof=temporal_profile,
                                    voc_spc=voc_spc,

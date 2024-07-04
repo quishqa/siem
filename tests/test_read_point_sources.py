@@ -2,10 +2,10 @@ import os
 import numpy as np
 import pandas as pd
 import xarray as xr
-from siem.point import point_sources_to_dataset
+from siem.point import read_point_sources
 
 
-def test_calculate_centroid() -> None:
+def test_read_point_sources() -> None:
     geo_path = "./data/geo_em.d02.nc"
     geo = xr.open_dataset(geo_path)
     # Testing points outside domain
@@ -22,8 +22,8 @@ def test_calculate_centroid() -> None:
 
     sample.to_csv("sample_geo.csv", sep="\t", index=False)
 
-    emiss_ready = point_sources_to_dataset("sample_geo.csv", geo_path,
-                                           "\t", "LAT", "LON")
+    emiss_ready = read_point_sources("sample_geo.csv", geo_path,
+                                     "\t", "LAT", "LON")
     os.remove("sample_geo.csv")
 
     assert isinstance(emiss_ready, xr.Dataset)

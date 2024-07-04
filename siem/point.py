@@ -72,9 +72,9 @@ def point_emiss_to_xarray(emiss_point_proj: pd.DataFrame) -> xr.Dataset:
     return emiss_point
 
 
-def point_sources_to_dataset(point_path: str, geo_path: str, sep: str = "\t",
-                             lat_name: str = "LAT", lon_name: str = "LON"
-                             ) -> xr.Dataset:
+def read_point_sources(point_path: str, geo_path: str, sep: str = "\t",
+                       lat_name: str = "LAT", lon_name: str = "LON"
+                       ) -> xr.Dataset:
     point_sources = create_gpd_from(point_path, sep, lat_name, lon_name)
     wrf_grid = create_wrf_grid(geo_path, save=False)
     wrf_grid = configure_grid_spatial(wrf_grid, point_sources)

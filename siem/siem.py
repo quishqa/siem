@@ -167,12 +167,11 @@ class EmissionSource:
 
 
 class PointSources:
-    def __init__(self, name: str, point_path: str, sep: str, geo_path: str,
-                 lat_name: str, lon_name: str, pol_emiss: dict,
-                 temporal_prof: list[float], voc_spc: dict, pm_spc: dict):
+    def __init__(self, name: str, point_emiss: xr.Dataset,
+                 pol_emiss: dict, temporal_prof: list[float],
+                 voc_spc: dict, pm_spc: dict):
         self.name = name
-        self.spatial_emission = pt.point_sources_to_dataset(
-                point_path, geo_path, sep, lat_name, lon_name)
+        self.spatial_emission = point_emiss
         self.pol_emiss = pol_emiss
         self.temporal_prof = temporal_prof
         self.voc_spc = voc_spc

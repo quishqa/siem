@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 import xarray as xr
-from siem.point import point_sources_to_dataset
+from siem.point import read_point_sources
 from siem.emiss import ktn_year_to_ug_seg, ktn_year_to_mol_hr
 
 
@@ -24,8 +24,8 @@ def test_calculate_centroid() -> None:
 
     sample.to_csv("sample_geo.csv", sep="\t", index=False)
 
-    emiss_ready = point_sources_to_dataset("sample_geo.csv", geo_path,
-                                           "\t", "LAT", "LON")
+    emiss_ready = read_point_sources("sample_geo.csv", geo_path,
+                                     "\t", "LAT", "LON")
     os.remove("sample_geo.csv")
 
     so2 = emiss_ready["so2"]
