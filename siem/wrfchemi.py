@@ -28,7 +28,7 @@ def transform_wrfchemi_units_point(spatial_emiss: xr.Dataset,
     for pol_name, pol_mw in pols_mw.items():
         if pol_name == pm_name:
             emiss_units[pol_name] = ktn_year_to_ug_seg(
-                    emiss_units[pol_name]) / cell_area
+                    emiss_units[pol_name]) / (cell_area * 1000 * 1000)
         emiss_units[pol_name] = ktn_year_to_mol_hr(emiss_units[pol_name],
                                                    pol_mw) / cell_area
     return emiss_units
