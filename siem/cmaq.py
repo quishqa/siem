@@ -234,7 +234,10 @@ def sum_cmaq_sources(day_source_dimension: xr.Dataset
 
 def update_tflag_sources(sum_sources_by_day: xr.Dataset
                          ) -> typing.Dict[str, xr.Dataset]:
+    sum_sources_by_day = {day: emis.drop_vars(["day", "TFLAG"])
+                          for day, emis in sum_sources_by_day.items()}
     for day, sum_source in sum_sources_by_day.items():
         sum_source["TFLAG"] = create_tflag_variable(day,
                                                     sum_source.sizes["VAR"])
+        sum_source.attrs["SDATE"] = sum_source.TFLAG.isel(TSTEP=0, VAR=0).values[0]
     return sum_sources_by_day

@@ -325,5 +325,5 @@ class GroupSources:
 
         if write_netcdf:
             for cmaq_nc in cmaq_sum_by_day.values():
-                cmaq.save_cmaq_file(cmaq_nc.drop_vars("day"), path)
+                cmaq.save_cmaq_file(cmaq_nc, path)
         return cmaq_sum_by_day
