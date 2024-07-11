@@ -238,6 +238,6 @@ def update_tflag_sources(sum_sources_by_day: xr.Dataset
                           for day, emis in sum_sources_by_day.items()}
     for day, sum_source in sum_sources_by_day.items():
         sum_source["TFLAG"] = create_tflag_variable(day,
-                                                    sum_source.sizes["VAR"])
+                                                    len(sum_source.data_vars))
         sum_source.attrs["SDATE"] = sum_source.TFLAG.isel(TSTEP=0, VAR=0).values[0]
     return sum_sources_by_day
