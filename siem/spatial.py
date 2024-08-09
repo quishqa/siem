@@ -1,5 +1,5 @@
 """
-Functions to read and process spatial emission proxy.
+Functions for emission spatial disaggregation.
 """
 import numpy as np
 import pandas as pd
