@@ -352,8 +352,6 @@ def create_global_attrs(speciated_cmaq_attr: xr.Dataset,
 
     """
     griddesc = pnc.pncopen(griddesc_path, format="griddesc")
-    emiss_vars = [
-        emi for emi in speciated_cmaq_attr.data_vars if emi != "TFLAG"]
     now_date = dt.datetime.now()
 
     global_attrs = {}
