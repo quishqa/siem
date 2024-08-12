@@ -1,3 +1,11 @@
+"""
+SIEM: SImplified Emission Model
+
+SIEM produces the emission file required to run WRF-Chem 
+and CMAQ air quality models.
+
+"""
+
 import typing
 import numpy as np
 import pandas as pd
@@ -11,9 +19,26 @@ import siem.point as pt
 
 
 class EmissionSource:
+    """
+    A class used to represent and emission source to 
+    be estimated from spatial proxy.
+
+    Attributes
+    ----------
+    name : Name of Source.
+    number : Number of Sources.
+    use_intensity : Use intensity
+    pol_ef : Pollutant emission factors and molecular weight.
+    spatial_proxy : Spatial proxy to spatial distribute emissions.
+    temporal_prof : Temporal profile to temporal distribute emissions.
+    voc_spc : VOC species to speciate with their fraction.
+    pm_spc : PM speciest to speciate with their fraction.
+
+    """
+
     def __init__(self, name: str, number: int | float, use_intensity: float,
                  pol_ef: dict, spatial_proxy: xr.DataArray,
-                 temporal_prof: list, voc_spc: dict, pm_spc: dict):
+                 temporal_prof: list[float], voc_spc: dict, pm_spc: dict):
         self.name = name
         self.number = number
         self.use_intensity = use_intensity
@@ -25,12 +50,12 @@ class EmissionSource:
 
     def __str__(self):
         source_summary = (
-                f"Source name: {self.name}\n"
-                f"Number: {self.number}\n"
-                f"Pollutants: {list(self.pol_ef.keys())}\n"
-                f"Number VOC species: {len(self.voc_spc.keys())}\n"
-                f"Number PM species: {len(self.pm_spc.keys())}\n"
-                )
+            f"Source name: {self.name}\n"
+            f"Number: {self.number}\n"
+            f"Pollutants: {list(self.pol_ef.keys())}\n"
+            f"Number VOC species: {len(self.voc_spc.keys())}\n"
+            f"Number PM species: {len(self.pm_spc.keys())}\n"
+        )
         return source_summary
 
     def total_emission(self, pol_name: str, ktn_year: bool = False):
@@ -43,12 +68,12 @@ class EmissionSource:
 
     def report_emissions(self) -> pd.DataFrame:
         total_emission = {
-                pol: self.total_emission(pol, ktn_year=True)
-                for pol in self.pol_ef.keys()
-                }
+            pol: self.total_emission(pol, ktn_year=True)
+            for pol in self.pol_ef.keys()
+        }
         total_emission = pd.DataFrame.from_dict(
-                total_emission, orient="index", columns=["total_emiss"]
-                )
+            total_emission, orient="index", columns=["total_emiss"]
+        )
         return total_emission
 
     def spatial_emission(self, pol_name: str,
@@ -67,18 +92,18 @@ class EmissionSource:
             pol_names = [pol_names]
 
         spatial_emissions = {
-                pol: self.spatial_emission(pol, cell_area)
-                for pol in pol_names
-                }
+            pol: self.spatial_emission(pol, cell_area)
+            for pol in pol_names
+        }
 
         temp_prof = self.temporal_prof
         if is_cmaq:
             temp_prof = cmaq.to_25hr_profile(self.temporal_prof)
 
         spatio_temporal = {
-                pol: temp.split_by_time(spatial, temp_prof)
-                for pol, spatial in spatial_emissions.items()
-                }
+            pol: temp.split_by_time(spatial, temp_prof)
+            for pol, spatial in spatial_emissions.items()
+        }
         return xr.merge(spatio_temporal.values())
 
     def speciate_emission(self, pol_name: str, pol_species: dict,
@@ -155,11 +180,11 @@ class EmissionSource:
                                                          week_profile,
                                                          is_cmaq=True)
         cmaq_files = {
-                day: cmaq.prepare_netcdf_cmaq(speciated_emiss * fact,
-                                              day, griddesc_path, btrim,
-                                              self.voc_spc, self.pm_spc)
-                for day, fact in zip(days_factor.day, days_factor.frac)
-                      }
+            day: cmaq.prepare_netcdf_cmaq(speciated_emiss * fact,
+                                          day, griddesc_path, btrim,
+                                          self.voc_spc, self.pm_spc)
+            for day, fact in zip(days_factor.day, days_factor.frac)
+        }
         if write_netcdf:
             for cmaq_nc in cmaq_files.values():
                 cmaq.save_cmaq_file(cmaq_nc, path)
@@ -179,11 +204,11 @@ class PointSources:
 
     def __str__(self):
         source_summary = (
-                f"Source name: {self.name}\n"
-                f"Pollutants: {list(self.pol_emiss.keys())}\n"
-                f"Number VOC species: {len(self.voc_spc.keys())}\n"
-                f"Number PM species: {len(self.pm_spc.keys())}\n"
-                )
+            f"Source name: {self.name}\n"
+            f"Pollutants: {list(self.pol_emiss.keys())}\n"
+            f"Number VOC species: {len(self.voc_spc.keys())}\n"
+            f"Number PM species: {len(self.pm_spc.keys())}\n"
+        )
         return source_summary
 
     def total_emission(self, pol_name: str) -> float:
@@ -194,12 +219,12 @@ class PointSources:
 
     def report_emissions(self) -> pd.DataFrame:
         total_emission = {
-                pol: self.total_emission(pol)
-                for pol in self.pol_emiss.keys()
-                }
+            pol: self.total_emission(pol)
+            for pol in self.pol_emiss.keys()
+        }
         total_emission = pd.DataFrame.from_dict(
-                total_emission, orient="index", columns=["total_emiss"]
-                )
+            total_emission, orient="index", columns=["total_emiss"]
+        )
         return total_emission
 
     def to_wrfchemi(self, wrfinput: xr.Dataset,
@@ -253,11 +278,11 @@ class PointSources:
                                                          week_profile,
                                                          is_cmaq=True)
         cmaq_files = {
-                day: cmaq.prepare_netcdf_cmaq(speciated_emiss * fact,
-                                              day, griddesc_path, btrim,
-                                              self.voc_spc, self.pm_spc)
-                for day, fact in zip(days_factor.day, days_factor.frac)
-                }
+            day: cmaq.prepare_netcdf_cmaq(speciated_emiss * fact,
+                                          day, griddesc_path, btrim,
+                                          self.voc_spc, self.pm_spc)
+            for day, fact in zip(days_factor.day, days_factor.frac)
+        }
         if write_netcdf:
             for cmaq_nc in cmaq_files.values():
                 cmaq.save_cmaq_file(cmaq_nc, path)
@@ -271,9 +296,9 @@ class GroupSources:
     def __str__(self):
         type_of_sources = [type(source) for source in self.sources.values()]
         source_summary = (
-                f"Number of sources: {len(self.names())}\n"
-                f"Type of sources: {set(type_of_sources)}\n"
-                )
+            f"Number of sources: {len(self.names())}\n"
+            f"Type of sources: {set(type_of_sources)}\n"
+        )
         return source_summary
 
     def names(self):
@@ -282,8 +307,8 @@ class GroupSources:
 
     def report_emissions(self) -> pd.DataFrame:
         total_emissions = {
-                src_name: src.report_emissions()
-                for src_name, src in self.sources.items()}
+            src_name: src.report_emissions()
+            for src_name, src in self.sources.items()}
         return pd.concat(total_emissions, names=["src", "pol"])
 
     def to_wrfchemi(self, wrfinput: xr.Dataset,
@@ -301,11 +326,11 @@ class GroupSources:
         if write_netcdf:
             wrfchemi = wrfchemi.sum(dim="source", keep_attrs=True)
             wrfchemi["Times"] = xr.DataArray(
-                    wemi.create_date_s19(wrfinput.START_DATE,
-                                         wrfchemi.sizes["Time"]),
-                    dims=["Time"],
-                    coords={"Time": wrfchemi.Time.values}
-                    )
+                wemi.create_date_s19(wrfinput.START_DATE,
+                                     wrfchemi.sizes["Time"]),
+                dims=["Time"],
+                coords={"Time": wrfchemi.Time.values}
+            )
             wemi.write_wrfchemi_netcdf(wrfchemi, path=path)
         return wrfchemi
 
