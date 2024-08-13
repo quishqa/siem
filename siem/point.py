@@ -12,10 +12,10 @@ def create_gpd_from(point_src_path: str, sep: str = "\t",
                     ) -> gpd.GeoDataFrame:
     point_sources = pd.read_csv(point_src_path, sep=sep)
     point_sources = gpd.GeoDataFrame(
-            point_sources,
-            geometry=gpd.points_from_xy(point_sources[lon_name],
-                                        point_sources[lat_name]),
-            crs="EPSG:4326")
+        point_sources,
+        geometry=gpd.points_from_xy(point_sources[lon_name],
+                                    point_sources[lat_name]),
+        crs="EPSG:4326")
     if "Unnamed: 0" in point_sources.columns:
         return point_sources.drop(["Unnamed: 0", lat_name, lon_name], axis=1)
     return point_sources.drop([lat_name, lon_name], axis=1)
@@ -57,18 +57,18 @@ def point_emiss_to_xarray(emiss_point_proj: pd.DataFrame) -> xr.Dataset:
     lon, lat = np.meshgrid(lon1d, lat1d)
 
     emiss_point_proj = emiss_point_proj.rename(
-            columns={"y": "south_north", "x": "west_east"}
-            )
+        columns={"y": "south_north", "x": "west_east"}
+    )
 
     coords = {"XLONG": (("south_north", "west_east"), lon),
               "XLAT": (("south_north", "west_east"), lat)}
     emiss_point_proj.set_index(["south_north", "west_east"], inplace=True)
     emiss_point = emiss_point_proj.to_xarray()
     emiss_point = (
-            emiss_point
-            .assign_coords(coords)
-            .drop_vars(["south_north", "west_east"])
-            )
+        emiss_point
+        .assign_coords(coords)
+        .drop_vars(["south_north", "west_east"])
+    )
     return emiss_point
 
 
@@ -84,4 +84,3 @@ def read_point_sources(point_path: str, geo_path: str, sep: str = "\t",
     emiss_in_grid = create_emiss_point(point_sources, wrf_grid)
     emiss_in_grid = calculate_centroid(emiss_in_grid, geo_path)
     return point_emiss_to_xarray(emiss_in_grid)
-
