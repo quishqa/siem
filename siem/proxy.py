@@ -88,7 +88,7 @@ def create_grid(geo_em: xr.Dataset) -> gpd.GeoDataFrame:
             [upper, left]
             ]
 
-    xy = np.emtpy((n, 4, 2))
+    xy = np.empty((n, 4, 2))
 
     for i, (rows, cols) in enumerate(corners):
         xy[:, i, 0] = clon[rows, cols].ravel()
