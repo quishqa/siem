@@ -96,7 +96,6 @@ def create_grid(geo_em: xr.Dataset) -> gpd.GeoDataFrame:
 
     grid_geometry = shapely.creation.polygons(xy)
     grid_wrf = gpd.GeoDataFrame(geometry=grid_geometry)
-    grid_wrf = gpd.GeoDataFrame({"geometry": poly})
     return grid_wrf
 
 
