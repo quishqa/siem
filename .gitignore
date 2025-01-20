@@ -5,6 +5,7 @@ data/partial/*
 data/geo_em*
 data/*csv
 data/*txt
+data/*
 scripts/cache/*
 scripts/*_demo.py
 scripts/nohup.out

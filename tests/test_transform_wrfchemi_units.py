@@ -7,6 +7,7 @@ import xarray as xr
 
 def test_transform_wrfchemi_units() -> None:
     spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
+                                       (24, 14),
                                        ["id", "x", "y", "a", "b", "urban"])
     voc_spc = {}
     pm_spc = {}

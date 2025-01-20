@@ -2,7 +2,7 @@ import os
 import osmnx as ox
 import xarray as xr
 import numpy as np
-from shapely.geometry import Polygon
+import shapely
 from siem.user import check_create_savedir
 import geopandas as gpd
 
@@ -70,33 +70,40 @@ def download_point_sources(wrf_path: str, tags: dict,
     return point_sources_shp
 
 
-def create_grid(lat: np.ndarray, lon: np.ndarray) -> gpd.GeoDataFrame:
-    poly = []
-    for j in range(len(lat) - 1):
-        for i in range(len(lon) - 1):
-            poly.append(Polygon([
-                (lon[i], lat[j + 1]),
-                (lon[i + 1], lat[j + 1]),
-                (lon[i + 1], lat[j]),
-                (lon[i], lat[j])
-            ]))
-    grid_wrf = gpd.GeoDataFrame({"geometry": poly})
+def create_grid(geo_em: xr.Dataset) -> gpd.GeoDataFrame:
+    clat = geo_em.XLAT_C.sel(Time=0).values
+    clon = geo_em.XLONG_C.sel(Time=0).values
+
+    nrow = geo_em.sizes["south_north"]
+    ncol = geo_em.sizes["west_east"]
+
+    n = nrow * ncol
+
+    left = lower = slice(None, -1)
+    upper = right = slice(1, None)
+    corners = [
+            [lower, left],
+            [lower, right],
+            [upper, right],
+            [upper, left]
+            ]
+
+    xy = np.empty((n, 4, 2))
+
+    for i, (rows, cols) in enumerate(corners):
+        xy[:, i, 0] = clon[rows, cols].ravel()
+        xy[:, i, 1] = clat[rows, cols].ravel()
+
+    grid_geometry = shapely.creation.polygons(xy)
+    grid_wrf = gpd.GeoDataFrame(geometry=grid_geometry)
     return grid_wrf
 
 
-def create_wrf_grid(wrf_path: str, save: bool = True,
+def create_wrf_grid(geo_path: str, save: bool = True,
                     save_path: str = "../data/partial") -> gpd.GeoDataFrame:
-    with xr.open_dataset(wrf_path) as geo:
-        xlat_c = (geo
-                  .XLAT_C
-                  .isel(Time=0, west_east_stag=0)
-                  .values)
-        xlon_c = (geo
-                  .XLONG_C
-                  .isel(Time=0, south_north_stag=0)
-                  .values)
+    with xr.open_dataset(geo_path) as geo:
+        wrf_grid = create_grid(geo)
         grid_id = geo.grid_id
-    wrf_grid = create_grid(xlat_c, xlon_c)
     if save:
         check_create_savedir(save_path)
         wrf_grid.to_file(f"{save_path}/wrf_grid_d{grid_id}.shp")

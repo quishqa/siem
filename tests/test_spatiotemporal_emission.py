@@ -6,6 +6,7 @@ from siem.spatial import read_spatial_proxy
 
 def test_spatiotemporal_emission() -> None:
     spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
+                                       (24, 14),
                                        ["id", "x", "y", "a", "b", "urban"])
     voc_spc = {}
     pm_spc = {}
@@ -31,6 +32,7 @@ def test_spatiotemporal_emission() -> None:
 
 def test_spatiotemporal_emission_pol_names() -> None:
     spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
+                                       (24, 14),
                                        ["id", "x", "y", "a", "b", "urban"])
     voc_spc = {}
     pm_spc = {}
@@ -54,6 +56,7 @@ def test_spatiotemporal_emission_pol_names() -> None:
 
 def test_spatiotemporal_emission_cmaq() -> None:
     spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
+                                       (24, 14),
                                        ["id", "x", "y", "a", "b", "urban"])
     voc_spc = {}
     pm_spc = {}

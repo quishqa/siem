@@ -8,6 +8,7 @@ import siem.emiss as em
 
 
 def read_spatial_proxy(proxy_path: str,
+                       proxy_shape: tuple,
                        col_names: list = ["id", "x", "y", "urban"],
                        sep: str = " ",
                        proxy: str = "urban",
@@ -21,6 +22,8 @@ def read_spatial_proxy(proxy_path: str,
     ----------
     proxy_path : str
         The location of the csv file.
+    proxy_shape: tuple(nrow, ncol)
+        Dimensions of proxy, number of columns and number of rows.
     col_names : list
         Columns name of the csv file.
     sep : str
@@ -39,14 +42,18 @@ def read_spatial_proxy(proxy_path: str,
 
     """
     spatial_proxy = pd.read_csv(proxy_path, names=col_names, sep=sep)
-    lon1d = spatial_proxy[lon_name].round(5).unique()
-    lat1d = spatial_proxy[lat_name].round(5).unique()
-
-    lon, lat = np.meshgrid(lon1d, lat1d)
+    ncol, nrow = proxy_shape
 
     urban = (spatial_proxy[proxy]
              .values
-             .reshape(len(lat1d), len(lon1d)))
+             .reshape(nrow, ncol))
+
+    lat = (spatial_proxy[lat_name]
+           .values
+           .reshape(nrow, ncol))
+    lon = (spatial_proxy[lon_name]
+           .values
+           .reshape(nrow, ncol))
 
     spatial_proxy = xr.DataArray(
         urban,

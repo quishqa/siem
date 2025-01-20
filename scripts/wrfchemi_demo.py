@@ -4,9 +4,12 @@ from siem.siem import EmissionSource
 from siem.siem import GroupSources
 from siem.spatial import read_spatial_proxy
 
-spatial_proxy = read_spatial_proxy("../data/highways_hdv.csv",
-                                   ["id", "x", "y", "longKm"], proxy="longKm")
 wrfinput = xr.open_dataset("../data/wrfinput_d02")
+_ , ncol, nrow = wrfinput.XLAT.values.shape
+
+spatial_proxy = read_spatial_proxy("../data/highways_hdv.csv",
+                                   (nrow, ncol),
+                                   ["id", "x", "y", "longKm"], proxy="longKm")
 
 temporal_profile = [0.019, 0.012, 0.008, 0.004, 0.003, 0.003,
                     0.006, 0.017, 0.047, 0.074, 0.072, 0.064,

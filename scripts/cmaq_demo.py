@@ -3,9 +3,12 @@ import xarray as xr
 from siem.siem import EmissionSource, GroupSources, PointSources
 from siem.spatial import read_spatial_proxy
 
-spatial_proxy = read_spatial_proxy("../data/highways_hdv.csv",
-                                   ["id", "x", "y", "longKm"], proxy="longKm")
 wrfinput = xr.open_dataset("../data/wrfinput_d02")
+_, ncol, nrow = wrfinput.XLAT.values.shape
+
+spatial_proxy = read_spatial_proxy("../data/highways_hdv.csv",
+                                   (nrow, ncol),
+                                   ["id", "x", "y", "longKm"], proxy="longKm")
 
 temporal_profile = [0.019, 0.012, 0.008, 0.004, 0.003, 0.003,
                     0.006, 0.017, 0.047, 0.074, 0.072, 0.064,
@@ -72,36 +75,35 @@ flex_gasoline_vehicles = EmissionSource("Flex vehicles",
                                         pm_exa)
 
 
-emiss_path = "../data/point_emiss_veih.csv"
-geogrid_path = "../data/geo_em.d02.nc"
-pol_spc = {pol: mw[1] for pol, mw in gasoline_ef.items()}
-
-point_sources = PointSources(name="Test Source",
-                             point_path=emiss_path,
-                             sep="\t",
-                             geo_path=geogrid_path,
-                             lat_name="LAT", lon_name="LON",
-                             pol_emiss=pol_spc,
-                             temporal_prof=temporal_profile,
-                             voc_spc=gas_voc_exa,
-                             pm_spc=pm_exa)
+# emiss_path = "../data/point_emiss_veih.csv"
+# geogrid_path = "../data/geo_em.d02.nc"
+# pol_spc = {pol: mw[1] for pol, mw in gasoline_ef.items()}
+#
+# point_sources = PointSources(name="Test Source",
+#                              point_path=emiss_path,
+#                              sep="\t",
+#                              geo_path=geogrid_path,
+#                              lat_name="LAT", lon_name="LON",
+#                              pol_emiss=pol_spc,
+#                              temporal_prof=temporal_profile,
+#                              voc_spc=gas_voc_exa,
+#                              pm_spc=pm_exa)
 date_start, date_end = "2018-07-01", "2018-07-03"
-
-point_sources.to_cmaq(wrfinput=wrfinput,
-                      griddesc_path="../data/GRIDDESC",
-                      btrim=5, start_date=date_start,
-                      end_date=date_end, week_profile=week_profile)
-
+#
+# point_sources.to_cmaq(wrfinput=wrfinput,
+#                       griddesc_path="../data/GRIDDESC",
+#                       btrim=5, start_date=date_start,
+#                       end_date=date_end, week_profile=week_profile)
+#
 
 # cmaq_files = gasoline_vehicles.to_cmaq(wrfinput, "../data/GRIDDESC",
 #                                        6, date_start, date_end,
 #                                        week_profile, write_netcdf=True)
-sources = [gasoline_vehicles, flex_ethanol_vehicles, flex_gasoline_vehicles,
-           point_sources]
+sources = [gasoline_vehicles, flex_ethanol_vehicles, flex_gasoline_vehicles]
 
 all_in_one = GroupSources(sources)
 
 
 griddesc_path = "../data/GRIDDESC"
-emiss_source = all_in_one.to_cmaq(wrfinput, griddesc_path, 6, date_start, date_end, week_profile,
+emiss_source = all_in_one.to_cmaq(wrfinput, griddesc_path, 2, date_start, date_end, week_profile,
                                   write_netcdf=True)

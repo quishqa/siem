@@ -7,6 +7,7 @@ from siem.cmaq import add_cmaq_emission_attrs
 
 def test_add_cmaq_emission_attrs() -> None:
     spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
+                                       (24, 14),
                                        ["id", "x", "y", "a", "b", "urban"])
     voc_species = {"HC3": 0.5, "HC5": 0.25, "HC8": 0.25}
     pm_species = {"PM10": 0.3, "PM25_I": 0.7 * 0.5, "PM25_J": 0.7 * 0.5}

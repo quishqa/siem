@@ -5,6 +5,7 @@ from siem.spatial import read_spatial_proxy
 
 def test_spatial_emission() -> None:
     spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
+                                       (24, 14),
                                        ["id", "x", "y", "lon", "pp", "urban"],
                                        proxy="lon")
     temporal_prof = []
