@@ -4,7 +4,7 @@ This is the SImplified Emission Model.
 It is a python package to create the emission 
 file for [WRF-Chem](https://www2.acom.ucar.edu/wrf-chem) and [CMAQ](https://www.epa.gov/cmaq) air quality models.
 
-It is inspired on the work of [Andrade et al. (2025)](http://journal.frontiersin.org/Article/10.3389/fenvs.2015.00009/abstract), 
+It is inspired on the work of [Andrade et al. (2015)](http://journal.frontiersin.org/Article/10.3389/fenvs.2015.00009/abstract), 
 [AAS4WRF](https://github.com/alvv1986/AAS4WRF), and [PyChEmiss](https://github.com/quishqa/PyChEmiss). 
 
 `siem` main objective is to create the emission file for cities with scarce emission data.
