@@ -113,7 +113,33 @@ gasoline_ef = {
 In this example, we define the emission factor of CO, NO, RCHO, VOC, and PM. 
 Notice that it is required to have "VOC" and "PM" in the dictionary as these pollutants will next be speciated.
 It there is no information about these pollutants you can just do `VOC: (0.0, 100)` or `PM: (0.0, 1)`.
+Also, the molecular weigth of PM is always 1.
+
 #### VOC and PM speciation
+
+Many chemical mechanism and aerosol modules use different species for both VOC and PM emissions. 
+`siem` speciate based in percetange of total emission.
+We used a `dict()` to define the speciation.
+The keys are the VOC or PM species in the mechanism and the value, the percentage of total VOC or PM emitted.
+
+```python
+gasoline_voc_cbmz = {
+    "ETH": 0.282625, "HC3": 0.435206, "HC5": 0.158620,
+    "HC8": 0.076538, "OL2": 0.341600, "OLT": 0.143212,
+    "OLI": 0.161406, "ISO": 0.004554, "TOL": 0.140506,
+    "XYL": 0.157456, "KET": 0.000083, "CH3OH": 0.001841
+}
+
+gasoline_pm_mosaic = {
+    "PM25I": 0.032,
+    "PM25J": 0.096,
+    "SO4I": 0.0024,
+    "SO4J": 0.0156,
+    ....
+}
+```
+
+Therefore, `siem` can be used to define different speciations based on the chemical mechanism and the available information. 
 
 
 #### Building the object
