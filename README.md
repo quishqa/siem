@@ -176,3 +176,23 @@ diesel = EmissionSource(
 
 ### `GroupSources`
 
+Once you defined all the sources that are going to be in the `wrfchemi` file,
+you can group them using the `GroupSources` class:
+
+```python
+from siem.siem import GroupSources
+
+vehicular_sources = [gasoline, diesel, ethanol]
+
+vehicular = GroupSources(vehicular_sources)
+```
+
+Then, you can create the WRF-Chem emission file by doing:
+
+```python
+import xarray as xr
+
+wrfinput_d01 = xr.open_dataset("../data/wrfinput_d01")
+vehicular.to_wrfchemi(wrfinput_d01, "2024-03-08", "2024-03-10",
+                      write_netcdf=True)
+```
