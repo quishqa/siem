@@ -75,6 +75,7 @@ from siem.spatial import read_spatial_proxy
 
 spatial_proxy = read_spatial_proxy(
     proxy_path="./spatial_proxy.csv",
+    shape = (100, 100), # (ncol, nrow) of spatial_proxy.csv, (west_east points, south_north points)
     col_names=["id", "x", "y", "emiss_weight"],
     proxy="emiss_weight",
     lon_name="x",
@@ -97,7 +98,21 @@ gasoline_temp_prof = [
 ```
 #### Pollutant emission factors
 
+The pollutant emission factors are defined using a `dict()`. 
+The keys are the names of pollutants in the emission inventory,
+and the values are a `tuple` with the emission factor (g day^-1) and the molecular weigth (g mol^-1).
 
+```python
+gasoline_ef = {
+    "CO": (0.173, 28), "NO": (0.010, 30),
+    "RCHO": (0.0005, 32), "VOC": (0.012, 100),
+    "PM": (0.001, 1)
+}
+```
+
+In this example, we define the emission factor of CO, NO, RCHO, VOC, and PM. 
+Notice that it is required to have "VOC" and "PM" in the dictionary as these pollutants will next be speciated.
+It there is no information about these pollutants you can just do `VOC: (0.0, 100)` or `PM: (0.0, 1)`.
 #### VOC and PM speciation
 
 
