@@ -146,21 +146,33 @@ Therefore, `siem` can be used to define different speciations based on the chemi
 
 Finally, to define an emission source, like Gasoline Vehicles we used the `EmissionSource` class:
 
-```
+```python
 from siem.siem import EmissionSource
 
 gasoline = EmissionSource(
     name="Gasoline vehicles",
     number=1_000_000,
-    use_intensity= 13_495/365,
+    use_intensity= 13_495/365,  # km day ^ -1
     pol_ef=gasoline_ef,
     temporal_profile=temp_prof,
-    voc_spc=gasoline_voc_ef,
-    pm_spc=gasoline_pm_spc
+    voc_spc=gasoline_voc_cbmz,
+    pm_spc=gasoline_pm_mosaic
 )
 ```
+And you can create other `EmissionSource` object, for example, 
+let's create a Diesel vehicle emissions:
 
-### `PointSource` 
+```python
+diesel = EmissionSource(
+    name="Diesel vehicles",
+    number=40_000,
+    use_intensity= 13_495/365,  # km day ^ -1
+    pol_ef=diesel_ef,
+    temporal_profile=diesel_temp_prof,
+    voc_spc=diesel_voc_cbmz,
+    pm_spc=diesel_pm_mosaic
+)
+```
 
 ### `GroupSources`
 
