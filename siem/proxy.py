@@ -1,4 +1,6 @@
-import os
+"""
+Functions to download and create spatial proxy using OSM data
+"""
 import osmnx as ox
 import xarray as xr
 import numpy as np
@@ -7,7 +9,7 @@ from siem.user import check_create_savedir
 import geopandas as gpd
 
 
-def get_domain_extension(wrf_path: str ="../data/geo_em.d02.nc") -> tuple:
+def get_domain_extension(wrf_path: str = "../data/geo_em.d02.nc") -> tuple:
     geo = xr.open_dataset(wrf_path)
     xlat_c = geo.XLAT_C.isel(Time=0)
     xlon_c = geo.XLONG_C.isel(Time=0)
@@ -65,8 +67,8 @@ def download_point_sources(wrf_path: str, tags: dict,
         check_create_savedir(save_path)
         source_type = list(tags.values())[0]
         point_sources_shp.to_file(
-                f"{save_path}/point_source_{source_type}.shp"
-                )
+            f"{save_path}/point_source_{source_type}.shp"
+        )
     return point_sources_shp
 
 
@@ -82,11 +84,11 @@ def create_grid(geo_em: xr.Dataset) -> gpd.GeoDataFrame:
     left = lower = slice(None, -1)
     upper = right = slice(1, None)
     corners = [
-            [lower, left],
-            [lower, right],
-            [upper, right],
-            [upper, left]
-            ]
+        [lower, left],
+        [lower, right],
+        [upper, right],
+        [upper, left]
+    ]
 
     xy = np.empty((n, 4, 2))
 
@@ -139,9 +141,9 @@ def calculate_points_grid(wrf_grid: gpd.GeoDataFrame,
         points_in_dom["x"] = points_in_dom.centroid.geometry.x
         points_in_dom["y"] = points_in_dom.centroid.geometry.y
         points_in_dom[["x", "y", "n_sources"]].to_csv(
-                f"{save_pre}/points_{file_name}.csv",
-                sep=" ", header=False
-                )
+            f"{save_pre}/points_{file_name}.csv",
+            sep=" ", header=False
+        )
     return points_in_dom
 
 
@@ -174,7 +176,7 @@ def calculate_highway_grid(wrf_grid: gpd.GeoDataFrame,
         highway_dom["x"] = highway_dom.geometry.centroid.x
         highway_dom["y"] = highway_dom.geometry.centroid.y
         highway_dom[["x", "y", "longKm"]].to_csv(
-                f"{save_pre}/highways_{file_name}.csv",
-                sep=" ", header=False
-                )
+            f"{save_pre}/highways_{file_name}.csv",
+            sep=" ", header=False
+        )
     return highway_dom

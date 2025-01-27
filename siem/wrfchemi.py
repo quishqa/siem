@@ -134,7 +134,7 @@ def speciate_wrfchemi(spatial_emiss_units: xr.Dataset,
     Parameters
     ----------
     spatial_emiss_units : xr.Dataset
-        Spatial and temporal distributed emissions. 
+        Spatial and temporal distributed emissions.
     voc_species : typing.Dict[str, float]
         Keys are VOC species and Values the fraction from total VOC.
     pm_species : typing.Dict[str, float]
@@ -180,7 +180,7 @@ def create_date_s19(start_date: str, periods: int = 24) -> np.ndarray:
     Parameters
     ----------
     start_date : str
-        simulation start date in "%Y-%m-%d_%H:%M:%S" 
+        simulation start date in "%Y-%m-%d_%H:%M:%S".
     periods : int
         Number of hours of day.
 
@@ -216,7 +216,7 @@ def prepare_wrfchemi_netcdf(speciated_wrfchemi: xr.Dataset,
     Returns
     -------
     xr.Dataset
-        Dataset in WRF-Chem wrfchemi netcdf format. 
+        Dataset in WRF-Chem wrfchemi netcdf format.
         Same dimensions and global attributes.
 
     """

@@ -1,7 +1,7 @@
 """
 SIEM: SImplified Emission Model
 
-SIEM produces the emission file required to run WRF-Chem 
+SIEM produces the emission file required to run WRF-Chem
 and CMAQ air quality models.
 
 """
@@ -14,7 +14,6 @@ import siem.temporal as temp
 import siem.emiss as em
 import siem.wrfchemi as wemi
 import siem.cmaq as cmaq
-import siem.point as pt
 
 
 class EmissionSource:
@@ -80,7 +79,7 @@ class EmissionSource:
 
         Returns
         -------
-            Print name, number, pollutants, 
+            Print name, number, pollutants,
             and VOC and PM species information
             from EmissionSource.
 
@@ -140,7 +139,7 @@ class EmissionSource:
     def spatial_emission(self, pol_name: str,
                          cell_area: int | float) -> xr.DataArray:
         """
-        Distribute one pollutant 
+        Distribute one pollutant.
 
         Parameters
         ----------
@@ -391,9 +390,9 @@ class EmissionSource:
 
 class PointSources:
     """
-    A class to read points emission sources in a 
-    table where columns are longitude, latitude, and 
-    the total emissions of diferent pollutants in 
+    A class to read points emission sources in a
+    table where columns are longitude, latitude, and
+    the total emissions of diferent pollutants in
     kTn (Gg) year^-1
 
     Attributes
@@ -418,7 +417,7 @@ class PointSources:
         name : str
             Name of point sources emissions.
         point_emiss : xr.Dataset
-            Points sources in table read with 
+            Points sources in table read with
         pol_emiss : dict
             Keys are columns in point_emiss.
             values are the molecular weight.
@@ -443,7 +442,7 @@ class PointSources:
 
         Returns
         -------
-            Print name, number, pollutants, 
+            Print name, number, pollutants,
             and VOC and PM species information
             from EmissionSource.
 
@@ -768,7 +767,7 @@ class GroupSources:
         Returns
         -------
         typing.Dict[str, dict]
-            Keys are emission days. Values are emission in CMAQ 
+            Keys are emission days. Values are emission in CMAQ
             emission file netCDF format.
 
         """
