@@ -60,7 +60,7 @@ def create_date_limits(date: str, fmt: str = "%Y-%m-%d") -> tuple:
     Parameters
     ----------
     date : str
-        Date in string.         
+        Date in string.
     fmt : str
         Format date.
 
@@ -488,7 +488,7 @@ def save_cmaq_file(cmaq_nc: xr.Dataset,
     Parameters
     ----------
     cmaq_nc : xr.Dataset
-        Speciated CMAQ emission dataset with the correct Netcdf format.    
+        Speciated CMAQ emission dataset with the correct Netcdf format.
     path : str
         Location to save the emission file.
 

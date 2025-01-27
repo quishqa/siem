@@ -38,7 +38,7 @@ def speciate_emission(spatio_temporal: xr.DataArray,
     Parameters
     ----------
     spatio_temporal : xr.DataArray
-        Spatial distribution of pollutant to speciate. 
+        Spatial distribution of pollutant to speciate.
     pol_name : str
         Name of polluntat to speciate.
     pol_species : dict
@@ -69,7 +69,7 @@ def ktn_year_to_mol_hr(spatial_emiss: xr.DataArray,
     Parameters
     ----------
     spatial_emiss : xr.DataArray
-        Spatial pollutant total emission in kTn year^-1.    
+        Spatial pollutant total emission in kTn year^-1.
     pol_mw : float
 
     Returns
@@ -90,12 +90,12 @@ def ktn_year_to_ug_seg(spatial_emiss: xr.DataArray) -> xr.DataArray:
     Parameters
     ----------
     spatial_emiss : xr.DataArray
-        Spatial pollutant total emission in kTn year^-1.    
+        Spatial pollutant total emission in kTn year^-1.
 
     Returns
     -------
     xr.DataArray
-        Total emission in ug s^-1. 
+        Total emission in ug s^-1.
 
     """
     convert_factor = 1000 * 1000 * 1000 * 10 ** 6 / (365 * 24 * 3600)
@@ -114,14 +114,14 @@ def ktn_year_to_mol_seg(spatial_emiss: xr.DataArray,
     Parameters
     ----------
     spatial_emiss : xr.DataArray
-        Spatial pollutant total emission in kTn year^-1.    
+        Spatial pollutant total emission in kTn year^-1.
     pol_mw : float
         Pollutant molecular weight.
 
     Returns
     -------
     xr.DataArray
-        Total emission in mol s^-1. 
+        Total emission in mol s^-1.
 
     """
     convert_factor = 1000 * 1000 * 1000 / (365 * 24 * 3600 * pol_mw)
@@ -136,12 +136,12 @@ def ktn_year_to_g_seg(spatial_emiss: xr.DataArray) -> xr.DataArray:
     Parameters
     ----------
     spatial_emiss : xr.DataArray
-        Spatial pollutant total emission in kTn year^-1.    
+        Spatial pollutant total emission in kTn year^-1.
 
     Returns
     -------
     xr.DataArray
-        Total emission in ug s^-1. 
+        Total emission in ug s^-1.
 
     """
     convert_factor = 1000 * 1000 * 1000 / (365 * 24 * 3600)

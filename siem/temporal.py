@@ -15,7 +15,7 @@ def split_by_time(spatial_emiss: xr.DataArray,
     Parameters
     ----------
     spatial_emiss : xr.DataArray
-        Pollutant spatial emission (e.g. g km^2 day^-1) 
+        Pollutant spatial emission (e.g. g km^2 day^-1).
     temporal_profile : list
         A list of temporal fractions. For example,
         if spatial_emiss has emissions by day, then
@@ -45,7 +45,7 @@ def split_by_time_from(spatial_sources: xr.Dataset,
     Parameters
     ----------
     spatial_emiss : xr.Dataset
-        Spatial emission of many pollutants (e.g. g km^2 day^-1) 
+        Spatial emission of many pollutants (e.g. g km^2 day^-1).
     temporal_profile : list
         A list of temporal fractions. For example,
         if spatial_emiss has emissions by day, then
@@ -55,7 +55,7 @@ def split_by_time_from(spatial_sources: xr.Dataset,
     Returns
     -------
     xr.Dataset
-        Pollutants emissions distributed by time. 
+        Pollutants emissions distributed by time.
 
     """
     spatial = spatial_sources.copy()
@@ -66,13 +66,13 @@ def split_by_time_from(spatial_sources: xr.Dataset,
 
 def transform_week_profile_df(weekday_profile: list[float]) -> pd.DataFrame:
     """
-    Transform a list of weekly weight from Monday to Sunday 
+    Transform a list of weekly weight from Monday to Sunday.
     into a DataFrame.
 
     Parameters
     ----------
     weekday_profile : list[float]
-        A list with weekly weight from Monday to Sunday. 
+        A list with weekly weight from Monday to Sunday.
     Returns
     -------
     pd.DataFrame
@@ -99,7 +99,7 @@ def assign_factor_simulation_days(date_start: str, date_end: str,
     date_end : str
         Simulation end date.
     week_profile : list[float]
-        A list with weekly weight from Monday to Sunday. 
+        A list with weekly weight from Monday to Sunday.
     is_cmaq : bool
         If is it for CMAQ emissions.
 
@@ -130,7 +130,7 @@ def split_by_weekday(emiss_day: xr.Dataset,
     emiss_day : xr.Dataset
         24 hour emissions.
     weekday_profile : list[float]
-        A list with weekly weight from Monday to Sunday. 
+        A list with weekly weight from Monday to Sunday.
     date_start : str
         Simulation start date.
     date_end : str

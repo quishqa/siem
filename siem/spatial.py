@@ -1,7 +1,6 @@
 """
 Functions for emission spatial disaggregation.
 """
-import numpy as np
 import pandas as pd
 import xarray as xr
 import siem.emiss as em
@@ -119,7 +118,7 @@ def distribute_spatial_emission(spatial_proxy: xr.DataArray,
     Returns
     -------
     xr.DataArray
-        Emission of a single pollutant.    
+        Emission of a single pollutant.
 
     """
     density_map = calculate_density_map(spatial_proxy,
