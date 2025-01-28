@@ -307,6 +307,8 @@ def add_cmaq_emission_attrs(speciated_cmaq: xr.Dataset,
         speciated_cmaq[pol].attrs["units"] = "moles/s"
         if (pol == pm_name) or (pol in pm_species.keys()):
             speciated_cmaq[pol].attrs["units"] = "g/s"
+        if (pol in ["IOLE", "VOC_INV", "NVOL"]):
+            speciated_cmaq[pol].attrs["units"] = "g/s"
         speciated_cmaq[pol].attrs["long_name"] = f"{pol:<16}"
         speciated_cmaq[pol].attrs["var_desc"] = f"{var_desc:<80}"
 

@@ -1,5 +1,6 @@
 *.egg-info
 __pycache__
+.pytest_cache
 data/wrfinput_*
 data/partial/*
 data/geo_em*

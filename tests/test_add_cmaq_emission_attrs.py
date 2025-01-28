@@ -9,7 +9,8 @@ def test_add_cmaq_emission_attrs() -> None:
     spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
                                        (24, 14),
                                        ["id", "x", "y", "a", "b", "urban"])
-    voc_species = {"HC3": 0.5, "HC5": 0.25, "HC8": 0.25}
+    voc_species = {"HC3": 0.5, "HC5": 0.25, "HC8": 0.25,
+                   "VOC_INV": 1, "NVOL": 1, "IOLE": 1}
     pm_species = {"PM10": 0.3, "PM25_I": 0.7 * 0.5, "PM25_J": 0.7 * 0.5}
 
     test_source = EmissionSource("test source",
@@ -34,5 +35,8 @@ def test_add_cmaq_emission_attrs() -> None:
     assert "VOC" not in speciated_attrs.data_vars
     assert speciated_attrs.NOX.units == "moles/s"
     assert speciated_attrs.PM10.units == "g/s"
+    assert speciated_attrs.VOC_INV.units == "g/s"
+    assert speciated_attrs.NVOL.units == "g/s"
+    assert speciated_attrs.IOLE.units == "g/s"
     assert len(speciated_attrs.PM10.var_desc) == 80
     assert len(speciated_attrs.PM10.long_name) == 16
