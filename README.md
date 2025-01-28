@@ -196,3 +196,7 @@ wrfinput_d01 = xr.open_dataset("../data/wrfinput_d01")
 vehicular.to_wrfchemi(wrfinput_d01, "2024-03-08", "2024-03-10",
                       write_netcdf=True)
 ```
+
+## Acknoledgement
+
+We thanks [IAG/USP](https://www.iag.usp.br/), [LAPAT](http://www.lapat.iag.usp.br/) and [MASTER](http://www.master.iag.usp.br/) labs!
