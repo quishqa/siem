@@ -8,7 +8,7 @@ from siem.wrfchemi import transform_wrfchemi_units_point
 
 
 def test_PointSources() -> None:
-    geo_path = "./data/geo_em.d02.nc"
+    geo_path = "./tests/test_data/geo_em.d01.siem_test.nc"
     wrfinput_path = "./wrfpoint_emiss.csv"
     geo = xr.open_dataset(geo_path)
     lat = np.arange(geo.XLAT_M.min(), geo.XLAT_M.max(), 0.05)
