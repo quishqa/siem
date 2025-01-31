@@ -7,7 +7,7 @@ from siem.cmaq import create_cmaq_file_name
 
 
 def test_create_cmaq_file_name() -> None:
-    spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
+    spatial_proxy = read_spatial_proxy("./tests/test_data/highways_hdv.csv",
                                        (24, 14),
                                        ["id", "x", "y", "a", "b", "urban"])
     voc_species = {"HC3": 0.5, "HC5": 0.25, "HC8": 0.25}

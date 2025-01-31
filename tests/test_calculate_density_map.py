@@ -5,7 +5,7 @@ from siem.spatial import distribute_spatial_emission
 
 
 def test_calculate_density_map() -> None:
-    spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
+    spatial_proxy = read_spatial_proxy("./tests/test_data/highways_hdv.csv",
                                        (24, 14),
                                        ["id", "x", "y", "lon"],
                                        proxy="lon")
@@ -19,7 +19,7 @@ def test_calculate_density_map() -> None:
 
 
 def test_distribute_spatial_emission() -> None:
-    spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
+    spatial_proxy = read_spatial_proxy("./tests/test_data/highways_hdv.csv",
                                        (24, 14),
                                        ["id", "x", "y", "lon"],
                                        proxy="lon")

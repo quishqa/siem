@@ -6,7 +6,7 @@ from siem.temporal import split_by_weekday
 
 
 def test_spatiotemporal_emission() -> None:
-    spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
+    spatial_proxy = read_spatial_proxy("./tests/test_data/highways_hdv.csv",
                                        (24, 14),
                                        ["id", "x", "y", "urban"])
     voc_spc = {}

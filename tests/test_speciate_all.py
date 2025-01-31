@@ -5,7 +5,7 @@ from siem.spatial import read_spatial_proxy
 
 
 def test_speciate_emission() -> None:
-    spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
+    spatial_proxy = read_spatial_proxy("./tests/test_data/highways_hdv.csv",
                                        (24, 14),
                                        ["id", "x", "y", "a", "b", "urban"])
     voc_species = {"HC3": 0.5, "HC5": 0.25, "HC8": 0.25}
@@ -30,7 +30,7 @@ def test_speciate_emission() -> None:
                                                     speciated.PM25_J.sum())
 
 def test_speciate_emission_cmaq() -> None:
-    spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
+    spatial_proxy = read_spatial_proxy("./tests/test_data/highways_hdv.csv",
                                        (24, 14),
                                        ["id", "x", "y", "a", "b", "urban"])
     voc_species = {"HC3": 0.5, "HC5": 0.25, "HC8": 0.25}
