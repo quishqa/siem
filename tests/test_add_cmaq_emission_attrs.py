@@ -6,7 +6,7 @@ from siem.cmaq import add_cmaq_emission_attrs
 
 
 def test_add_cmaq_emission_attrs() -> None:
-    spatial_proxy = read_spatial_proxy("./tests/test_data/highways_sp,csv",
+    spatial_proxy = read_spatial_proxy("./tests/test_data/highways_hdv.csv",
                                        (24, 14),
                                        ["id", "x", "y", "a", "b", "urban"])
     voc_species = {"HC3": 0.5, "HC5": 0.25, "HC8": 0.25,
