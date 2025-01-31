@@ -13,13 +13,6 @@ def test_add_cmaq_emission_attrs() -> None:
     voc_species = {"HC3": 0.5, "HC5": 0.25, "HC8": 0.25}
     pm_species = {"PM10": 0.3, "PM25_I": 0.7 * 0.5, "PM25_J": 0.7 * 0.5}
 
-    with open('GRIDDESC', 'w') as gf:
-        gf.write(
-           "' '\n'LamCon_40N_97W'\n 2 33.000 45.000 -97.000 -97.000 40.000\n" +
-           "' '\n'12US1'\n'LamCon_40N_97W' " +
-           "-2556000.0 -1728000.0 12000.0 12000.0 459 299 1\n' '"
-        )
-
     test_source = EmissionSource("test source",
                                  1_000_000,
                                  1,
@@ -36,11 +29,10 @@ def test_add_cmaq_emission_attrs() -> None:
 
     btrim = 6
     speciated_attrs = prepare_netcdf_cmaq(speciated, "2018-07-01",
-                                          "GRIDDESC", btrim,
+                                          "./tests/test_data/GRIDDESC", btrim,
                                           voc_species,
                                           pm_species,
                                           pm_name="PM", voc_name="VOC")
-    os.remove("GRIDDESC")
 
     assert isinstance(speciated_attrs, xr.Dataset)
     assert "TSTEP" in speciated_attrs.dims
