@@ -6,13 +6,13 @@ import xarray as xr
 
 
 def test_group_sources() -> None:
-    spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
+    spatial_proxy = read_spatial_proxy("./tests/test_data/highways_hdv.csv",
                                        (24, 14),
                                        ["id", "x", "y", "urban"])
     voc_species = {"HC3": 0.5, "HC5": 0.25, "HC8": 0.25}
     pm_species = {"PM10": 0.3, "PM25_I": 0.7 * 0.5, "PM25_J": 0.7 * 0.5}
 
-    wrfinput = xr.open_dataset("./data/wrfinput_d02")
+    wrfinput = xr.open_dataset("./tests/test_data/wrfinput_d01_siem_test")
     temp_prof = np.random.normal(1, 0.5, size=24)
 
     test_source_one = EmissionSource("test source1",

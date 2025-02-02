@@ -7,7 +7,7 @@ from siem.emiss import ktn_year_to_ug_seg, ktn_year_to_mol_hr
 
 
 def test_calculate_centroid() -> None:
-    geo_path = "./data/geo_em.d02.nc"
+    geo_path = "./tests/test_data/geo_em.d01.siem_test.nc"
     geo = xr.open_dataset(geo_path)
     lat = np.arange(geo.XLAT_M.min(), geo.XLAT_M.max(), 0.05)
     lon = np.linspace(geo.XLONG_M.min(), geo.XLONG_M.max(), len(lat))

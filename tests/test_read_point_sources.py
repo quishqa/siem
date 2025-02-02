@@ -6,7 +6,7 @@ from siem.point import read_point_sources
 
 
 def test_read_point_sources() -> None:
-    geo_path = "./data/geo_em.d02.nc"
+    geo_path = "./tests/test_data/geo_em.d01.siem_test.nc"
     geo = xr.open_dataset(geo_path)
     # Testing points outside domain
     lat = np.arange(geo.XLAT_M.min() + 2.5, geo.XLAT_M.max() + 2.5, 0.05)

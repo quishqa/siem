@@ -8,7 +8,7 @@ from siem.point import create_gpd_from, create_emiss_point
 
 
 def test_calculate_sum_points() -> None:
-    wrf_path = "./data/geo_em.d02.nc"
+    wrf_path = "./tests/test_data/geo_em.d01.siem_test.nc"
     geo = xr.open_dataset(wrf_path)
     wrf_grid = create_wrf_grid(wrf_path,
                                save=False)

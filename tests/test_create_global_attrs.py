@@ -7,14 +7,7 @@ from siem.cmaq import create_global_attrs
 
 
 def test_create_global_attrs() -> None:
-    with open('GRIDDESC', 'w') as gf:
-        gf.write(
-           "' '\n'LamCon_40N_97W'\n 2 33.000 45.000 -97.000 -97.000 40.000\n" +
-           "' '\n'12US1'\n'LamCon_40N_97W' " +
-           "-2556000.0 -1728000.0 12000.0 12000.0 459 299 1\n' '"
-        )
-
-    spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
+    spatial_proxy = read_spatial_proxy("./tests/test_data/highways_hdv.csv",
                                        (24, 14),
                                        ["id", "x", "y", "a", "b", "urban"])
     voc_species = {"HC3": 0.5, "HC5": 0.25, "HC8": 0.25}
@@ -33,17 +26,15 @@ def test_create_global_attrs() -> None:
     cell_area = 1
     speciated = test_source.speciate_all(cell_area, is_cmaq=True)
     speciated_attrs = prepare_netcdf_cmaq(speciated, "2018-07-01",
-                                          "GRIDDESC", 6,
+                                          "./tests/test_data/GRIDDESC", 6,
                                           voc_species,
                                           pm_species,
                                           pm_name="PM", voc_name="VOC")
 
-    global_attrs = create_global_attrs(speciated_attrs, "GRIDDESC")
-
-    os.remove("GRIDDESC")
+    global_attrs = create_global_attrs(speciated_attrs, "./tests/test_data/GRIDDESC")
 
     assert isinstance(global_attrs, dict)
     assert len(global_attrs.keys()) == 33
     assert len(global_attrs["FILEDESC"]) == 80
     assert len(global_attrs["VAR-LIST"]) == 16 * 7
-    assert global_attrs["GDTYP"] == 2
+    assert global_attrs["GDTYP"] == 7

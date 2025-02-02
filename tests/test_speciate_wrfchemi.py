@@ -7,7 +7,7 @@ import xarray as xr
 
 
 def test_speciate_wrfchemi() -> None:
-    spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
+    spatial_proxy = read_spatial_proxy("./tests/test_data/highways_hdv.csv",
                                        (24, 14),
                                        ["id", "x", "y", "a", "b", "urban"])
     voc_species = {"HC3": 0.5, "HC5": 0.25, "HC8": 0.25}
@@ -41,7 +41,7 @@ def test_speciate_wrfchemi() -> None:
 
 
 def test_speciate_wrfchemi_add_attr() -> None:
-    spatial_proxy = read_spatial_proxy("./data/ldv_s3.txt",
+    spatial_proxy = read_spatial_proxy("./tests/test_data/highways_hdv.csv",
                                        (24, 14),
                                        ["id", "x", "y", "a", "b", "urban"])
     voc_species = {"HC3": 0.5, "HC5": 0.25, "HC8": 0.25}

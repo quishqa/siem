@@ -9,7 +9,7 @@ from siem.point import (create_gpd_from, create_emiss_point,
 
 
 def test_calculate_centroid() -> None:
-    geo_path = "./data/geo_em.d02.nc"
+    geo_path = "./tests/test_data/geo_em.d01.siem_test.nc"
     geo = xr.open_dataset(geo_path)
     wrf_grid = create_wrf_grid(geo_path,
                                save=False)
