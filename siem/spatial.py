@@ -109,18 +109,19 @@ def distribute_spatial_emission(spatial_proxy: xr.DataArray,
     cell_area : float
         wrfinput cell area (km^2)
     use_intensity : float
-        Emission source use intensity.
+        Emission source use intensity (km/day).
     pol_ef : float
-        Pollutant emission factor.
+        Pollutant emission factor (g/km).
     pol_name : str
         Pollutant name.
 
     Returns
     -------
     xr.DataArray
-        Emission of a single pollutant.
-
+        Emission of a single pollutant (g/day).
+        
     """
+    # TODO: move to emiss.py
     density_map = calculate_density_map(spatial_proxy,
                                         number_sources,
                                         cell_area)
