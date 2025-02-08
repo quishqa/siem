@@ -16,7 +16,7 @@ def transform_wrfchemi_units(spatial_emiss: xr.Dataset,
     """
     Convert emission units to WRF-Chem require units.
     Gas species to mol km^-2 hr^-1 and aerossol species
-    to ug km^-2 hr^-1.
+    to ug m^-2 s^-1.
 
     Parameters
     ----------

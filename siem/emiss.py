@@ -6,7 +6,7 @@ import xarray as xr
 
 
 def calculate_emission(number_source: int | float,
-                       activity_rate: float,
+                       use_intensity: float,
                        pol_ef: float) -> float:
     """
     Calculate pollutant total emission. Be aware of units.
@@ -15,7 +15,7 @@ def calculate_emission(number_source: int | float,
     ----------
     number_source : int | float
         Number of emission sources.
-    activity_rate : float
+    use_intensity : float
         Activitity rate.
     pol_ef : float
         Emission factor.
@@ -26,7 +26,7 @@ def calculate_emission(number_source: int | float,
         Total pollutant emissions.
 
     """
-    return number_source * activity_rate * pol_ef
+    return number_source * use_intensity * pol_ef
 
 
 def speciate_emission(spatio_temporal: xr.DataArray,

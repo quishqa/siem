@@ -202,9 +202,8 @@ def transform_cmaq_units(spatial_emiss: xr.Dataset,
     """
     for pol_name, pol_mw in pol_ef_mw.items():
         if pol_name == pm_name:
-            spatial_emiss[pm_name] = spatial_emiss[pm_name] * cell_area / 3600
-        spatial_emiss[pol_name] = (spatial_emiss[pol_name] *
-                                   cell_area / pol_mw[1] / 3600)
+            spatial_emiss[pol_name] = (spatial_emiss[pol_name] *
+                                       cell_area / pol_mw[1] / 3600)
     return spatial_emiss
 
 
