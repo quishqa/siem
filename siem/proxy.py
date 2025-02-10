@@ -1,6 +1,25 @@
+# siem/proxy.py
 """
 Functions to download and create spatial proxy using OSM data
+
+This module helps you to download OSM data to be used to spatially distribute
+emissions. It's mainly developed to distribute vehicular emissions.
+It helps you to create the `spatial_proxy` to use in `EmissSource`.
+
+It contains the following functions:
+    - `get_domain_extension(geo_em_path)` - Returns wrf domain corners coordinates.
+    - `get_highway_query(highway_types, add_links)` - Returns query for dowload highways.
+    - `download_highways(geo_em_path, highway_types, add_links, save_path, file_name)` - Returns highways in domain in graphml.
+    - `download_point_sources(geo_em_path, tags, save, save_path)` - Returns amenities shapefile.
+    - `create_grid(geo_em)` - Return wrf grid shapfile.
+    - `create_wrf_grid(geo_em_path, save, save_path)` - Returns wrf grid after read geo_em.d0X.
+    - `configure_grid_spatial(wrf_grid, proxy)` - Returns wrf_grid with proxy CRS and cell ID column.
+    - `calculate_points_grid(wrf_grid, proxy, to_pre, save_pre, file_name)` - Returns number of amenities in eac wrf grid.
+    - `load_osmx_to_gdfs(osmx_path)` - Returns highways graphml into GeoDataFrame.
+    - `calculate_highway_grid(wrf_grid, proxy, to_pre, save_pre, file_name)` - Returns sums of highways longitude inside each wrf grid cell.
+
 """
+
 import osmnx as ox
 import xarray as xr
 import numpy as np
