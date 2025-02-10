@@ -1,5 +1,18 @@
+# siem/point.py
 """
 Functions for point sources emissions
+
+This module allows to work with PointSource class.
+
+It contains the following functions:
+    - `create_gpd_from(point_src_path, sep, lat_name, lon_name)` - Returns point sources csv in gpd.GeoDataFrame.
+    - `calculate_sum_points(point_src, wrf_grid)` - Returns wrf_grid with sums of point sources emissions.
+    - `create_emiss_point(point_src, wrf_grid)` - Returns wrf_grid with sums of point sources emissions and cell with no emissions with 0.
+    - `retrive_proj_from(geogrid_path)` - Returns wrf domain projections.
+    - `calculate_centroids(emiss_point, geo_path)` - Returns total emissions of point sources in wrf grid cell centroids.
+    - `point_emiss_to_xarray(emiss_point_proj)` - Returns emissions in centroids in xr.Dataset.
+    - `read_point_sources(point_path, geo_path, sep, lat_name, lon_name)` - Returns spatial distributed point sources emissiosn to use PointSources class.
+
 """
 import numpy as np
 import pandas as pd
