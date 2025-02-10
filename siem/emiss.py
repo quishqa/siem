@@ -1,5 +1,16 @@
-"""
-Functions to calculate emission totals.
+# siem/emiss.py
+""" Calculate emission totals.
+
+This module provide functions to calculate emissions rates.
+
+The module contains the following functions:
+    - `calculate_emission(number_source, use_intensity, pol_ef)` - Returns the emission rate.
+    - `speciate_emission(spatio_temporal, pol_name, pol_species)` - Returns speciated pollutant (VOC or PM).
+    - `ktn_year_to_mol_hr(spatial_emiss, pol_mw)` - Returns emissions in mol hr^-1.
+    - `ktn_year_to_ug_seg(spatial_emiss)` - Returns emissions in ug s^-1.
+    - `ktn_year_to_mol_seg(spatial_emiss, pol_mw)` - Returns emissions in mol s^-1.
+    - `ktn_year_to_g_seg(spatial_emiss)` - Returns emissions in g s^-1.
+
 """
 import typing
 import xarray as xr
