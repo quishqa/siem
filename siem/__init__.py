@@ -1,6 +1,6 @@
 # siem/__init__.py
 
-"""SIEM: SImplied emissions model
+"""SIEM: SImplied emissions model.
 
 Create emission file for WRF-Chem and CMAQ air quality models.
 
