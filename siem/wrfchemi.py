@@ -1,5 +1,20 @@
+# siem/wrfchemi.py
 """
 Functions to create wrfchemi file.
+
+This module has function to create the WRF-Chem emission file.
+
+It contains the following functions:
+    - `transform_wrfchemi_units(spatial_emiss, pol_ef_mw, pm_name)` - Returns emissions in wrf-chem units for gas and aerossols.
+    - `transform_wrfchemi_units_point(spatial_emiss, pol_ef_mw, cell_area, pm_name)` - Returns point emissions in wrf-chem units for gas and aerossol.
+    - `add_emission_attributes(speciated_wrfchemi, voc_species, pm_name, wrfinput)` - Returns speciated emission with wrf-chem attributes.
+    - `speciate_wrfchemi(spatial_emiss_units, voc_species, pm_species, cell_area, wrfinput)` - Returns emissions with speciated PM and VOC.
+    - `create_date_s19(start_date, periods)` - Returns date in s19 type.
+    - `prepare_wrfchemi_netcdf(speciated_wrfchemi, wrfinput)` - Returns a xr.Dataset with wrfchemi format (attributes). 
+    - `create_wrfchemi_name(wrfchemi)` - Return file name based on the number of periods.
+    - `write_netcdf(wrfchemi_netcdf, file_name, path)` - Write wrfchemi file on disk in NETCDF3_64BIT.
+    - `write_wrfchemi_netcdf(wrfchemi_netcdf, path)` - Write wrfchemi file on disk based on Times variable.
+
 """
 import typing
 import numpy as np
