@@ -1,6 +1,6 @@
 # siem/point.py
 """
-Functions for point sources emissions
+Functions for point sources emissions.
 
 This module allows to work with PointSource class.
 
@@ -26,7 +26,8 @@ from wrf import getvar, get_cartopy
 def create_gpd_from(point_src_path: str, sep: str = "\t",
                     lat_name: str = "LAT", lon_name: str = "LON",
                     ) -> gpd.GeoDataFrame:
-    """
+    """Read point emiss csv.
+
     Read .csv file with latitude and longitude of point sources,
     each column is the total emissions in KTn/year.
 
@@ -83,7 +84,8 @@ def calculate_sum_points(point_src: gpd.GeoDataFrame,
 
 def create_emiss_point(point_src: gpd.GeoDataFrame,
                        wrf_grid: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    """
+    """Create emiss point.
+
     Complete wrf grid cell with no point sources emissions with 0.
     TODO: change name of this function.
 
