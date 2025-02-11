@@ -1,5 +1,5 @@
 # siem/cmaq.py
-""" Functions to build the CMAQ emission file.
+"""Functions to build the CMAQ emission file.
 
 This modules allows you to build dayly CMAQ emission files.
 It requires the wrfinput, and GRIDDESC files.
@@ -24,6 +24,7 @@ It contains the following functions:
     - `merge_cmaq_source_emiss(cmaq_sources_day)` - Returns different sources emission adition per day by source.
     - `sum_cmaq_source(day_source_emission)`- Returns total emissions from diferent sources.
     - `update_tflag_sources(sum_sources_by_day)`- Corrects/update TFLAGS variable of sum_cmaq_source product.
+
 """
 
 import typing
@@ -102,10 +103,11 @@ def create_date_limits(date: str, fmt: str = "%Y-%m-%d") -> tuple:
     return (start_julian, end_julian)
 
 
-def create_hour_matrix(date: int, hour: int, n_var: int) -> np.ndarray:
-    """
-    Create hour matrix. First column is date in julian,
-    second column is the hours
+def create_hour_matrix(date: int, hour: int, n_var: int
+                       ) -> np.ndarray:
+    """Create hour matrix.
+
+    First column is date in julian. The second column is the hours.
 
     Parameters
     ----------
@@ -235,8 +237,7 @@ def transform_cmaq_units(spatial_emiss: xr.Dataset,
 def transform_cmaq_units_point(spatial_emiss: xr.Dataset, pol_mw: dict,
                                pm_name: str = "PM") -> xr.Dataset:
     """
-    Transform point emission units in kTn (Gg) per year emission into
-    CMAQ emission units.
+    Transform point emission units in kTn (Gg) per year emission into CMAQ emission units.
 
     Parameters
     ----------
@@ -483,6 +484,7 @@ def prepare_netcdf_cmaq(speciated_cmaq: xr.Dataset, date: str,
 def create_cmaq_file_name(cmaq_nc: xr.Dataset) -> str:
     """
     Create CMAQ emission file.
+
     Parameters
     ----------
     cmaq_nc : xr.Dataset
