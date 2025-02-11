@@ -1,6 +1,6 @@
 # siem/proxy.py
 """
-Functions to download and create spatial proxy using OSM data
+Functions to download and create spatial proxy using OSM data.
 
 This module helps you to download OSM data to be used to spatially distribute
 emissions. It's mainly developed to distribute vehicular emissions.
@@ -29,7 +29,7 @@ import geopandas as gpd
 
 
 def get_domain_extension(geo_em_path: str = "../data/geo_em.d02.nc") -> tuple:
-    '''
+    """
     Extract wrf domain corners latitude and longitude.
 
     Parameters
@@ -41,7 +41,7 @@ def get_domain_extension(geo_em_path: str = "../data/geo_em.d02.nc") -> tuple:
     -------
     tuple
         max latitude, min latitude, max longitude, and min longitude.
-    '''
+    """
     geo = xr.open_dataset(geo_em_path)
     xlat_c = geo.XLAT_C.isel(Time=0)
     xlon_c = geo.XLONG_C.isel(Time=0)
@@ -54,8 +54,9 @@ def get_domain_extension(geo_em_path: str = "../data/geo_em.d02.nc") -> tuple:
 
 def get_highway_query(highway_types: list[str],
                       add_links: bool = False) -> str:
-    '''
-    Creates the custiom query based on highways types to use in OSMx package.
+    """List to OSMx query.
+
+    Create the custiom query based on highways types to use in OSMx package.
     See <https://wiki.openstreetmap.org/wiki/Key:highway>.
 
     Parameters
@@ -69,7 +70,7 @@ def get_highway_query(highway_types: list[str],
     -------
     str
         The custom query to use OSMx.
-    '''
+    """
     if add_links:
         highway_links = [f"{st}_link" for st in highway_types]
         highway_types += highway_links
@@ -86,8 +87,8 @@ def download_highways(geo_em_path: str, highway_types: str,
                       save: bool = True,
                       save_path: str = "../data/partial",
                       file_name: str = "highway"):
-    '''
-    Download highways types contain in WRF domains
+    """
+    Download highways types contain in WRF domains.
 
     Parameters
     ----------
@@ -107,7 +108,7 @@ def download_highways(geo_em_path: str, highway_types: str,
     Returns
     -------
     Highways in domain in graph.ml format.
-    '''
+    """
     north, south, east, west = get_domain_extension(geo_em_path)
     custom_filter = get_highway_query(highway_types, add_links)
     highways = ox.graph_from_bbox(north, south, east, west,
@@ -123,7 +124,8 @@ def download_highways(geo_em_path: str, highway_types: str,
 def download_point_sources(geo_em_path: str, tags: dict,
                            save: bool = True,
                            save_path: str = "../data/partial"):
-    '''
+    """Download OSM amenities.
+
     Download point sources like fuel staions or restaurants.
     It is based on OSM amenities. This function uses tags that can be found in
     <https://wiki.openstreetmap.org/wiki/Key:amenity>.
@@ -143,7 +145,7 @@ def download_point_sources(geo_em_path: str, tags: dict,
     Returns
     -------
         Point amenities in shapefile.
-    '''
+    """
     north, south, east, west = get_domain_extension(geo_em_path)
     point_sources = ox.features_from_bbox(north, south, east, west,
                                           tags=tags)
@@ -160,7 +162,8 @@ def download_point_sources(geo_em_path: str, tags: dict,
 
 
 def create_grid(geo_em: xr.Dataset) -> gpd.GeoDataFrame:
-    '''
+    """Create grid from geo_em cell coordinates.
+
     Create grid based of geo_em.d0X.nc file. It is compatible with
     Mercator and Lambert projections.
 
@@ -173,7 +176,7 @@ def create_grid(geo_em: xr.Dataset) -> gpd.GeoDataFrame:
     -------
     gpd.GeoDataFrame
         WRF domain grid in GeoDataFrame format.
-    '''
+    """
     clat = geo_em.XLAT_C.sel(Time=0).values
     clon = geo_em.XLONG_C.sel(Time=0).values
 
@@ -204,7 +207,7 @@ def create_grid(geo_em: xr.Dataset) -> gpd.GeoDataFrame:
 
 def create_wrf_grid(geo_em_path: str, save: bool = True,
                     save_path: str = "../data/partial") -> gpd.GeoDataFrame:
-    '''
+    """
     Create WRF domain grid.
 
     Parameters
@@ -215,7 +218,7 @@ def create_wrf_grid(geo_em_path: str, save: bool = True,
         If grid needs to be saved.
     save_path:
         Location to save wrf grid.
-    '''
+    """
     with xr.open_dataset(geo_em_path) as geo:
         wrf_grid = create_grid(geo)
         grid_id = geo.grid_id
@@ -227,7 +230,8 @@ def create_wrf_grid(geo_em_path: str, save: bool = True,
 
 def configure_grid_spatial(wrf_grid: gpd.GeoDataFrame,
                            proxy: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    '''
+    """Prepare wrf grid for spatial operations.
+
     Add CRS to WRF grid and added ID, preparing grid to be intecepted
     with highway shp.
 
@@ -242,7 +246,7 @@ def configure_grid_spatial(wrf_grid: gpd.GeoDataFrame,
     -------
     gpd.GeoDataFrame
         wrf_grid with same CRS as proxy and with column ID.
-    '''
+    """
     wrf_grid = wrf_grid.set_crs(proxy.crs)
     wrf_grid["ID"] = range(0, len(wrf_grid))
     return wrf_grid
@@ -320,7 +324,8 @@ def calculate_highway_grid(wrf_grid: gpd.GeoDataFrame,
                            to_pre: bool = True,
                            save_pre: str = "../data/",
                            file_name: str = "my_src") -> gpd.GeoDataFrame:
-    """
+    """Sum of highways lenght inside wrf grid cell.
+
     Calculate sum of highways longitude inside WRF grid cell.
     This will produce a proxy for spatially distribute vehicular emissions.
 
