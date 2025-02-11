@@ -1,8 +1,14 @@
+# siem/siem.py
 """
 SIEM: SImplified Emission Model
 
 SIEM produces the emission file required to run WRF-Chem
 and CMAQ air quality models.
+
+This modules defined the classes used by siem to create this emissions files:
+    - `EmissionSource` - Class to spatially and temporal distribute emissions, especially vehicular emissions.
+    - `PointSources` - Class to spatially and temporal distribute point sources from a .csv table.
+    - `GroupSources` - Class to group EmissionSources and PointSources, useful to create one emission file.
 
 """
 
