@@ -1,5 +1,17 @@
+# siem/temporal.py
 """
 Functions for emission temporal disaggregations.
+
+This modules contains functions to temporal distribute emissions by hour of the day
+and by day of week.
+
+It contains the following functions:
+    - `split_by_time(spatial_emiss, temporal_emiss)` - Returns one pollutant emission by hour.
+    - `split_by_time_from(spatial_sources, temporal_profiles)` - Returns all pollutants emissions by hour.
+    - `transform_week_profile_df(weekday_profile)` - Returns a dataframe from a list of weekday weights.
+    - `assign_factor_simulation_days(date_start, date_end, week_profile, is_cmaq)` - Returns simulation days table with the correct weekday weight according to the day.
+    - `split_by_weekday(emiss_day, weekday_profile, date_start, date_end)` - Returns emissions temporally distributed by day of the week.
+
 """
 import xarray as xr
 import numpy as np
