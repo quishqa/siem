@@ -166,6 +166,9 @@ def create_grid(geo_em: xr.Dataset) -> gpd.GeoDataFrame:
 
     Create grid based of geo_em.d0X.nc file. It is compatible with
     Mercator and Lambert projections.
+    
+    Based on:
+        <https://gis.stackexchange.com/questions/414617/creating-polygon-grid-from-point-grid-using-geopandas>.
 
     Parameters
     ----------
