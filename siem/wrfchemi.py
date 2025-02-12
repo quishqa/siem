@@ -28,7 +28,8 @@ from siem.user import check_create_savedir
 def transform_wrfchemi_units(spatial_emiss: xr.Dataset,
                              pol_ef_mw: typing.Dict[str, tuple],
                              pm_name: str = "PM") -> xr.Dataset:
-    """
+    """Tranform to WRF-Chem units.
+
     Convert emission units to WRF-Chem require units.
     Gas species to mol km^-2 hr^-1 and aerossol species
     to ug m^-2 s^-1.
@@ -142,7 +143,8 @@ def speciate_wrfchemi(spatial_emiss_units: xr.Dataset,
                       voc_name: str = "VOC",
                       pm_name: str = "PM",
                       add_attr: bool = True) -> xr.Dataset:
-    """
+    """Speciate VOC and PM emissions.
+
     Create the base of wrfchemi file by speciating VOC and PM emission
     and adding the attributes.
 
