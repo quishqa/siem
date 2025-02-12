@@ -20,7 +20,8 @@ import pandas as pd
 
 def split_by_time(spatial_emiss: xr.DataArray,
                   temporal_profile: list[float]) -> xr.DataArray:
-    """
+    """Distribute temporally one pollutant emission.
+
     Temporal disaggregation of a pollutant emission.
     It is used to distribute daily emission into hourly emissions.
 
@@ -50,7 +51,8 @@ def split_by_time(spatial_emiss: xr.DataArray,
 
 def split_by_time_from(spatial_sources: xr.Dataset,
                        temporal_profile: list[float]) -> xr.Dataset:
-    """
+    """Distribute temporally all pollutant emission.
+
     Temporal disaggregation of many pollutant emissions.
     It is used to distribute daily emission into hourly emissions.
 
@@ -77,7 +79,8 @@ def split_by_time_from(spatial_sources: xr.Dataset,
 
 
 def transform_week_profile_df(weekday_profile: list[float]) -> pd.DataFrame:
-    """
+    """Transfor weekday profile to dataframe.
+
     Transform a list of weekly weight from Monday to Sunday.
     into a DataFrame.
 
