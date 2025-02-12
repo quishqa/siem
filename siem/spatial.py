@@ -24,7 +24,8 @@ def read_spatial_proxy(proxy_path: str,
                        proxy: str = "urban",
                        lon_name: str = "x",
                        lat_name: str = "y") -> xr.DataArray:
-    """
+    """Read spatial proxy.
+
     Read spatial proxy (emission weights) csv file.
     It has to have the same number of points as wrfinput file.
 
@@ -78,8 +79,9 @@ def read_spatial_proxy(proxy_path: str,
 def calculate_density_map(spatial_proxy: xr.DataArray,
                           number_sources: int | float,
                           cell_area: int | float) -> xr.DataArray:
-    """
-    Transforms the proxy (emission weigth) into a density of emission
+    """Calculate density map.
+
+    Transform the proxy (emission weigth) into a density of emission
     sources (# emission sources / km ^2).
 
     Parameters
