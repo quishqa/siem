@@ -1,17 +1,7 @@
-# Welcome to MkDocs
+# SIEM overview
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+This the SImplied Emission Model (SIEM). 
+It is a python package to create the emission file for [WRF-Chem](https://www2.acom.ucar.edu/wrf-chem) and [CMAQ](https://www.epa.gov/cmaq) air quality models.
 
-## Commands
-
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
-
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+It is inspired in the works of [Andrade et al. (2015)](https://www.frontiersin.org/journals/environmental-science/articles/10.3389/fenvs.2015.00009/full),
+[AAS4WRF](https://github.com/alvv1986/AAS4WRF), [PyChEmiss](https://github.com/quishqa/PyChEmiss).
