@@ -1,8 +1,12 @@
-"""
-SIEM: SImplified Emission Model
+# siem/siem.py
+"""SIEM: SImplified Emission Model.
 
-SIEM produces the emission file required to run WRF-Chem
-and CMAQ air quality models.
+SIEM produces the emission file required to run WRF-Chem and CMAQ air quality models.
+
+This modules defined the classes used by siem to create this emissions files:
+    - `EmissionSource` - Class to spatially and temporal distribute emissions, especially vehicular emissions.
+    - `PointSources` - Class to spatially and temporal distribute point sources from a .csv table.
+    - `GroupSources` - Class to group EmissionSources and PointSources, useful to create one emission file.
 
 """
 
@@ -17,7 +21,8 @@ import siem.cmaq as cmaq
 
 
 class EmissionSource:
-    """
+    """Emission source.
+
     A class used to represent and emission source to
     be estimated from spatial proxy.
 
@@ -118,7 +123,7 @@ class EmissionSource:
 
     def report_emissions(self) -> pd.DataFrame:
         """
-        Returns the total emission for each pollutant in pol_ef.
+        Return the total emission for each pollutant in pol_ef.
 
         Returns
         -------
@@ -389,7 +394,8 @@ class EmissionSource:
 
 
 class PointSources:
-    """
+    """Point sources.
+
     A class to read points emission sources in a
     table where columns are longitude, latitude, and
     the total emissions of diferent pollutants in
@@ -476,7 +482,7 @@ class PointSources:
 
     def report_emissions(self) -> pd.DataFrame:
         """
-        Returns the total emission for each pollutant in pol_ef.
+        Return the total emission for each pollutant in pol_ef.
 
         Returns
         -------
@@ -554,8 +560,9 @@ class PointSources:
                 pm_name: str = "PM", voc_name: str = "VOC",
                 write_netcdf: bool = False,
                 path: str = "../results") -> typing.Dict[str, xr.Dataset]:
-        """'
-        Write CMAQ emission file.
+        """Create CMAQ emission file.
+
+        Create and save CMAQ emission file.
 
         Parameters
         ----------
@@ -667,7 +674,7 @@ class GroupSources:
 
     def report_emissions(self) -> pd.DataFrame:
         """
-        Returns the total emission for each pollutant in pol_emiss.
+        Return the total emission for each pollutant in pol_emiss.
 
         Returns
         -------
@@ -737,7 +744,8 @@ class GroupSources:
                 pm_name: str = "PM", voc_name: str = "VOC",
                 write_netcdf: bool = False,
                 path: str = "../results") -> typing.Dict[str, dict]:
-        """
+        """Create CMAQ emission file.
+
         Create CMAQ emission file. All EmissionSource and GroupSources
         need to have same speciation.
 

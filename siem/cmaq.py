@@ -1,6 +1,32 @@
+# siem/cmaq.py
+"""Functions to build the CMAQ emission file.
+
+This modules allows you to build dayly CMAQ emission files.
+It requires the wrfinput, and GRIDDESC files.
+
+It contains the following functions:
+
+    - `calculate_julian(date)` - Returns timestamp in julian date.
+    - `convert_str_to_julian(date, fmt)` - Returns date string in julian.
+    - `create_date_limits(date, fmt)` - Returns day and the next day in julian.
+    - `create_hour_matrix(date, hour, n_var)` - Returns a matrix for one hour of day.
+    - `create_tflag_matrix(date, n_var)` - Returns tflag matrix for 25 hours.
+    - `create_tflag_variable(date, n_var)` - Returns TFLAG variable in xr.DataArray.
+    - `to_25hr_profile(temporal_profile)` - Returns a 25 hour temporal profile (added first hour of next day).
+    - `transform_cmaq_units(spatial_emiss, pol_ef_mw, cell_area, pm_name)` - Returns spatial emissions in CMAQ units.
+    - `transform_cmaq_units_points(spatial_emiss, pol_mw, pm_name)` - Returns points emissions in CMAQ units.
+    - `speciate_cmaq(spatial_emiss_units, voc_spc, pm_spc, cell_area, voc_name, pm_name)` - Returns speciated VOC and PM emissions.
+    - `add_cmaq_emission_attrs(speciated_cmap, voc_spc, pm_spc, voc_name, pm_name)` - Returns CMAQ emision dataset with each variables with attributes.
+    - `create_var_list_attrs(speciated_cmaq_attrs)` - Returns the VAR list global attribute.
+    - `create_global_attrs(speciated_cmaq_attrs, griddesc_path)` - Returns global attributes of CMAQ emission file.
+    - `prepare_netcdf_cmaq(specated_cmaq, date, griddesc_path, btrim, voc_spc, pm_spc, voc_name, pm_name)` - Returns xr.Dataset with CMAQ netcdf format.
+    - `save_cmaq_file(cmaq, path)` - Saves xr.dataset CMAQ emission into netcdf.
+    - `merge_cmaq_source_emiss(cmaq_sources_day)` - Returns different sources emission adition per day by source.
+    - `sum_cmaq_source(day_source_emission)`- Returns total emissions from diferent sources.
+    - `update_tflag_sources(sum_sources_by_day)`- Corrects/update TFLAGS variable of sum_cmaq_source product.
+
 """
-Functions to build the CMAQ emission file.
-"""
+
 import typing
 import numpy as np
 import pandas as pd
@@ -77,10 +103,11 @@ def create_date_limits(date: str, fmt: str = "%Y-%m-%d") -> tuple:
     return (start_julian, end_julian)
 
 
-def create_hour_matrix(date: int, hour: int, n_var: int) -> np.ndarray:
-    """
-    Create hour matrix. First column is date in julian,
-    second column is the hours
+def create_hour_matrix(date: int, hour: int, n_var: int
+                       ) -> np.ndarray:
+    """Create hour matrix.
+
+    First column is date in julian. The second column is the hours.
 
     Parameters
     ----------
@@ -210,8 +237,7 @@ def transform_cmaq_units(spatial_emiss: xr.Dataset,
 def transform_cmaq_units_point(spatial_emiss: xr.Dataset, pol_mw: dict,
                                pm_name: str = "PM") -> xr.Dataset:
     """
-    Transform point emission units in kTn (Gg) per year emission into
-    CMAQ emission units.
+    Transform point emission units in kTn (Gg) per year emission into CMAQ emission units.
 
     Parameters
     ----------
@@ -243,7 +269,7 @@ def speciate_cmaq(spatial_emiss_units: xr.Dataset,
                   cell_area: float,
                   voc_name: str = "VOC", pm_name: str = "PM") -> xr.Dataset:
     """
-    Speciate emission.
+    Speciate VOC and PM emission already in CMAQ units.
 
     Parameters
     ----------
@@ -458,6 +484,7 @@ def prepare_netcdf_cmaq(speciated_cmaq: xr.Dataset, date: str,
 def create_cmaq_file_name(cmaq_nc: xr.Dataset) -> str:
     """
     Create CMAQ emission file.
+
     Parameters
     ----------
     cmaq_nc : xr.Dataset

@@ -1,5 +1,17 @@
+# siem/temporal.py
 """
 Functions for emission temporal disaggregations.
+
+This modules contains functions to temporal distribute emissions by hour of the day
+and by day of week.
+
+It contains the following functions:
+    - `split_by_time(spatial_emiss, temporal_emiss)` - Returns one pollutant emission by hour.
+    - `split_by_time_from(spatial_sources, temporal_profiles)` - Returns all pollutants emissions by hour.
+    - `transform_week_profile_df(weekday_profile)` - Returns a dataframe from a list of weekday weights.
+    - `assign_factor_simulation_days(date_start, date_end, week_profile, is_cmaq)` - Returns simulation days table with the correct weekday weight according to the day.
+    - `split_by_weekday(emiss_day, weekday_profile, date_start, date_end)` - Returns emissions temporally distributed by day of the week.
+
 """
 import xarray as xr
 import numpy as np
@@ -8,7 +20,8 @@ import pandas as pd
 
 def split_by_time(spatial_emiss: xr.DataArray,
                   temporal_profile: list[float]) -> xr.DataArray:
-    """
+    """Distribute temporally one pollutant emission.
+
     Temporal disaggregation of a pollutant emission.
     It is used to distribute daily emission into hourly emissions.
 
@@ -38,7 +51,8 @@ def split_by_time(spatial_emiss: xr.DataArray,
 
 def split_by_time_from(spatial_sources: xr.Dataset,
                        temporal_profile: list[float]) -> xr.Dataset:
-    """
+    """Distribute temporally all pollutant emission.
+
     Temporal disaggregation of many pollutant emissions.
     It is used to distribute daily emission into hourly emissions.
 
@@ -65,7 +79,8 @@ def split_by_time_from(spatial_sources: xr.Dataset,
 
 
 def transform_week_profile_df(weekday_profile: list[float]) -> pd.DataFrame:
-    """
+    """Transfor weekday profile to dataframe.
+
     Transform a list of weekly weight from Monday to Sunday.
     into a DataFrame.
 

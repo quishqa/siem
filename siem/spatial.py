@@ -1,5 +1,16 @@
+# siem/spatial.py
 """
 Functions for emission spatial disaggregation.
+
+This modules helps you to read proxies to spatially distribute emissions, 
+and to perform the spatial emission distribution.
+
+It contains the following functions:
+
+    - `read_spatial_proxy(proxy_path, proxy_shape, col_names, sep, proxy, lon_name, lat_name)` - Returns spatial proxy (weight) in xr.DataArray.
+    - `calculate_density_map(spatial_proxy, number_sources, cell_area)` - Returns number of emissions by km^2.
+    - `distribute_spatial_emission(spatial_proxy, number_sources, cell_area, use_intensity, pol_ef, pol_name)` - Calculate total emissions of a pollutant (g day^-1 km^-2)
+
 """
 import pandas as pd
 import xarray as xr
@@ -13,7 +24,8 @@ def read_spatial_proxy(proxy_path: str,
                        proxy: str = "urban",
                        lon_name: str = "x",
                        lat_name: str = "y") -> xr.DataArray:
-    """
+    """Read spatial proxy.
+
     Read spatial proxy (emission weights) csv file.
     It has to have the same number of points as wrfinput file.
 
@@ -67,8 +79,9 @@ def read_spatial_proxy(proxy_path: str,
 def calculate_density_map(spatial_proxy: xr.DataArray,
                           number_sources: int | float,
                           cell_area: int | float) -> xr.DataArray:
-    """
-    Transforms the proxy (emission weigth) into a density of emission
+    """Calculate density map.
+
+    Transform the proxy (emission weigth) into a density of emission
     sources (# emission sources / km ^2).
 
     Parameters

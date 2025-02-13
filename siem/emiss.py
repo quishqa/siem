@@ -1,5 +1,16 @@
-"""
-Functions to calculate emission totals.
+# siem/emiss.py
+"""Calculate emission totals.
+
+This module provide functions to calculate emissions rates.
+
+The module contains the following functions:
+    - `calculate_emission(number_source, use_intensity, pol_ef)` - Returns the emission rate.
+    - `speciate_emission(spatio_temporal, pol_name, pol_species)` - Returns speciated pollutant (VOC or PM).
+    - `ktn_year_to_mol_hr(spatial_emiss, pol_mw)` - Returns emissions in mol hr^-1.
+    - `ktn_year_to_ug_seg(spatial_emiss)` - Returns emissions in ug s^-1.
+    - `ktn_year_to_mol_seg(spatial_emiss, pol_mw)` - Returns emissions in mol s^-1.
+    - `ktn_year_to_g_seg(spatial_emiss)` - Returns emissions in g s^-1.
+
 """
 import typing
 import xarray as xr
@@ -61,7 +72,8 @@ def speciate_emission(spatio_temporal: xr.DataArray,
 
 def ktn_year_to_mol_hr(spatial_emiss: xr.DataArray,
                        pol_mw: float) -> xr.DataArray:
-    """
+    """Ktn per year to mol per hour.
+
     Transform pollutant total emission from kTn or Gg per year
     to mol hr^-1. This is mainly used for gases species of
     Point sources.
@@ -83,7 +95,8 @@ def ktn_year_to_mol_hr(spatial_emiss: xr.DataArray,
 
 
 def ktn_year_to_ug_seg(spatial_emiss: xr.DataArray) -> xr.DataArray:
-    """
+    """Ktn per year to ug per second.
+
     Transform pollutant total emission in kTn or (Gg) to microgram per second.
     Mainly use for aerossol species in Point sources.
 
@@ -106,7 +119,8 @@ def ktn_year_to_ug_seg(spatial_emiss: xr.DataArray) -> xr.DataArray:
 
 def ktn_year_to_mol_seg(spatial_emiss: xr.DataArray,
                         pol_mw: float) -> xr.DataArray:
-    """
+    """Ktn per year to mol per second.
+
     Transform pollutant total emission from kTn or Gg per year
     to mol s^-1. This is mainly used for gases species of
     Point sources.
@@ -129,7 +143,8 @@ def ktn_year_to_mol_seg(spatial_emiss: xr.DataArray,
 
 
 def ktn_year_to_g_seg(spatial_emiss: xr.DataArray) -> xr.DataArray:
-    """
+    """Ktn per year to gram per second.
+
     Transform pollutant total emission in kTn or (Gg) to grams per second.
     Mainly use for aerossol species in Point sources.
 
