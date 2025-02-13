@@ -1,0 +1,7 @@
+site_name: "SIEM: SImplified Emission Model"
+site_url: https://quishqa.github.io
+theme:
+  name: material
+  font:
+    text: MerriWeather Sans
+    code: Red Hat Mono
