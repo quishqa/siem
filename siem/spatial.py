@@ -81,7 +81,7 @@ def calculate_density_map(spatial_proxy: xr.DataArray,
                           cell_area: int | float) -> xr.DataArray:
     """Calculate density map.
 
-    Transform the proxy (emission weigth) into a density of emission
+    Transform the proxy (emission weight) into a density of emission
     sources (# emission sources / km ^2).
 
     Parameters

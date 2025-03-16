@@ -8,10 +8,10 @@ It helps you to create the `spatial_proxy` to use in `EmissSource`.
 
 It contains the following functions:
     - `get_domain_extension(geo_em_path)` - Returns wrf domain corners coordinates.
-    - `get_highway_query(highway_types, add_links)` - Returns query for dowload highways.
+    - `get_highway_query(highway_types, add_links)` - Returns query for download highways.
     - `download_highways(geo_em_path, highway_types, add_links, save_path, file_name)` - Returns highways in domain in graphml.
     - `download_point_sources(geo_em_path, tags, save, save_path)` - Returns amenities shapefile.
-    - `create_grid(geo_em)` - Return wrf grid shapfile.
+    - `create_grid(geo_em)` - Return wrf grid shapefile.
     - `create_wrf_grid(geo_em_path, save, save_path)` - Returns wrf grid after read geo_em.d0X.
     - `configure_grid_spatial(wrf_grid, proxy)` - Returns wrf_grid with proxy CRS and cell ID column.
     - `calculate_points_grid(wrf_grid, proxy, to_pre, save_pre, file_name)` - Returns number of amenities in eac wrf grid.
@@ -56,7 +56,7 @@ def get_highway_query(highway_types: list[str],
                       add_links: bool = False) -> str:
     """List to OSMx query.
 
-    Create the custiom query based on highways types to use in OSMx package.
+    Create the custom query based on highways types to use in OSMx package.
     See <https://wiki.openstreetmap.org/wiki/Key:highway>.
 
     Parameters
@@ -126,7 +126,7 @@ def download_point_sources(geo_em_path: str, tags: dict,
                            save_path: str = "../data/partial"):
     """Download OSM amenities.
 
-    Download point sources like fuel staions or restaurants.
+    Download point sources like fuel stations or restaurants.
     It is based on OSM amenities. This function uses tags that can be found in
     <https://wiki.openstreetmap.org/wiki/Key:amenity>.
 
@@ -235,7 +235,7 @@ def configure_grid_spatial(wrf_grid: gpd.GeoDataFrame,
                            proxy: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """Prepare wrf grid for spatial operations.
 
-    Add CRS to WRF grid and added ID, preparing grid to be intecepted
+    Add CRS to WRF grid and added ID, preparing grid to be intercepted
     with highway shp.
 
     Parameters
@@ -261,7 +261,7 @@ def calculate_points_grid(wrf_grid: gpd.GeoDataFrame,
                           save_pre: str = "../data",
                           file_name: str = "my_src") -> gpd.GeoDataFrame:
     """
-    Calculate number of points (osm amenites) in each wrf grid cells.
+    Calculate number of points (osm amenities) in each wrf grid cells.
 
     Parameters
     ----------
@@ -327,7 +327,7 @@ def calculate_highway_grid(wrf_grid: gpd.GeoDataFrame,
                            to_pre: bool = True,
                            save_pre: str = "../data/",
                            file_name: str = "my_src") -> gpd.GeoDataFrame:
-    """Sum of highways lenght inside wrf grid cell.
+    """Sum of highways length inside wrf grid cell.
 
     Calculate sum of highways longitude inside WRF grid cell.
     This will produce a proxy for spatially distribute vehicular emissions.

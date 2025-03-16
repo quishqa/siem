@@ -1,7 +1,7 @@
 # siem/cmaq.py
 """Functions to build the CMAQ emission file.
 
-This modules allows you to build dayly CMAQ emission files.
+This module allows you to build dayly CMAQ emission files.
 It requires the wrfinput, and GRIDDESC files.
 
 It contains the following functions:
@@ -16,13 +16,13 @@ It contains the following functions:
     - `transform_cmaq_units(spatial_emiss, pol_ef_mw, cell_area, pm_name)` - Returns spatial emissions in CMAQ units.
     - `transform_cmaq_units_points(spatial_emiss, pol_mw, pm_name)` - Returns points emissions in CMAQ units.
     - `speciate_cmaq(spatial_emiss_units, voc_spc, pm_spc, cell_area, voc_name, pm_name)` - Returns speciated VOC and PM emissions.
-    - `add_cmaq_emission_attrs(speciated_cmap, voc_spc, pm_spc, voc_name, pm_name)` - Returns CMAQ emision dataset with each variables with attributes.
+    - `add_cmaq_emission_attrs(speciated_cmap, voc_spc, pm_spc, voc_name, pm_name)` - Returns CMAQ emission dataset with each variables with attributes.
     - `create_var_list_attrs(speciated_cmaq_attrs)` - Returns the VAR list global attribute.
     - `create_global_attrs(speciated_cmaq_attrs, griddesc_path)` - Returns global attributes of CMAQ emission file.
     - `prepare_netcdf_cmaq(specated_cmaq, date, griddesc_path, btrim, voc_spc, pm_spc, voc_name, pm_name)` - Returns xr.Dataset with CMAQ netcdf format.
     - `save_cmaq_file(cmaq, path)` - Saves xr.dataset CMAQ emission into netcdf.
     - `merge_cmaq_source_emiss(cmaq_sources_day)` - Returns different sources emission adition per day by source.
-    - `sum_cmaq_source(day_source_emission)`- Returns total emissions from diferent sources.
+    - `sum_cmaq_source(day_source_emission)`- Returns total emissions from different sources.
     - `update_tflag_sources(sum_sources_by_day)`- Corrects/update TFLAGS variable of sum_cmaq_source product.
 
 """
@@ -60,7 +60,7 @@ def calculate_julian(date: pd.Timestamp) -> int:
 
 def convert_str_to_julian(date: str, fmt: str = "%Y-%m-%d") -> int:
     """
-    Convert date in string to julina (int).
+    Convert date in string to julian (int).
 
     Parameters
     ----------
@@ -155,7 +155,7 @@ def create_tflag_matrix(date: str, n_var: int) -> np.ndarray:
 
 def create_tflag_variable(date: str, n_var: int) -> xr.DataArray:
     """
-    Create TFLAG vairable with correct dimensions and time.
+    Create TFLAG variable with correct dimensions and time.
 
     Parameters
     ----------
@@ -224,7 +224,7 @@ def transform_cmaq_units(spatial_emiss: xr.Dataset,
     Returns
     -------
     xr.Dataset
-        Emited species (not speciated) in CMAQ units.
+        Emitted species (not speciated) in CMAQ units.
 
     """
     for pol_name, pol_mw in pol_ef_mw.items():
@@ -251,7 +251,7 @@ def transform_cmaq_units_point(spatial_emiss: xr.Dataset, pol_mw: dict,
     Returns
     -------
     xr.Dataset
-        Emited species (not speciated) in CMAQ units.
+        Emitted species (not speciated) in CMAQ units.
 
     """
     emiss_units = spatial_emiss.copy()

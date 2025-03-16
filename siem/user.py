@@ -13,7 +13,7 @@ import os
 
 def check_create_savedir(save_path: str) -> None:
     """
-    Createa a directory to save if not exists.
+    Create a directory to save if not exists.
 
     Parameters
     ----------

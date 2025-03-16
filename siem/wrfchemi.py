@@ -5,8 +5,8 @@ Functions to create wrfchemi file.
 This module has function to create the WRF-Chem emission file.
 
 It contains the following functions:
-    - `transform_wrfchemi_units(spatial_emiss, pol_ef_mw, pm_name)` - Returns emissions in wrf-chem units for gas and aerossols.
-    - `transform_wrfchemi_units_point(spatial_emiss, pol_ef_mw, cell_area, pm_name)` - Returns point emissions in wrf-chem units for gas and aerossol.
+    - `transform_wrfchemi_units(spatial_emiss, pol_ef_mw, pm_name)` - Returns emissions in wrf-chem units for gas and aerosols.
+    - `transform_wrfchemi_units_point(spatial_emiss, pol_ef_mw, cell_area, pm_name)` - Returns point emissions in wrf-chem units for gas and aerosol.
     - `add_emission_attributes(speciated_wrfchemi, voc_species, pm_name, wrfinput)` - Returns speciated emission with wrf-chem attributes.
     - `speciate_wrfchemi(spatial_emiss_units, voc_species, pm_species, cell_area, wrfinput)` - Returns emissions with speciated PM and VOC.
     - `create_date_s19(start_date, periods)` - Returns date in s19 type.
@@ -28,10 +28,10 @@ from siem.user import check_create_savedir
 def transform_wrfchemi_units(spatial_emiss: xr.Dataset,
                              pol_ef_mw: typing.Dict[str, tuple],
                              pm_name: str = "PM") -> xr.Dataset:
-    """Tranform to WRF-Chem units.
+    """Transform to WRF-Chem units.
 
     Convert emission units to WRF-Chem require units.
-    Gas species to mol km^-2 hr^-1 and aerossol species
+    Gas species to mol km^-2 hr^-1 and aerosol species
     to ug m^-2 s^-1.
 
     Parameters
@@ -74,7 +74,7 @@ def transform_wrfchemi_units_point(spatial_emiss: xr.Dataset,
     pols_mw : typing.Dict[str, float]
         Key are pollutant names, values are molecular weight.
     cell_area : int | float
-        Wrfinput cell area
+        wrfinput cell area
     pm_name : str
         Particular matter name in pols_mw.
 
@@ -105,7 +105,7 @@ def add_emission_attributes(speciated_wrfchemi: xr.Dataset,
     Parameters
     ----------
     speciated_wrfchemi : xr.Dataset
-        Speiciated emission in wrfchemi units.
+        Speciated emission in wrfchemi units.
     voc_species : typing.Dict[str, float]
         Keys are VOC species. Values are the % for speciation.
     pm_species : typing.Dict[str, float]

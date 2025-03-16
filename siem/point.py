@@ -11,7 +11,7 @@ It contains the following functions:
     - `retrive_proj_from(geogrid_path)` - Returns wrf domain projections.
     - `calculate_centroids(emiss_point, geo_path)` - Returns total emissions of point sources in wrf grid cell centroids.
     - `point_emiss_to_xarray(emiss_point_proj)` - Returns emissions in centroids in xr.Dataset.
-    - `read_point_sources(point_path, geo_path, sep, lat_name, lon_name)` - Returns spatial distributed point sources emissiosn to use PointSources class.
+    - `read_point_sources(point_path, geo_path, sep, lat_name, lon_name)` - Returns spatial distributed point sources emissions to use PointSources class.
 
 """
 import numpy as np
@@ -140,7 +140,7 @@ def calculate_centroid(emiss_point: gpd.GeoDataFrame,
     Returns
     -------
     pd.DataFrame
-       A DataFrame with total emissions from point sources with cell centroid coordiantes. 
+       A DataFrame with total emissions from point sources with cell centroid coordinates. 
 
     """
     wrf_proj = retrive_proj_from(geo_path)
@@ -200,7 +200,7 @@ def read_point_sources(point_path: str, geo_path: str, sep: str = "\t",
     geo_path : str
         Location of geo_em.d0X.nc file.
     sep : str
-        Column separtor of point sources .csv file.
+        Column separator of point sources .csv file.
     lat_name : str
         Latitude column name.
     lon_name : str

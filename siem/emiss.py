@@ -27,7 +27,7 @@ def calculate_emission(number_source: int | float,
     number_source : int | float
         Number of emission sources.
     use_intensity : float
-        Activitity rate.
+        Activity rate.
     pol_ef : float
         Emission factor.
 
@@ -51,7 +51,7 @@ def speciate_emission(spatio_temporal: xr.DataArray,
     spatio_temporal : xr.DataArray
         Spatial distribution of pollutant to speciate.
     pol_name : str
-        Name of polluntat to speciate.
+        Name of pollutant to speciate.
     pol_species : dict
         Keys are the new species and values the fraction of pol_name.
     cell_area : int | float
@@ -98,7 +98,7 @@ def ktn_year_to_ug_seg(spatial_emiss: xr.DataArray) -> xr.DataArray:
     """Ktn per year to ug per second.
 
     Transform pollutant total emission in kTn or (Gg) to microgram per second.
-    Mainly use for aerossol species in Point sources.
+    Mainly use for aerosol species in Point sources.
 
     Parameters
     ----------

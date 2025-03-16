@@ -1,6 +1,6 @@
 # siem/temporal.py
 """
-Functions for emission temporal disaggregations.
+Functions for emission temporal disaggregation.
 
 This modules contains functions to temporal distribute emissions by hour of the day
 and by day of week.

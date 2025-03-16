@@ -35,7 +35,7 @@ class EmissionSource:
     spatial_proxy : Spatial proxy to spatial distribute emissions.
     temporal_prof : Temporal profile to temporal distribute emissions.
     voc_spc : VOC species to speciate with their fraction.
-    pm_spc : PM speciest to speciate with their fraction.
+    pm_spc : PM species to speciate with their fraction.
 
     """
 
@@ -156,7 +156,7 @@ class EmissionSource:
         Returns
         -------
         xr.DataArray
-            Espatially distributed emissions.
+            Spatially distributed emissions.
 
         """
         return spt.distribute_spatial_emission(self.spatial_proxy,
@@ -244,7 +244,7 @@ class EmissionSource:
         Parameters
         ----------
         cell_area : int | float
-            Wrfinput cell area.
+            wrfinput cell area.
         voc_name : str
             Name of VOC in pol_ef keys.
         pm_name : str
@@ -256,7 +256,7 @@ class EmissionSource:
         -------
         xr.Dataset
             Spatial and temporal distributed emissions with
-            VOC and PM speaciated.
+            VOC and PM speciated.
 
         """
         spatio_temporal = self.spatiotemporal_emission(self.pol_ef.keys(),
