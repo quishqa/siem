@@ -1,21 +1,20 @@
 # siem/wrfchemi.py
-"""
-Functions to create wrfchemi file.
+"""Functions to create wrfchemi file.
 
 This module has function to create the WRF-Chem emission file.
 
 It contains the following functions:
-    - `transform_wrfchemi_units(spatial_emiss, pol_ef_mw, pm_name)` - Returns emissions in wrf-chem units for gas and aerosols.
-    - `transform_wrfchemi_units_point(spatial_emiss, pol_ef_mw, cell_area, pm_name)` - Returns point emissions in wrf-chem units for gas and aerosol.
-    - `add_emission_attributes(speciated_wrfchemi, voc_species, pm_name, wrfinput)` - Returns speciated emission with wrf-chem attributes.
-    - `speciate_wrfchemi(spatial_emiss_units, voc_species, pm_species, cell_area, wrfinput)` - Returns emissions with speciated PM and VOC.
-    - `create_date_s19(start_date, periods)` - Returns date in s19 type.
-    - `prepare_wrfchemi_netcdf(speciated_wrfchemi, wrfinput)` - Returns a xr.Dataset with wrfchemi format (attributes). 
+    - `transform_wrfchemi_units(spatial_emiss, pol_ef_mw, pm_name)` - Returns: emissions in wrf-chem units for gas and aerosols.
+    - `transform_wrfchemi_units_point(spatial_emiss, pol_ef_mw, cell_area, pm_name)` - Returns: point emissions in wrf-chem units for gas and aerosol.
+    - `add_emission_attributes(speciated_wrfchemi, voc_species, pm_name, wrfinput)` - Returns: speciated emission with wrf-chem attributes.
+    - `speciate_wrfchemi(spatial_emiss_units, voc_species, pm_species, cell_area, wrfinput)` - Returns: emissions with speciated PM and VOC.
+    - `create_date_s19(start_date, periods)` - Returns: date in s19 type.
+    - `prepare_wrfchemi_netcdf(speciated_wrfchemi, wrfinput)` - Returns: a xr.Dataset with wrfchemi format (attributes). 
     - `create_wrfchemi_name(wrfchemi)` - Return file name based on the number of periods.
     - `write_netcdf(wrfchemi_netcdf, file_name, path)` - Write wrfchemi file on disk in NETCDF3_64BIT.
     - `write_wrfchemi_netcdf(wrfchemi_netcdf, path)` - Write wrfchemi file on disk based on Times variable.
-
 """
+
 import typing
 import numpy as np
 import pandas as pd
@@ -34,20 +33,13 @@ def transform_wrfchemi_units(spatial_emiss: xr.Dataset,
     Gas species to mol km^-2 hr^-1 and aerosol species
     to ug m^-2 s^-1.
 
-    Parameters
-    ----------
-    spatial_emiss : xr.Dataset
-        Spatial distributed pollutant emission.
-    pol_ef_mw : dict
-        Key are pollutant name and value the molecular weight.
-    pm_name : str
-        Name of particular matter emission in pols_ef_mw.
+    Args:
+        spatial_emiss: Spatial distributed pollutant emission.
+        pol_ef_mw: Key are pollutant name and value the molecular weight.
+        pm_name: Name of particular matter emission in pols_ef_mw.
 
-    Returns
-    -------
-    xr.Dataset
+    Returns:
         Emission species in WRF-Chem units.
-
     """
     for pol_name, pol_mw in pol_ef_mw.items():
         if pol_name == pm_name:
@@ -64,25 +56,16 @@ def transform_wrfchemi_units_point(spatial_emiss: xr.Dataset,
                                    pols_mw: typing.Dict[str, float],
                                    cell_area: int | float,
                                    pm_name: str = "PM") -> xr.Dataset:
-    """
-    Transform emissions units to WRF-Chem units. It is used for PointSources.
+    """Transform emissions units to WRF-Chem units. It is used for PointSources.
 
-    Parameters
-    ----------
-    spatial_emiss : xr.Dataset
-        Spatial distributed emissions.
-    pols_mw : typing.Dict[str, float]
-        Key are pollutant names, values are molecular weight.
-    cell_area : int | float
-        wrfinput cell area
-    pm_name : str
-        Particular matter name in pols_mw.
+    Args:
+        spatial_emiss: Spatial distributed emissions.
+        pols_mw: Key are pollutant names, values are molecular weight.
+        cell_area: wrfinput cell area
+        pm_name: Particular matter name in pols_mw.
 
-    Returns
-    -------
-    xr.Dataset
+    Returns:
         Emission species in WRF-Chem units.
-
     """
     emiss_units = spatial_emiss.copy()
     for pol_name, pol_mw in pols_mw.items():
@@ -99,25 +82,16 @@ def add_emission_attributes(speciated_wrfchemi: xr.Dataset,
                             pm_species: typing.Dict[str, float],
                             pm_name: str,
                             wrfinput: xr.Dataset) -> xr.Dataset:
-    """
-    Add variables attributes to wrfchemi dataset.
+    """Add variables attributes to wrfchemi dataset.
 
-    Parameters
-    ----------
-    speciated_wrfchemi : xr.Dataset
-        Speciated emission in wrfchemi units.
-    voc_species : typing.Dict[str, float]
-        Keys are VOC species. Values are the % for speciation.
-    pm_species : typing.Dict[str, float]
-        Keys are PM species. Values are the % for speciation.
-    pm_name : str
-        PM name in pol_ef_mw.
-    wrfinput : xr.Dataset
-        wrfinput file open with xr.open_dataset.
+    Args:
+        speciated_wrfchemi: Speciated emission in wrfchemi units.
+        voc_species: Keys are VOC species. Values are the % for speciation.
+        pm_species: Keys are PM species. Values are the % for speciation.
+        pm_name: PM name in pol_ef_mw.
+        wrfinput: wrfinput file open with xr.open_dataset.
 
-    Returns
-    -------
-    xr.Dataset
+    Returns:
         Wrfchemi dataset with species variables with attributes.
 
     """
@@ -148,8 +122,7 @@ def speciate_wrfchemi(spatial_emiss_units: xr.Dataset,
     Create the base of wrfchemi file by speciating VOC and PM emission
     and adding the attributes.
 
-    Parameters
-    ----------
+    Args:
     spatial_emiss_units : xr.Dataset
         Spatial and temporal distributed emissions.
     voc_species : typing.Dict[str, float]
@@ -167,8 +140,7 @@ def speciate_wrfchemi(spatial_emiss_units: xr.Dataset,
     add_attr : bool
         Add or not variables attributes.
 
-    Returns
-    -------
+    Returns:
     xr.Dataset
         Wrfchemi dataset with species variables with attributes.
 
@@ -194,15 +166,13 @@ def create_date_s19(start_date: str, periods: int = 24) -> np.ndarray:
     """
     Create dates in S19 type for one day.
 
-    Parameters
-    ----------
+    Args:
     start_date : str
         simulation start date in "%Y-%m-%d_%H:%M:%S".
     periods : int
         Number of hours of day.
 
-    Returns
-    -------
+    Returns:
     np.ndarray
         Vector with day hours in S19.
 
@@ -223,15 +193,13 @@ def prepare_wrfchemi_netcdf(speciated_wrfchemi: xr.Dataset,
     """
     Transform wrfchemi dataset into wrfchemi Netcdf format.
 
-    Parameters
-    ----------
+    Args:
     speciated_wrfchemi : xr.Dataset
         Speciated wrfchemi dataset with species with attributes.
     wrfinput : xr.Dataset
         wrfinput open with xr.open_dataset.
 
-    Returns
-    -------
+    Returns:
     xr.Dataset
         Dataset in WRF-Chem wrfchemi netcdf format.
         Same dimensions and global attributes.
@@ -264,13 +232,11 @@ def create_wrfchemi_name(wrfchemi: xr.Dataset) -> str | tuple:
     """
     Create wrfchemi file name to save.
 
-    Parameters
-    ----------
+    Args:
     wrfchemi : xr.Dataset
         wrfchemi dataset in WRF-Chem wrfchemi netcdf format.
 
-    Returns
-    -------
+    Returns:
     str | tuple
         wrfchemi file names.
 
@@ -289,8 +255,7 @@ def write_netcdf(wrfchemi_netcdf: xr.Dataset, file_name: str,
     """
     Save netcdf file.
 
-    Parameters
-    ----------
+    Args:
     wrfchemi_netcdf : xr.Dataset
         wrfchemi dataset in WRF-Chem wrfchemi netcdf format.
     file_name : str
@@ -313,8 +278,7 @@ def write_wrfchemi_netcdf(wrfchemi_netcdf: xr.Dataset,
     """
     Save the wrfchemi in WRF-Chem netcdf format in netcdf file.
 
-    Parameters
-    ----------
+    Args:
     wrfchemi_netcdf : xr.Dataset
         wrfchemi dataset in WRF-Chem wrfchemi netcdf format.
     path : str

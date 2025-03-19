@@ -24,7 +24,6 @@ It contains the following functions:
     - `merge_cmaq_source_emiss(cmaq_sources_day)` - Returns: different sources emission adition per day by source.
     - `sum_cmaq_source(day_source_emission)`- Returns: total emissions from different sources.
     - `update_tflag_sources(sum_sources_by_day)`- Corrects/update TFLAGS variable of sum_cmaq_source product.
-
 """
 
 import typing

@@ -10,8 +10,8 @@ The module contains the following functions:
     - `ktn_year_to_ug_seg(spatial_emiss)` - Returns: emissions in ug s^-1.
     - `ktn_year_to_mol_seg(spatial_emiss, pol_mw)` - Returns: emissions in mol s^-1.
     - `ktn_year_to_g_seg(spatial_emiss)` - Returns: emissions in g s^-1.
-
 """
+
 import typing
 import xarray as xr
 

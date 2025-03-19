@@ -12,6 +12,7 @@ It contains the following functions:
     - `point_emiss_to_xarray(emiss_point_proj)` - Returns: emissions in centroids in xr.Dataset.
     - `read_point_sources(point_path, geo_path, sep, lat_name, lon_name)` - Returns: spatial distributed point sources emissions to use PointSources class.
 """
+
 import numpy as np
 import pandas as pd
 import geopandas as gpd
