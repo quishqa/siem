@@ -5,3 +5,5 @@ theme:
   font:
     text: MerriWeather Sans
     code: Red Hat Mono
+plugins:
+  - mkdocstrings
