@@ -1,4 +1,4 @@
-name: siem
+name: siem_test
 channels:
   - conda-forge
   - nodefaults

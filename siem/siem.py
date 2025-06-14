@@ -312,6 +312,7 @@ class EmissionSource:
                                                     start_date,
                                                     end_date)
         spatio_temporal = wemi.transform_wrfchemi_units(spatio_temporal,
+                                                        cell_area,
                                                         self.pol_ef,
                                                         pm_name)
         speciated_emiss = wemi.speciate_wrfchemi(spatio_temporal,
@@ -436,9 +437,9 @@ class PointSources:
 
         """
         self.name = name
-        self.spatial_emission = point_emiss
+        self.spatial_emission = point_emiss         # kt year^-1
         self.pol_emiss = pol_emiss
-        self.temporal_prof = temporal_prof
+        self.temporal_prof = temporal_prof          # 24 values sum to 1
         self.voc_spc = voc_spc
         self.pm_spc = pm_spc
 
@@ -596,7 +597,12 @@ class PointSources:
         """
         cell_area = (wrfinput.DX / 1000) ** 2
         spatio_temporal = self.spatial_emission
-        cmaq_temp_prof = cmaq.to_25hr_profile(self.temporal_prof)
+
+        ## adding a correction by AlDe --------------------------------------- 
+        temporal_prof_mean = self.temporal_prof/self.temporal_prof.mean()
+        # kt year^-1 --> g s^-1   so temporal_prof must be mean not sum = 1
+        cmaq_temp_prof = cmaq.to_25hr_profile(temporal_prof_mean)
+        ###-------------------------------------------------------------------
 
         point_time = temp.split_by_time_from(spatio_temporal,
                                              cmaq_temp_prof)

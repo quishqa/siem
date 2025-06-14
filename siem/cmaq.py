@@ -227,10 +227,14 @@ def transform_cmaq_units(spatial_emiss: xr.Dataset,
         Emited species (not speciated) in CMAQ units.
 
     """
+    ## Changes here by AlDe, CMAQ doesn't require cell_area
     for pol_name, pol_mw in pol_ef_mw.items():
         if pol_name == pm_name:
-            spatial_emiss[pol_name] = (spatial_emiss[pol_name] *
-                                       cell_area / pol_mw[1] / 3600)
+            spatial_emiss[pol_name] = (spatial_emiss[pol_name] / 3600)
+        else:
+            spatial_emiss[pol_name] = (spatial_emiss[pol_name] /
+                                       pol_mw[1] / 3600)
+    # ------------------------------------------------------------------------
     return spatial_emiss
 
 
@@ -258,7 +262,8 @@ def transform_cmaq_units_point(spatial_emiss: xr.Dataset, pol_mw: dict,
     for pol_name, pol_mw in pol_mw.items():
         if pol_name == pm_name:
             emiss_units[pol_name] = ktn_year_to_g_seg(emiss_units[pol_name])
-        emiss_units[pol_name] = ktn_year_to_mol_seg(emiss_units[pol_name],
+        else:
+            emiss_units[pol_name] = ktn_year_to_mol_seg(emiss_units[pol_name],
                                                     pol_mw)
     return emiss_units
 

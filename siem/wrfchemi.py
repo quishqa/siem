@@ -26,6 +26,7 @@ from siem.user import check_create_savedir
 
 
 def transform_wrfchemi_units(spatial_emiss: xr.Dataset,
+                             cell_area: int | float,
                              pol_ef_mw: typing.Dict[str, tuple],
                              pm_name: str = "PM") -> xr.Dataset:
     """Tranform to WRF-Chem units.
@@ -38,6 +39,8 @@ def transform_wrfchemi_units(spatial_emiss: xr.Dataset,
     ----------
     spatial_emiss : xr.Dataset
         Spatial distributed pollutant emission.
+    cell_area : float
+        wrfinput cell area (km^2)
     pol_ef_mw : dict
         Key are pollutant name and value the molecular weight.
     pm_name : str
@@ -52,11 +55,13 @@ def transform_wrfchemi_units(spatial_emiss: xr.Dataset,
     for pol_name, pol_mw in pol_ef_mw.items():
         if pol_name == pm_name:
             spatial_emiss[pm_name] = (
-                spatial_emiss[pm_name] / 3600
+                spatial_emiss[pm_name] * 10**6 / 3600 / (cell_area * 1000 * 1000)
             ).astype("float32")
-        spatial_emiss[pol_name] = (
-            spatial_emiss[pol_name] / pol_mw[1]
+        else:
+            spatial_emiss[pol_name] = (
+            spatial_emiss[pol_name] / pol_mw[1] / cell_area
         ).astype("float32")
+
     return spatial_emiss
 
 

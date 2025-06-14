@@ -33,8 +33,8 @@ def test_wrfchemi_pm_sum() -> None:
         pm_spc=pm_spc
     )
 
-    pm_total = 1_000_000 * gasoline_ef["PM"][0] * 41 * 365
-    pm_siem = gaso_emiss.total_emission("PM") * 365
+    pm_total = 1_000_000 * gasoline_ef["PM"][0] * 41 * 365    # g year^-1
+    pm_siem = gaso_emiss.total_emission("PM") * 365           # g year^-1
 
     gaso_wrf = gaso_emiss.to_wrfchemi(
         wrfinput=wrfinput,
@@ -54,9 +54,8 @@ def test_wrfchemi_pm_sum() -> None:
             )
     
 
-    # ug/m2/s                      #h       #g             # m2
-    wrf_total_pm = (gaso_wrf.E_PM * 3600 * (10 ** -6)
-                    * (9 * 10 ** 6)).sum() * 365
+    # g/year     =  ug/m2/s       * s/hr *  g/ug      *   m2         * day/hr * year/day
+    wrf_total_pm = (gaso_wrf.E_PM * 3600 * (10 ** -6) * wrfinput.DX**2).sum() * 365
 
     wrf_pm_spc = ((gaso_wrf.E_PM2_5 * 3600 * (10 ** -6) * (9 * 10 ** 6)).sum() * 365 +
                   (gaso_wrf.E_PMC * 3600 * (10 ** -6) * (9 * 10 ** 6)).sum() * 365)

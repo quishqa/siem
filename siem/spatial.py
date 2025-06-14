@@ -132,14 +132,17 @@ def distribute_spatial_emission(spatial_proxy: xr.DataArray,
     -------
     xr.DataArray
         Emission of a single pollutant (g/day).
-        
+
     """
-    # TODO: move to emiss.py
-    density_map = calculate_density_map(spatial_proxy,
-                                        number_sources,
-                                        cell_area)
-    spatial_emission = em.calculate_emission(density_map,
-                                             use_intensity,
-                                             pol_ef)
+
+    # Calculate total emission in g/s                                              
+    total_emission = em.calculate_emission(number_sources,  # number vehicles   
+                                           use_intensity,   # number km d-1        
+                                           pol_ef)          # g km-1               
+    # Normalize spatial proxy                                                                                                                                                     
+    spatial_proxy /= spatial_proxy.sum()                    # sum is 1          
+
+    # Distribute emission spatially                                             
+    spatial_emission = spatial_proxy * total_emission
     spatial_emission.name = pol_name
-    return spatial_emission
+    return spatial_emission                                 # g/day

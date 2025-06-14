@@ -4,12 +4,14 @@ from siem.proxy import (create_wrf_grid, load_osmx_to_gdfs,
 
 if __name__ == "__main__":
     # Creating grid based on geo_em
-    wrf_path = "../data/geo_em.d02.nc"
-    hdv_path = "../data/partial/domain_hdv_d02.graphml"
+    wrf_path = "../tests/test_data/geo_em.d02.nc"
+    veic_path = "../data/partial/domain_hdv_d02.graphml"
 
-    hdv = load_osmx_to_gdfs(hdv_path)
+    veic = load_osmx_to_gdfs(veic_path)
     wrf_grid = create_wrf_grid(wrf_path, save=False)
-    hdv_in_grid = calculate_highway_grid(wrf_grid, hdv, file_name="hdv")
+    veic_in_grid = calculate_highway_grid(wrf_grid, veic,
+                                         save_pre = "../tests/test_data/",
+                                         file_name="hdv_d02")
 
     # fuel_path = "../data/partial/point_source_fuel.shp"
     # fuel = gpd.read_file(fuel_path)

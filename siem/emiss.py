@@ -25,16 +25,16 @@ def calculate_emission(number_source: int | float,
     Parameters
     ----------
     number_source : int | float
-        Number of emission sources.
+        Number of emission sources.  (vehicles)
     use_intensity : float
-        Activitity rate.
+        Activitity rate.             (km day^-1)
     pol_ef : float
-        Emission factor.
+        Emission factor.             (g km^-1)
 
     Returns
     -------
     float
-        Total pollutant emissions.
+        Total pollutant emissions in g day^-1
 
     """
     return number_source * use_intensity * pol_ef
@@ -156,7 +156,7 @@ def ktn_year_to_g_seg(spatial_emiss: xr.DataArray) -> xr.DataArray:
     Returns
     -------
     xr.DataArray
-        Total emission in ug s^-1.
+        Total emission in g s^-1.
 
     """
     convert_factor = 1000 * 1000 * 1000 / (365 * 24 * 3600)
