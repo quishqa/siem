@@ -20,8 +20,7 @@ import typing
 import numpy as np
 import pandas as pd
 import xarray as xr
-from siem.emiss import (speciate_emission, ktn_year_to_mol_hr,
-                        ktn_year_to_ug_seg)
+from siem.emiss import speciate_emission
 from siem.user import check_create_savedir
 
 
@@ -30,9 +29,9 @@ def transform_wrfchemi_units(spatial_emiss: xr.Dataset,
                              pm_name: str = "PM") -> xr.Dataset:
     """Tranform to WRF-Chem units.
 
-    Convert emission units to WRF-Chem require units.
-    Gas species to mol km^-2 hr^-1 and aerossol species
-    to ug m^-2 s^-1.
+    Convert emission units (g hr^-1) to WRF-Chem require units.
+    Gas species      to mol km^-2 hr^-1 and,
+    aerossol species to ug m^-2 s^-1.
 
     Parameters
     ----------
@@ -52,13 +51,12 @@ def transform_wrfchemi_units(spatial_emiss: xr.Dataset,
     for pol_name, pol_mw in pol_ef_mw.items():
         if pol_name == pm_name:
             spatial_emiss[pm_name] = (
-                spatial_emiss[pm_name] / 3600
+                spatial_emiss[pm_name]  / 3600   # 1E6 to ug / 1E6 to m2 
             ).astype("float32")
         spatial_emiss[pol_name] = (
-            spatial_emiss[pol_name] / pol_mw[1]
+            spatial_emiss[pol_name] / pol_mw[1]  # ok
         ).astype("float32")
     return spatial_emiss
-
 
 def transform_wrfchemi_units_point(spatial_emiss: xr.Dataset,
                                    pols_mw: typing.Dict[str, float],
@@ -84,15 +82,13 @@ def transform_wrfchemi_units_point(spatial_emiss: xr.Dataset,
         Emission species in WRF-Chem units.
 
     """
-    emiss_units = spatial_emiss.copy()
+    emiss_units = spatial_emiss.copy()      # units in g hr^-1
     for pol_name, pol_mw in pols_mw.items():
         if pol_name == pm_name:
-            emiss_units[pol_name] = ktn_year_to_ug_seg(
-                emiss_units[pol_name]) / (cell_area * 1000 * 1000)
-        emiss_units[pol_name] = ktn_year_to_mol_hr(emiss_units[pol_name],
-                                                   pol_mw) / cell_area
+            emiss_units[pol_name] /= (cell_area * 3600)     # ug  m^-2 s^-1
+        else:
+            emiss_units[pol_name] /= (pol_mw * cell_area)   # mol km^-2 hr^-1
     return emiss_units
-
 
 def add_emission_attributes(speciated_wrfchemi: xr.Dataset,
                             voc_species: typing.Dict[str, float],
