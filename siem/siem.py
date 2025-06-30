@@ -117,6 +117,8 @@ class EmissionSource:
         total_emiss = em.calculate_emission(self.number,
                                             self.use_intensity,
                                             self.pol_ef[pol_name][0])
+        # units of total_emiss in g day^-1
+
         if ktn_year:
             return total_emiss * 365 / 10 ** 9
         return total_emiss
@@ -536,10 +538,11 @@ class PointSources:
 
         """
         cell_area = (wrfinput.DX / 1000) ** 2
-        point = self.spatial_emission
-        point_spc = wemi.transform_wrfchemi_units_point(point, self.pol_emiss,
-                                                        cell_area)
-        point_spc_time = temp.split_by_time_from(point_spc, self.temporal_prof)
+        point_gd = em.ktn_year_to_g_day(self.spatial_emission)            # g day^-1
+        point_gh = temp.split_by_time_from(point_gd, self.temporal_prof)  # g hr^-1
+        point_spc_time = wemi.transform_wrfchemi_units_point(point_gh,
+                                                             self.pol_emiss,
+                                                             cell_area)
         if len(week_profile) == 7:
             point_spc_time = temp.split_by_weekday(point_spc_time,
                                                    week_profile,
@@ -595,11 +598,11 @@ class PointSources:
 
         """
         cell_area = (wrfinput.DX / 1000) ** 2
-        spatio_temporal = self.spatial_emission
+        point_gd = em.ktn_year_to_g_day(self.spatial_emission)      # g day^-1
         cmaq_temp_prof = cmaq.to_25hr_profile(self.temporal_prof)
-
-        point_time = temp.split_by_time_from(spatio_temporal,
+        point_time = temp.split_by_time_from(point_gd,              # g hr^-1
                                              cmaq_temp_prof)
+
         point_time_units = cmaq.transform_cmaq_units_point(point_time,
                                                            self.pol_emiss,
                                                            pm_name)

@@ -67,16 +67,12 @@ def speciate_emission(spatio_temporal: xr.DataArray,
         spatio_temporal[new_pol] = spatio_temporal[pol_name] * pol_fraction
     return spatio_temporal
 
-# For WRF-Chem
 
-
-def ktn_year_to_mol_hr(spatial_emiss: xr.DataArray,
-                       pol_mw: float) -> xr.DataArray:
-    """Ktn per year to mol per hour.
+def ktn_year_to_g_day(spatial_emiss: xr.DataArray) -> xr.DataArray:
+    """Ktn per year to grams per day.
 
     Transform pollutant total emission from kTn or Gg per year
-    to mol hr^-1. This is mainly used for gases species of
-    Point sources.
+    to g day^-1. This is mainly used for species of Point sources.
 
     Parameters
     ----------
@@ -87,77 +83,8 @@ def ktn_year_to_mol_hr(spatial_emiss: xr.DataArray,
     Returns
     -------
     xr.DataArray
-        Total emission in mol hr^-1.
+        Total emission in g day^-1.
 
     """
-    convert_factor = 1000 * 1000 * 1000 / (365 * 24 * pol_mw)
-    return spatial_emiss * convert_factor
-
-
-def ktn_year_to_ug_seg(spatial_emiss: xr.DataArray) -> xr.DataArray:
-    """Ktn per year to ug per second.
-
-    Transform pollutant total emission in kTn or (Gg) to microgram per second.
-    Mainly use for aerossol species in Point sources.
-
-    Parameters
-    ----------
-    spatial_emiss : xr.DataArray
-        Spatial pollutant total emission in kTn year^-1.
-
-    Returns
-    -------
-    xr.DataArray
-        Total emission in ug s^-1.
-
-    """
-    convert_factor = 1000 * 1000 * 1000 * 10 ** 6 / (365 * 24 * 3600)
-    return spatial_emiss * convert_factor
-
-# For CMAQ
-
-
-def ktn_year_to_mol_seg(spatial_emiss: xr.DataArray,
-                        pol_mw: float) -> xr.DataArray:
-    """Ktn per year to mol per second.
-
-    Transform pollutant total emission from kTn or Gg per year
-    to mol s^-1. This is mainly used for gases species of
-    Point sources.
-
-    Parameters
-    ----------
-    spatial_emiss : xr.DataArray
-        Spatial pollutant total emission in kTn year^-1.
-    pol_mw : float
-        Pollutant molecular weight.
-
-    Returns
-    -------
-    xr.DataArray
-        Total emission in mol s^-1.
-
-    """
-    convert_factor = 1000 * 1000 * 1000 / (365 * 24 * 3600 * pol_mw)
-    return spatial_emiss * convert_factor
-
-
-def ktn_year_to_g_seg(spatial_emiss: xr.DataArray) -> xr.DataArray:
-    """Ktn per year to gram per second.
-
-    Transform pollutant total emission in kTn or (Gg) to grams per second.
-    Mainly use for aerossol species in Point sources.
-
-    Parameters
-    ----------
-    spatial_emiss : xr.DataArray
-        Spatial pollutant total emission in kTn year^-1.
-
-    Returns
-    -------
-    xr.DataArray
-        Total emission in ug s^-1.
-
-    """
-    convert_factor = 1000 * 1000 * 1000 / (365 * 24 * 3600)
+    convert_factor = 1E9 / 365
     return spatial_emiss * convert_factor
