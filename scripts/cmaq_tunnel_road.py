@@ -262,62 +262,30 @@ voc_spc = pd.DataFrame.from_dict(# CB6 mechanism
         'ISOP':       [0.0019,  0.0000,  0.0009,  0.0000  ],
         'TOL':        [0.1078,  0.0040,  0.0516,  0.2351  ],
         'XYLMN':      [0.0648,  0.0105,  0.0354,  0.0084  ],
-        'KET':        [3.4E-5,  0.0045,  0.0025,  1.2E-5  ],
-        'ACET':       [3.4E-5,  0.0045,  0.0025,  1.2E-5  ],
         'MEOH':       [0.0008,  0.0031,  0.0020,  3.0E-6  ],
         'ALDX':       [0.1291,  0.1291,  0.1291,  0.1291  ],
         'BENZ':       [0.0128,  0.0128,  0.0128,  0.0142  ],
         'IOLE':       [0.0196,  0.0196,  0.0196,  0.0000  ],
-        'NAPH':       [0.0005,  1.0E-5,  0.0002,  0.0905  ],
-        'NVOL':       [1.0E-5,  1.0E-5,  1.0E-5,  0.0000  ],
-        'TERP':       [1.0E-5,  1.0E-5,  1.0E-5,  0.0000  ],
-        'UNR' :       [1.0E-5,  1.0E-5,  1.0E-5,  0.0000  ]
           },
     orient='index'
     )
 
 pm_spc_exh  = {# This is an example                                                      
                "PMC"   : 1 - frac_exh,
-               "PAL"   : 0.00235 * frac_exh,
-               "PCA"   : 0.01085 * frac_exh,
-               "PCL"   : 0.00347 * frac_exh,
-               "PFE"   : 0.02    * frac_exh,
-               "PH2O"  : 0.0     * frac_exh,
-               "PK"    : 0.0018  * frac_exh,
-               "PMG"   : 0.00113 * frac_exh,
-               "PMN"   : 0.00084 * frac_exh,
-               "PMOTHR": 0.13    * frac_exh,
-               "PNA"   : 0.007   * frac_exh,
-               "PNCOM" : 0.15    * frac_exh,
-               "PNH4"  : 0.009   * frac_exh,
-               "PNO3"  : 0.012   * frac_exh,
-               "PSI"   : 0.00669 * frac_exh,
-               "PSO4"  : 0.033   * frac_exh,
-               "PTI"   : 0.00025 * frac_exh,
                "POC"   : 0.24    * frac_exh,
-               "PEC"   : 0.4     * frac_exh
+               "PEC"   : 0.38    * frac_exh
+               "PSO4"  : 0.03    * frac_exh,
+               "PNO3"  : 0.012   * frac_exh,
+               "PMOTHR": 0.338   * frac_exh,
               }
 
 pm_spc_res  = {# This is an example            
                "PMC"   : 1 - frac_res,
-               "PAL"   : 0.08    * frac_res,
-               "PCA"   : 0.03    * frac_res,
-               "PCL"   : 0.0004  * frac_res,
-               "PFE"   : 0.05    * frac_res,
-               "PH2O"  : 0.0     * frac_res,
-               "PK"    : 0.0132  * frac_res,
-               "PMG"   : 0.01    * frac_res,
-               "PMN"   : 0.0007  * frac_res,
-               "PMOTHR": 0.5     * frac_res,
-               "PNA"   : 0.0027  * frac_res,
-               "PNCOM" : 0.01    * frac_res,
-               "PNH4"  : 0.1     * frac_res,
-               "PNO3"  : 0.0     * frac_res,
-               "PSI"   : 0.1037  * frac_res,
-               "PSO4"  : 0.0     * frac_res,
-               "PTI"   : 0.0061  * frac_res,
-               "POC"   : 0.02    * frac_res,
-               "PEC"   : 0.02    * frac_res
+               "POC"   : 0.12    * frac_res,
+               "PEC"   : 0.11    * frac_res
+               "PSO4"  : 0.01    * frac_res,
+               "PNO3"  : 0.01    * frac_res,
+               "PMOTHR": 0.75    * frac_res,
               }
 
 # =============================================================================

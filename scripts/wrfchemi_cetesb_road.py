@@ -214,10 +214,8 @@ pm_spc_exh = {# This is an example, edit with so much care
           "NO3C"    : (1 - frac_exh) * 0.10,
           "ECC"     : (1 - frac_exh) * 0.20,
           "ORGC"    : (1 - frac_exh) * 0.05,
-          "ORGI_A"  : 0.19    * frac_exh * 0.19,     # intermediate IVOCs from anthropogenic
-          "ORGJ_A"  : 0.19    * frac_exh * 0.81,     # accumulation mode
-          "ORGI_BB" : 0.05    * frac_exh * 0.19,     # organic mass from biomass burning
-          "ORGJ_BB" : 0.05    * frac_exh * 0.81,     # ORGI = ORGI_A + ORGI_BB
+          "ORGI"    : 0.24    * frac_exh * 0.19,
+          "ORGJ"    : 0.24    * frac_exh * 0.81,
           "ECI"     : 0.38    * frac_exh * 0.94,
           "ECJ"     : 0.38    * frac_exh * 0.06,
           "SO4I"    : 0.03    * frac_exh * 0.136,
@@ -234,18 +232,16 @@ pm_spc_res = {#
           "NO3C"    : (1 - frac_res) * 0.10,
           "ECC"     : (1 - frac_res) * 0.20,
           "ORGC"    : (1 - frac_res) * 0.05,
-          "ORGI_A"  : 0.1440  * frac_res * 0.01,     # intermediate IVOCs from anthropogenic
-          "ORGJ_A"  : 0.1440  * frac_res * 0.99,     # accumulation mode
-          "ORGI_BB" : 0.0480  * frac_res * 0.01,     # organic mass from biomass burning
-          "ORGJ_BB" : 0.0480  * frac_res * 0.99,     # ORGI = ORGI_A + ORGI_BB
-          "ECI"     : 0.0520  * frac_res * 0.01,
+          "ORGI"    : 0.1800  * frac_res * 0.01,
+          "ORGJ"    : 0.1800  * frac_res * 0.99,
+          "ECJ"     : 0.0520  * frac_res * 0.99,
           "ECJ"     : 0.0520  * frac_res * 0.99,
           "SO4I"    : 0.1000  * frac_res * 0.01,
           "SO4J"    : 0.1000  * frac_res * 0.99,
           "NO3I"    : 0.0150  * frac_res * 0.01,
           "NO3J"    : 0.0150  * frac_res * 0.99,
-          "PM25I"   : 0.6410  * frac_res * 0.01,
-          "PM25J"   : 0.6410  * frac_res * 0.99
+          "PM25I"   : 0.6530  * frac_res * 0.01,
+          "PM25J"   : 0.6530  * frac_res * 0.99
           }
 
 # =============================================================================

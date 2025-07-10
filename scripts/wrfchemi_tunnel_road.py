@@ -41,13 +41,13 @@ frac_exh     = 0.7765          # Fraction of PM2.5 in exhaust emissions
 frac_res     = 0.2419          # Fraction of PM2.5 in resuspension emissions 
 fleet        = 7_284_990       # Fleet circulation in the model domain
 gasohol_fv   = 0.205400        # Vehicle fraction powered with gasoline (v1 )          
-ethanol_fv   = 0.014506        # Vehicle fraction powered with ethanol  (v2 )           
-flex_fv      = 0.561566        # Vehicle fraction powered with flex     (v3 )             
-trucks_fv    = 0.060919        # Truck fraction powered with diesel     (v4a)                 
-urban_bus_fv = 0.005305        # Urban bus fraction powered with diesel (v4b)                                    
-intercity_fv = 0.001932        # Intercity bus fraction powered with D2 (v4c)         
-gasobike_fv  = 0.107455        # Motorbikes powered with gasoline       (v6a)           
-ethabike_fv  = 0.042916        # Motorbikes powered with flex fuel      (v6b)  
+ethanol_fv   = 0.01            # Vehicle fraction powered with ethanol  (v2 )           
+flex_fv      = 0.56            # Vehicle fraction powered with flex     (v3 )             
+trucks_fv    = 0.06            # Truck fraction powered with diesel     (v4a)                 
+urban_bus_fv = 0.005           # Urban bus fraction powered with diesel (v4b)                                    
+intercity_fv = 0.002           # Intercity bus fraction powered with D2 (v4c)         
+gasobike_fv  = 0.107           # Motorbikes powered with gasoline       (v6a)           
+ethabike_fv  = 0.043           # Motorbikes powered with flex fuel      (v6b)  
 date_start   = "2018-05-01"
 date_end     = "2018-05-01"
 
@@ -269,10 +269,8 @@ pm_spc_exh = {# This is an example, edit with so much care
           "NO3C"    : (1 - frac_exh) * 0.10,
           "ECC"     : (1 - frac_exh) * 0.20,
           "ORGC"    : (1 - frac_exh) * 0.05,
-          "ORGI_A"  : 0.18    * frac_exh * 0.19,     # intermediate IVOCs from anthropog
-          "ORGJ_A"  : 0.18    * frac_exh * 0.81,     # accumulation mode                
-          "ORGI_BB" : 0.06    * frac_exh * 0.19,     # organic mass from biomass burning
-          "ORGJ_BB" : 0.06    * frac_exh * 0.81,     # ORGI = ORGI_A + ORGI_BB  
+          "ORGI"    : 0.24    * frac_exh * 0.19,
+          "ORGJ"    : 0.24    * frac_exh * 0.81,
           "ECI"     : 0.3     * frac_exh * 0.94,
           "ECJ"     : 0.3     * frac_exh * 0.06,
           "SO4I"    : 0.03    * frac_exh * 0.136,
@@ -289,10 +287,8 @@ pm_spc_res = {# This is an example
           "NO3C"    : (1 - frac_res) * 0.10,
           "ECC"     : (1 - frac_res) * 0.20,
           "ORGC"    : (1 - frac_res) * 0.05,
-          "ORGI_A"  : 0.14    * frac_res * 0.01,     # intermediate IVOCs from anthropog
-          "ORGJ_A"  : 0.14    * frac_res * 0.99,     # accumulation mode        
-          "ORGI_BB" : 0.04    * frac_res * 0.01,     # organic mass from biomass burning
-          "ORGJ_BB" : 0.04    * frac_res * 0.99,     # ORGI = ORGI_A + ORGI_BB  
+          "ORGI"    : 0.18    * frac_res * 0.01,
+          "ORGJ"    : 0.18    * frac_res * 0.99,
           "ECI"     : 0.05    * frac_res * 0.01,
           "ECJ"     : 0.05    * frac_res * 0.99,
           "SO4I"    : 0.1000  * frac_res * 0.01,

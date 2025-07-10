@@ -149,16 +149,10 @@ voc_spc_exh = pd.DataFrame.from_dict(# CB6 mechanism
         'ISOP':       [0.0046,  0.0000,  0.0000  ],
         'TOL':        [0.1405,  0.0151,  0.2351  ],
         'XYLMN':      [0.1575,  0.0395,  0.0084  ],
-        'KET':        [0.0001,  0.0168,  1.2E-5  ],
-        'ACET':       [0.0001,  0.0168,  1.2E-5  ],
         'MEOH':       [0.0018,  0.0055,  3.0E-6  ],
         'ALDX':       [0.1291,  0.0000,  0.0000  ],
         'BENZ':       [0.0384,  0.0000,  0.0142  ],
         'IOLE':       [0.0196,  0.0000,  0.0196  ],
-        'NAPH':       [0.0005,  0.0000,  0.0000  ],
-        'NVOL':       [0.0000,  0.0000,  0.0002  ],
-        'TERP':       [0.0000,  0.0000,  0.0000  ],
-        'UNR' :       [0.0000,  0.0000,  0.0000  ]
           },
     orient='index'
     )
@@ -181,16 +175,10 @@ voc_spc_vap = pd.DataFrame.from_dict(# CB6 mechanism
         'ISOP':       [0.0000,  0.0000,  0.0000  ],
         'TOL':        [0.0850,  0.0000,  0.0000  ],
         'XYLMN':      [0.0000,  0.0000,  0.0000  ],
-        'KET':        [0.0000,  0.0001,  0.0000  ],
-        'ACET':       [0.0000,  0.0001,  0.0000  ],
         'MEOH':       [0.0000,  0.0022,  0.0000  ],
         'ALDX':       [0.0000,  0.0000,  0.0000  ],
         'BENZ':       [0.0000,  0.0000,  0.0000  ],
         'IOLE':       [0.0000,  0.0000,  0.0000  ],
-        'NAPH':       [0.0000,  0.0000,  0.0000  ],
-        'NVOL':       [0.0000,  0.0000,  0.0000  ],
-        'TERP':       [0.0000,  0.0000,  0.0000  ],
-        'UNR' :       [0.0000,  0.0000,  0.0000  ]
           },
     orient='index'
     )
@@ -213,16 +201,10 @@ voc_spc_liq = pd.DataFrame.from_dict(# CB6 mechanism
         'ISOP':       [0.0011,  0.0000,  0.0000  ],
         'TOL':        [0.0584,  0.0000,  0.0000  ],
         'XYLMN':      [0.1193,  0.0000,  0.0000  ],
-        'KET':        [0.0000,  0.0001,  0.0000  ],
-        'ACET':       [0.0000,  0.0001,  0.0000  ],
         'MEOH':       [0.0000,  0.0022,  0.0000  ],
         'ALDX':       [0.0595,  0.0000,  0.0000  ],
         'BENZ':       [0.0000,  0.0000,  0.0000  ],
         'IOLE':       [0.0000,  0.0000,  0.0000  ],
-        'NAPH':       [0.0000,  0.0000,  0.0000  ],
-        'NVOL':       [0.0000,  0.0000,  0.0000  ],
-        'TERP':       [0.0000,  0.0000,  0.0000  ],
-        'UNR' :       [0.0000,  0.0000,  0.0000  ]
           },
     orient='index'
     )
@@ -234,42 +216,16 @@ pm_spc_exh = {
           "PEC"   : 0.380   * frac_exh,
           "PSO4"  : 0.03    * frac_exh,
           "PNO3"  : 0.012   * frac_exh,
-          "PAL"   : 0.003   * frac_exh,
-          "PCA"   : 0.0108  * frac_exh,
-          "PCL"   : 0.004   * frac_exh,
-          "PFE"   : 0.02    * frac_exh,
-          "PH2O"  : 0.0     * frac_exh,
-          "PK"    : 0.002   * frac_exh,
-          "PMG"   : 0.001   * frac_exh,
-          "PMN"   : 0.0008  * frac_exh,
-          "PMOTHR": 0.1247  * frac_exh,
-          "PNA"   : 0.007   * frac_exh,
-          "PNCOM" : 0.15    * frac_exh,
-          "PNH4"  : 0.009   * frac_exh,
-          "PSI"   : 0.0067  * frac_exh,
-          "PTI"   : 0.0002  * frac_exh
+          "PMOTHR": 0.338   * frac_exh,
           }
 
 pm_spc_res = {
           "PMC"   : 1 - frac_res,
-          "PAL"   : 0.09    * frac_res,
-          "PCA"   : 0.0281  * frac_res,
-          "PCL"   : 0.0004  * frac_res,
-          "PFE"   : 0.0515  * frac_res,
-          "PH2O"  : 0.0     * frac_res,
-          "PK"    : 0.0132  * frac_res,
-          "PMG"   : 0.0138  * frac_res,
-          "PMN"   : 0.0007  * frac_res,
-          "PMOTHR": 0.5     * frac_res,
-          "PNA"   : 0.0027  * frac_res,
-          "PNCOM" : 0.01206 * frac_res,
-          "PNH4"  : 0.1     * frac_res,
-          "PNO3"  : 0.0     * frac_res,
-          "PSI"   : 0.1     * frac_res,
-          "PSO4"  : 0.0     * frac_res,
-          "PTI"   : 0.0061  * frac_res,
-          "POC"   : 0.02    * frac_res,
-          "PEC"   : 0.01    * frac_res
+          "POC"   : 0.12    * frac_res,
+          "PEC"   : 0.11    * frac_res
+          "PSO4"  : 0.01    * frac_res,
+          "PNO3"  : 0.01    * frac_res,
+          "PMOTHR": 0.75    * frac_res,
           }
 
 # =============================================================================
