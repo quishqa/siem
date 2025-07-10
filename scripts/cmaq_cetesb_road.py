@@ -18,6 +18,12 @@ import warnings
 warnings.filterwarnings("ignore",
                         message="IOAPI_ISPH is assumed to be 6370000.; consistent with WRF")
 
+###############################################################################
+#
+# This is an example to distribute emissions inventory to CMAQ model
+#
+###############################################################################
+#
 # Namelists ===================================================================
 #> This inventory applies to the Metropolitan Area of São Paulo
 
@@ -27,8 +33,8 @@ mech          = "cmaq_cb6ae7"  # Speciation mechanism name
 GridName      = "RMSP"         # Should match with GRIDDESC to implement    
 tipo          = "roads"        # Area-line emission sources
 scen          = 'cetesb'       # Scenario of emission factors and fleet
-frac_exh      = 0.7765         # PM2.5 fraction in exhaust (Pereira et al. 2023)
-frac_res      = 0.2419         # PM2.5 fraction in resuspension (U.S. EPA, 2011) Paved roads 
+frac_exh      = 0.7765         # PM2.5 fraction in exhaust 
+frac_res      = 0.2419         # PM2.5 fraction in resuspension 
 fleet_domain  = 7_284_990      # Fleet circulation in the model domain
 fleet_cetesb  = 7_284_990      # Fleet circulation according to CETESB
 frac_ldv      = 0.936382       # LDV fraction in São Paulo State
@@ -36,13 +42,13 @@ frac_hdv      = 1- frac_ldv    # HDV fraction in São Paulo State
 gaso_frac     = 0.335738       # Fraction of gasohol from LDV                    
 etha_frac     = 0.015567       # Fraction of ethanol from LDV            
 flex_frac     = 0.648695       # Fraction of flex from LDV               
-etha_flex     = 0.30           # Fraction of flex-fuel powered with hidrated ethanol
-gaso_flex     = 1 - etha_flex  # Fraction of flex-fuel powered with gasoline blending with 25% ethanol
+etha_flex     = 0.50           # Fraction of flex-fuel (hydrated ethanol)
+gaso_flex     = 1 - etha_flex  # Fraction of flex-fuel (gasohol)
 date_start    = "2018-05-01"
 date_end      = "2018-05-02"
 
 # Reading data ================================================================
-proj_path     = '/home/alejandro/projects/siem/tests/test_data/'
+proj_path     = '/your_path/of_your/project/data/'          # < --- EDIT HERE
 hdv_csv       = 'highways_hdv_'+dom+'.csv'
 ldv_csv       = 'highways_ldv_'+dom+'.csv'
 geo           = xr.open_dataset(proj_path + 'geo_em.'+dom+'.nc')
@@ -59,7 +65,7 @@ mol_w = {"CO"    : 12+16,                 # Carbon monoxide
          "NO"    : 14+12,                 # Nitrogen oxide    
          "NO2"   : 14+12*2,               # Nitrogen dioxide    
          "SO2"   : 32+16*2,               # Sulfur dioxide                      
-        #"NH3"   : 14+3,                  # Ammonia                             
+         "NH3"   : 14+3,                  # Ammonia                             
          "VOC"   : 100,                   # Volatile Organic Compounds          
          "VOC_INV":1,                     #                                     
          "PM"    : 1,                     # Particulate matter                  
@@ -69,38 +75,33 @@ mol_w = {"CO"    : 12+16,                 # Carbon monoxide
 # Total emissions in kt/year in the modeling domain area
 # =============================================================================
 print(f"Processing emissions for {scen}.")
-# CETESB emissions reported for the Sao Paulo State (2018)
-#> res[PM2.5] = exh[PM2.5] *  5/37     (CETESB, 2019; Grafico 4)
-#> res[PM10 ] = exh[PM10 ] * 25/40     (CETESB, 2019; Grafico 4)
-res_fact = 25/40
 
-# 1. LDV exh, res, vap, liq
-ldv_inv   = pd.DataFrame.from_dict(
+# 1. LDV exh, res, vap, liq (EDIT HERE)
+# where exh, res, vap, liq are sources (exhaust, resuspension, vapor, liquid)
+ldv_inv   = pd.DataFrame.from_dict(# Units are in Gg (gigagrams or kilotonnes)
             columns = [     'exh',    'res' ,    'vap',   'liq'],
             data    = {#---------| ---------|---------|--------|
-            'CO'    : [  289.855 ,        0 ,       0 ,      0 ],
-            'NO'    : [   23.7956,        0 ,       0 ,      0 ],
-            'NO2'   : [    1.2524,        0 ,       0 ,      0 ],
-            'SO2'   : [    0.314 ,        0 ,       0 ,      0 ],
-            'VOC'   : [   33.233 ,        0 ,  16.149 , 12.376 ],
-            'PM'    : [    0.282 ,   np.nan ,       0 ,      0 ],
+            'CO'    : [   50.0000,        0 ,       0 ,      0 ],
+            'NO'    : [   95.0000,        0 ,       0 ,      0 ],
+            'NO2'   : [   10.0000,        0 ,       0 ,      0 ],
+            'SO2'   : [    1.0000,        0 ,       0 ,      0 ],
+            'VOC'   : [   50.0000,        0 ,  20.000 , 10.000 ],
+            'PM'    : [    1.0000,    0.625 ,       0 ,      0 ],
             }, orient = 'index'
 )
 
 hdv_inv   = pd.DataFrame.from_dict(
             columns = [     'exh',      'res'],
             data    = {#---------| -----------
-            'CO'    : [   24.992 ,          0],
-            'NO'    : [  116.5004,          0],
-            'NO2'   : [    6.1316,          0],
-            'SO2'   : [    4.039 ,          0],
-            'VOC'   : [    5.070 ,          0],
-            'PM'    : [    3.608 ,   np.nan  ],
+            'CO'    : [   25.000 ,          0],
+            'NO'    : [  150.0000,          0],
+            'NO2'   : [   15.0000,          0],
+            'SO2'   : [    2.000 ,          0],
+            'VOC'   : [   10.000 ,          0],
+            'PM'    : [    3.000 ,    1.5000 ],
             }, orient = 'index'
 )
 
-ldv_inv.loc['PM','res'] = ldv_inv.loc['PM','exh'] * res_fact
-hdv_inv.loc['PM','res'] = hdv_inv.loc['PM','exh'] * res_fact
 ldv_inv.loc['VOC_INV']  = ldv_inv.loc['VOC', :]
 hdv_inv.loc['VOC_INV']  = hdv_inv.loc['VOC', :]
 
@@ -127,7 +128,7 @@ res_hdv_src = xr.Dataset({para:hdv_inv.loc[para,'res'] * proxy_hdv for para in h
 # =============================================================================
 print(f"Emission speciation for VOC and PM by fuel and vehicle for {scen}")
 # =============================================================================
-# Information comes from Andrade et al. (2015), VOC split.
+# Edit here your chemical speciation
 
 # VOC exhaust speciation ------------------------------------------------------
 voc_spc_exh = pd.DataFrame.from_dict(# CB6 mechanism
@@ -143,20 +144,19 @@ voc_spc_exh = pd.DataFrame.from_dict(# CB6 mechanism
         'ETH':        [0.3416,  0.9489,  0.3189  ],
         'ETHY':       [0.3416,  0.9489,  0.3189  ],
         'ETOH':       [0.6051,  0.0000,  0.0000  ],
-        'FORM':       [0.0211,  0.0164,  0.0585  ], # Based on emission factors n tunnel experiments 
-        'ALD2':       [0.0196,  0.0318,  0.0399  ], # idem 
+        'FORM':       [0.0211,  0.0164,  0.0585  ],
+        'ALD2':       [0.0196,  0.0318,  0.0399  ],
         'ISOP':       [0.0046,  0.0000,  0.0000  ],
         'TOL':        [0.1405,  0.0151,  0.2351  ],
         'XYLMN':      [0.1575,  0.0395,  0.0084  ],
         'KET':        [0.0001,  0.0168,  1.2E-5  ],
         'ACET':       [0.0001,  0.0168,  1.2E-5  ],
         'MEOH':       [0.0018,  0.0055,  3.0E-6  ],
-        'ALDX':       [0.1291,  0.0000,  0.0000  ], # Based on Dominutti et al. (2020)
-        'BENZ':       [0.0384,  0.0000,  0.0142  ], # idem, C9 aromatics
+        'ALDX':       [0.1291,  0.0000,  0.0000  ],
+        'BENZ':       [0.0384,  0.0000,  0.0142  ],
         'IOLE':       [0.0196,  0.0000,  0.0196  ],
         'NAPH':       [0.0005,  0.0000,  0.0000  ],
         'NVOL':       [0.0000,  0.0000,  0.0002  ],
-        'SOAALK':     [0.0911,  0.0000,  0.0418  ],
         'TERP':       [0.0000,  0.0000,  0.0000  ],
         'UNR' :       [0.0000,  0.0000,  0.0000  ]
           },
@@ -189,7 +189,6 @@ voc_spc_vap = pd.DataFrame.from_dict(# CB6 mechanism
         'IOLE':       [0.0000,  0.0000,  0.0000  ],
         'NAPH':       [0.0000,  0.0000,  0.0000  ],
         'NVOL':       [0.0000,  0.0000,  0.0000  ],
-        'SOAALK':     [0.0000,  0.0000,  0.0000  ],
         'TERP':       [0.0000,  0.0000,  0.0000  ],
         'UNR' :       [0.0000,  0.0000,  0.0000  ]
           },
@@ -222,7 +221,6 @@ voc_spc_liq = pd.DataFrame.from_dict(# CB6 mechanism
         'IOLE':       [0.0000,  0.0000,  0.0000  ],
         'NAPH':       [0.0000,  0.0000,  0.0000  ],
         'NVOL':       [0.0000,  0.0000,  0.0000  ],
-        'SOAALK':     [0.0000,  0.0000,  0.0000  ],
         'TERP':       [0.0000,  0.0000,  0.0000  ],
         'UNR' :       [0.0000,  0.0000,  0.0000  ]
           },
@@ -230,31 +228,31 @@ voc_spc_liq = pd.DataFrame.from_dict(# CB6 mechanism
     )
 
 # Emission speciation for particulate matter ----------------------------------
-pm_spc_exh = {# From Pereira et al. (2023)                                     
+pm_spc_exh = {
           "PMC"   : 1 - frac_exh,
-          "POC"   : 0.244   * frac_exh,
-          "PEC"   : 0.377   * frac_exh,
-          "PSO4"  : 0.033   * frac_exh,
+          "POC"   : 0.240   * frac_exh,
+          "PEC"   : 0.380   * frac_exh,
+          "PSO4"  : 0.03    * frac_exh,
           "PNO3"  : 0.012   * frac_exh,
-          "PAL"   : 0.0023  * frac_exh,
+          "PAL"   : 0.003   * frac_exh,
           "PCA"   : 0.0108  * frac_exh,
-          "PCL"   : 0.0035  * frac_exh,
-          "PFE"   : 0.0196  * frac_exh,
+          "PCL"   : 0.004   * frac_exh,
+          "PFE"   : 0.02    * frac_exh,
           "PH2O"  : 0.0     * frac_exh,
-          "PK"    : 0.0018  * frac_exh,
-          "PMG"   : 0.0011  * frac_exh,
+          "PK"    : 0.002   * frac_exh,
+          "PMG"   : 0.001   * frac_exh,
           "PMN"   : 0.0008  * frac_exh,
           "PMOTHR": 0.1247  * frac_exh,
           "PNA"   : 0.007   * frac_exh,
-          "PNCOM" : 0.1464  * frac_exh,
+          "PNCOM" : 0.15    * frac_exh,
           "PNH4"  : 0.009   * frac_exh,
           "PSI"   : 0.0067  * frac_exh,
           "PTI"   : 0.0002  * frac_exh
           }
 
-pm_spc_res = {# Ivan Gregorio & Andrade (2016)                                 
+pm_spc_res = {
           "PMC"   : 1 - frac_res,
-          "PAL"   : 0.0861  * frac_res,
+          "PAL"   : 0.09    * frac_res,
           "PCA"   : 0.0281  * frac_res,
           "PCL"   : 0.0004  * frac_res,
           "PFE"   : 0.0515  * frac_res,
@@ -262,16 +260,16 @@ pm_spc_res = {# Ivan Gregorio & Andrade (2016)
           "PK"    : 0.0132  * frac_res,
           "PMG"   : 0.0138  * frac_res,
           "PMN"   : 0.0007  * frac_res,
-          "PMOTHR": 0.54653 * frac_res,
+          "PMOTHR": 0.5     * frac_res,
           "PNA"   : 0.0027  * frac_res,
           "PNCOM" : 0.01206 * frac_res,
           "PNH4"  : 0.1     * frac_res,
           "PNO3"  : 0.0     * frac_res,
-          "PSI"   : 0.1037  * frac_res,
+          "PSI"   : 0.1     * frac_res,
           "PSO4"  : 0.0     * frac_res,
           "PTI"   : 0.0061  * frac_res,
-          "POC"   : 0.0201  * frac_res,
-          "PEC"   : 0.0150  * frac_res
+          "POC"   : 0.02    * frac_res,
+          "PEC"   : 0.01    * frac_res
           }
 
 # =============================================================================

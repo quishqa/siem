@@ -16,19 +16,25 @@ import warnings
 warnings.filterwarnings("ignore",
                         message="IOAPI_ISPH is assumed to be 6370000.; consistent with WRF")
 
+############################################################################### 
+#                                                                               
+# This is an example to calculate emissions as input data to the WRF-Chem model        
+#                                                                               
+############################################################################### 
+
 # Namelists ===================================================================
 #> This inventory applies to the Metropolitan Area of São Paulo
 
 APPL         = "3km"           # Application name (model horizontal resolution)
 dom          = "d02"           # Model domain
 mech         = "cbmz_mosaic"   # Speciation mechanism name
-GridName     = "RMSP"          # Should match with GRIDDESC to implement    
+GridName     = "RMSP"          # A name of your project area
 tipo         = "roads"         # Area-line emission sources
 scen         = 'tunnel'        # Scenario of emission factors and fleet
 ldv_use      = 41.00           # Use intensity (km day^-1) for light-duty vehicles
-tru_use      = 156.00          # Use intensity (km day^-1) adjusted for trucks       
-urb_use      = 223.00          # Use intensity (km day^-1) adjusted for urban buses  
-int_use      = 220.00          # Use intensity (km day^-1) adjusted for coach buses (rodoviários)
+tru_use      = 141.00          # Use intensity (km day^-1) for trucks       
+urb_use      = 165.00          # Use intensity (km day^-1) for urban buses  
+int_use      = 165.00          # Use intensity (km day^-1) for coach buses
 motg_use     = 140.00          # Use intensity (km day^-1) for motorbikes
 mote_use     = 140.00          # Use intensity (km day^-1) for motorbikes
 frac_exh     = 0.7765          # Fraction of PM2.5 in exhaust emissions
@@ -46,7 +52,7 @@ date_start   = "2018-05-01"
 date_end     = "2018-05-01"
 
 # Reading data ================================================================
-proj_path     = '/home/alejandro/projects/siem/tests/test_data/'
+proj_path     = '/your/path/project/data/'       # <----- EDIT HERE 
 hdv_csv       = 'highways_hdv_'+dom+'.csv'
 ldv_csv       = 'highways_ldv_'+dom+'.csv'
 geopath       = proj_path + 'geo_em.'+dom+'.nc'
@@ -63,11 +69,11 @@ week_profile  = pd.read_csv(proj_path + "week_profile.csv")       # Mean 1 (frac
 mol_w = {"CO"    : 12+16,                 # Carbon monoxide                     
          "NO"    : 14+12, "NO2":14+12*2,  # Nitrogen oxide, nitrogen dioxide    
          "SO2"   : 32+16*2,               # Sulfur dioxide                      
-        #"NH3"   : 14+3,                  # Ammonia                             
+         "NH3"   : 14+3,                  # Ammonia                             
          "VOC"   : 100,                   # Volatile Organic Compounds          
          "C2H5OH": 2*12+6+16,             # Ethanol                             
-         "HCHO"  : 30.026,                # HCHOaldehyde (HCHO)                        
-         "ALD"   : 43.949035,             # Acetaldehyde                        
+         "HCHO"  : 30.026,                # formaldehyde (HCHO)                        
+         "ALD"   : 43.949035,             # Acetaldehyde (CH3CHO)                       
          "PM"    : 1,                     # Particulate matter                  
         }
 
@@ -75,26 +81,25 @@ mol_w = {"CO"    : 12+16,                 # Carbon monoxide
 # Emission Factors (g km^-1) by fuel consumption, vehicle type, and resuspension
 # =============================================================================
 print(f"Processing emissions for {scen}.")
-# Emission factors from Pereira et al. (2023), Nogueira et al. (2021),
-# Andrade et al. (2015), and CESTESB (2019).
+# Please edit your emission factors
 
 ef = pd.DataFrame.from_dict(### THIS IS AN EXAMPLE ###
     #                 ---------- LDV ---------- | --------------- HDV ----------------- | --- Motorbyke ---
     #                 Gasohol   Ethanol  Flex     Truck-D   Bus-D     IB-d      Bus-EV   Motor G   Mot Flex
     columns =        ['v1'   , 'v2'   , 'v3'   , 'v4a'  ,  'v4b'  ,  'v4c'  ,  'v4d'  , 'v6a'  ,   'v6b' ],
     data={ #         -------------------------------------------------------------------------------------
-        'exa_co':     [2.5000,  2.5000,  2.5000,  4.3000,   4.3000,   4.3000,   0.0000,  9.1500,   9.0200],
+        'exa_co':     [6.5000,  6.5000,  6.5000,  4.9500,   4.9500,   4.9500,   0.0000, 10.4000,  10.4000],
         'exa_co2':    [206.00,  206.00,  206.00,  738.00,   738.00,   738.00,   0.0000,  206.00,   206.00],
-        'exa_nox':    [0.1400,  1.1200,  0.1400,  4.9000,   4.9000,   4.9000,   0.0000,  0.1400,   0.1400],
+        'exa_nox':    [0.5000,  0.5000,  0.5000,  9.8100,   9.8100,   9.8100,   0.0000,  0.1200,   0.1200],
         'exa_so2':    [0.0008,  0.0008,  0.0008,  0.0480,   0.0480,   0.0480,   0.0000,  0.0097,   0.0093],
         'exa_c2h5oh': [0.1000,  0.2534,  0.1000,  0.0000,   0.0000,   0.0000,   0.0000,  0.0790,   0.3050],
         'exa_hcho':   [0.0074,  0.0107,  0.0074,  0.0360,   0.0360,   0.0360,   0.0000,  0.0074,   0.0074],
         'exa_ald':    [0.0101,  0.0304,  0.0101,  0.0360,   0.0360,   0.0360,   0.0000,  0.0101,   0.0101],
         'exa_pm' :    [0.0612,  0.0612,  0.0612,  0.3665,   0.3665,   0.3665,   0.0000,  0.0612,   0.0612],
-        'res_pm' :    [0.1181,  0.1181,  0.1181,  0.9847,   0.9847,   0.9847,   0.9847,  0.0000,   0.0000],
-        'exa_voc':    [0.1684,  1.3300,  0.0889,  0.0965,   0.0965,   0.0965,   0.0000,  0.3100,   0.0680],
-        'vap_voc':    [0.0550,  0.2120,  0.0540,  0.0000,   0.0000,   0.0000,   0.0000,  0.0160,   0.0160],
-        'liq_voc':    [0.2300,  0.2500,  0.2313,  0.0000,   0.0000,   0.0000,   0.0000,  0.0260,   0.1980]
+        'res_pm' :    [0.0367,  0.0367,  0.0367,  0.2290,   0.2290,   0.2290,   0.2290,  0.0000,   0.0000],
+        'exa_voc':    [1.1700,  2.1700,  1.5000,  2.0500,   2.0500,   2.0500,   0.0000,  1.4100,   1.4100],
+        'vap_voc':    [2.0000,  0.2120,  0.0540,  0.0000,   0.0000,   0.0000,   0.0000,  1.2000,   1.2000],
+        'liq_voc':    [0.2300,  0.2500,  0.2400,  0.0000,   0.0000,   0.0000,   0.0000,  0.2300,   0.2400]
           },
     orient='index'
     )
@@ -230,7 +235,7 @@ ethanol_mbike_ef = {"CO":     (ef.loc['exa_co'    , 'v6b']    , mol_w["CO"]),  #
 # Chemical Speciation 
 # =============================================================================
 
-# VOC speciation (exhaust + vapor) based on Andrade et al. (2015):
+# VOC speciation 
 voc_spc = pd.DataFrame.from_dict(# CB6 mechanism                                
     #                 ---------- (mol/100 g VOC) -----------                               
     #                 Gasoline  Alcohol  Flex     Diesel (only exhaust)                    
@@ -251,7 +256,7 @@ voc_spc = pd.DataFrame.from_dict(# CB6 mechanism
         'XYL' :       [0.0648,  0.0105,  0.0354,  0.0084  ],
         'KET' :       [3.4E-5,  0.0045,  0.0025,  1.2E-5  ],
         'CH3OH':      [0.0008,  0.0031,  0.0020,  3.0E-6  ],
-        'KET' :       [0.1291,  0.1291,  0.1291,  0.1291  ], # Based on Dominutti et al. (2020)
+        'KET' :       [0.1291,  0.1291,  0.1291,  0.1291  ],
         'ORA2':       [0.0196,  0.0196,  0.0196,  0.0000  ]
           },
     orient='index'
@@ -264,33 +269,32 @@ pm_spc_exh = {# This is an example, edit with so much care
           "NO3C"    : (1 - frac_exh) * 0.10,
           "ECC"     : (1 - frac_exh) * 0.20,
           "ORGC"    : (1 - frac_exh) * 0.05,
-          "ORGI_A"  : 0.183   * frac_exh * 0.19,     # intermediate IVOCs from anthropog
-          "ORGJ_A"  : 0.183   * frac_exh * 0.81,     # accumulation mode                
-          "ORGI_BB" : 0.061   * frac_exh * 0.19,     # organic mass from biomass burning
-          "ORGJ_BB" : 0.061   * frac_exh * 0.81,     # ORGI = ORGI_A + ORGI_BB  
-          "ECI"     : 0.377   * frac_exh * 0.94,
-          "ECJ"     : 0.377   * frac_exh * 0.06,
-          "SO4I"    : 0.033   * frac_exh * 0.136,
-          "SO4J"    : 0.033   * frac_exh * 0.864,
-          "NO3I"    : 0.012   * frac_exh * 0.23,
-          "NO3J"    : 0.012   * frac_exh * 0.77,
-          "PM25I"   : 0.334   * frac_exh * 0.25,     # other fine fractions        
-          "PM25J"   : 0.334   * frac_exh * 0.75
+          "ORGI_A"  : 0.18    * frac_exh * 0.19,     # intermediate IVOCs from anthropog
+          "ORGJ_A"  : 0.18    * frac_exh * 0.81,     # accumulation mode                
+          "ORGI_BB" : 0.06    * frac_exh * 0.19,     # organic mass from biomass burning
+          "ORGJ_BB" : 0.06    * frac_exh * 0.81,     # ORGI = ORGI_A + ORGI_BB  
+          "ECI"     : 0.3     * frac_exh * 0.94,
+          "ECJ"     : 0.3     * frac_exh * 0.06,
+          "SO4I"    : 0.03    * frac_exh * 0.136,
+          "SO4J"    : 0.03    * frac_exh * 0.864,
+          "NO3I"    : 0.01    * frac_exh * 0.23,
+          "NO3J"    : 0.01    * frac_exh * 0.77,
+          "PM25I"   : 0.3     * frac_exh * 0.25,     # other fine fractions        
+          "PM25J"   : 0.3     * frac_exh * 0.75
           }
 
-pm_spc_res = {# According to SPECIATE Data Browser 5.3                          
-              # https://www.epa.gov/air-emissions-modeling/speciate-0           
+pm_spc_res = {# This is an example 
           "PM_10"   : (1 - frac_res) * 0.50,
           "SO4C"    : (1 - frac_res) * 0.15,
           "NO3C"    : (1 - frac_res) * 0.10,
           "ECC"     : (1 - frac_res) * 0.20,
           "ORGC"    : (1 - frac_res) * 0.05,
-          "ORGI_A"  : 0.1440  * frac_res * 0.01,     # intermediate IVOCs from anthropog
-          "ORGJ_A"  : 0.1440  * frac_res * 0.99,     # accumulation mode        
-          "ORGI_BB" : 0.0480  * frac_res * 0.01,     # organic mass from biomass burning
-          "ORGJ_BB" : 0.0480  * frac_res * 0.99,     # ORGI = ORGI_A + ORGI_BB  
-          "ECI"     : 0.0520  * frac_res * 0.01,
-          "ECJ"     : 0.0520  * frac_res * 0.99,
+          "ORGI_A"  : 0.14    * frac_res * 0.01,     # intermediate IVOCs from anthropog
+          "ORGJ_A"  : 0.14    * frac_res * 0.99,     # accumulation mode        
+          "ORGI_BB" : 0.04    * frac_res * 0.01,     # organic mass from biomass burning
+          "ORGJ_BB" : 0.04    * frac_res * 0.99,     # ORGI = ORGI_A + ORGI_BB  
+          "ECI"     : 0.05    * frac_res * 0.01,
+          "ECJ"     : 0.05    * frac_res * 0.99,
           "SO4I"    : 0.1000  * frac_res * 0.01,
           "SO4J"    : 0.1000  * frac_res * 0.99,
           "NO3I"    : 0.0150  * frac_res * 0.01,

@@ -18,17 +18,23 @@ import warnings
 warnings.filterwarnings("ignore",
                         message="IOAPI_ISPH is assumed to be 6370000.; consistent with WRF")
 
+###############################################################################
+#
+# This is an example to distribute emissions inventory to the WRF-Chem model
+#
+###############################################################################
+
 # Namelists ===================================================================
 #> This inventory applies to the Metropolitan Area of São Paulo
 
 APPL          = "3km"          # Application name (model horizontal resolution)
 dom           = "d02"          # Model domain
 mech          = "cbmz_mosaic"  # Speciation mechanism name
-GridName      = "RMSP"         # Should match with GRIDDESC to implement    
+GridName      = "RMSP"         # Grid name as optional
 tipo          = "roads"        # Area-line emission sources
 scen          = 'cetesb'       # Scenario of emission factors and fleet
-frac_exh      = 0.7765         # PM2.5 fraction in exhaust (Pereira et al. 2023)
-frac_res      = 0.2419         # PM2.5 fraction in resuspension (U.S. EPA, 2011) Paved roads 
+frac_exh      = 0.7765         # PM2.5 fraction in exhaust 
+frac_res      = 0.2419         # PM2.5 fraction in resuspension 
 fleet_domain  = 15_266_361     # Fleet circulation in the model domain
 fleet_cetesb  = 15_266_361     # Fleet circulation according to CETESB for Sao Paulo State
 frac_ldv      = 0.936382       # LDV fraction in São Paulo State
@@ -36,13 +42,13 @@ frac_hdv      = 1- frac_ldv    # HDV fraction in São Paulo State
 gaso_frac     = 0.335738       # Fraction of gasohol from LDV                    
 etha_frac     = 0.015567       # Fraction of ethanol from LDV            
 flex_frac     = 0.648695       # Fraction of flex from LDV               
-etha_flex     = 0.30           # Fraction of flex-fuel powered with hidrated ethanol
-gaso_flex     = 1 - etha_flex  # Fraction of flex-fuel powered with gasoline blending with 25% ethanol
+etha_flex     = 0.50           # Fraction of flex-fuel (hydrated ethanol)
+gaso_flex     = 1 - etha_flex  # Fraction of flex-fuel (gasohol)
 date_start    = "2018-05-01"
 date_end      = "2018-05-01"
 
 # Reading data ================================================================
-proj_path     = '/home/alejandro/projects/siem/tests/test_data/'
+proj_path     = '/your_path/of_your/project/data/'          # < --- EDIT HERE
 hdv_csv       = 'highways_hdv_'+dom+'.csv'
 ldv_csv       = 'highways_ldv_'+dom+'.csv'
 geo           = xr.open_dataset(proj_path + 'geo_em.'+dom+'.nc')
@@ -59,7 +65,7 @@ mol_w = {"CO"    : 12+16,                 # Carbon monoxide
          "NO"    : 14+12,                 # Nitrogen oxide    
          "NO2"   : 14+12*2,               # Nitrogen dioxide    
          "SO2"   : 32+16*2,               # Sulfur dioxide                      
-        #"NH3"   : 14+3,                  # Ammonia                             
+         "NH3"   : 14+3,                  # Ammonia                             
          "ALD"   : 44,                    # Acetaldehyde          
          "VOC"   : 100,                   # Volatile Organic Compounds          
          "PM"    : 1,                     # Particulate matter                  
@@ -69,13 +75,10 @@ mol_w = {"CO"    : 12+16,                 # Carbon monoxide
 # Total emissions in kt/year in CETESB to the modeling domain area
 # =============================================================================
 print(f"Processing emissions for {scen}.")
-# CETESB emissions reported for the Sao Paulo State (2018)
-#> res[PM2.5] = exh[PM2.5] *  5/37     (CETESB, 2019; Grafico 4)
-#> res[PM10 ] = exh[PM10 ] * 25/40     (CETESB, 2019; Grafico 4)
-res_fact = 25/40
 
 # 1. LDV exh, res, vap, liq
-ldv_inv   = pd.DataFrame.from_dict(# CETESB emissions for Sao Paulo State
+# where exh, res, vap, liq are sources (exhaust, resuspension, vapor, liquid)
+ldv_inv   = pd.DataFrame.from_dict(# Units are in Gg (gigagrams or kilotonnes) 
             columns = [     'exh',    'res' ,    'vap',   'liq'],
             data    = {#---------| ---------|---------|--------|
             'CO'    : [  289.855 ,        0 ,       0 ,      0 ],  # to mol km^-2 hr^-1
@@ -84,7 +87,7 @@ ldv_inv   = pd.DataFrame.from_dict(# CETESB emissions for Sao Paulo State
             'SO2'   : [    0.314 ,        0 ,       0 ,      0 ],  # to mol km^-2 hr^-1
             'ALD'   : [    1.695 ,        0 ,       0 ,      0 ],  # to mol km^-2 hr^-1
             'VOC'   : [   33.233 ,        0 ,  16.149 , 12.376 ],  # to mol km^-2 hr^-1
-            'PM'    : [    0.282 ,   np.nan ,       0 ,      0 ],  # to ug m^-2 s^-1
+            'PM'    : [    0.282 ,    0.100 ,       0 ,      0 ],  # to ug m^-2 s^-1
             }, orient = 'index'
 )
 
@@ -97,12 +100,9 @@ hdv_inv   = pd.DataFrame.from_dict(
             'SO2'   : [    4.039 ,          0],
             'ALD'   : [    0.0   ,          0],
             'VOC'   : [    5.070 ,          0],
-            'PM'    : [    3.608 ,   np.nan  ],
+            'PM'    : [    3.608 ,    1.0000 ],
             }, orient = 'index'
 )
-
-ldv_inv.loc['PM','res'] = ldv_inv.loc['PM','exh'] * res_fact
-hdv_inv.loc['PM','res'] = hdv_inv.loc['PM','exh'] * res_fact
 
 # Emissions to domain fleet circulation
 ldv_inv *= fleet_domain / fleet_cetesb
@@ -127,7 +127,6 @@ res_hdv_src = xr.Dataset({para:hdv_inv.loc[para,'res'] * proxy_hdv for para in h
 # =============================================================================
 print(f"Emission speciation for VOC and PM by fuel and vehicle for {scen}")
 # =============================================================================
-# Information comes from Andrade et al. (2015), VOC split.
 
 # VOC exhaust speciation ------------------------------------------------------
 voc_spc_exh = pd.DataFrame.from_dict(# CBMZ mechanism
@@ -215,22 +214,21 @@ pm_spc_exh = {# This is an example, edit with so much care
           "NO3C"    : (1 - frac_exh) * 0.10,
           "ECC"     : (1 - frac_exh) * 0.20,
           "ORGC"    : (1 - frac_exh) * 0.05,
-          "ORGI_A"  : 0.183   * frac_exh * 0.19,     # intermediate IVOCs from anthropogenic
-          "ORGJ_A"  : 0.183   * frac_exh * 0.81,     # accumulation mode
-          "ORGI_BB" : 0.061   * frac_exh * 0.19,     # organic mass from biomass burning
-          "ORGJ_BB" : 0.061   * frac_exh * 0.81,     # ORGI = ORGI_A + ORGI_BB
-          "ECI"     : 0.377   * frac_exh * 0.94,
-          "ECJ"     : 0.377   * frac_exh * 0.06,
-          "SO4I"    : 0.033   * frac_exh * 0.136,
-          "SO4J"    : 0.033   * frac_exh * 0.864,
+          "ORGI_A"  : 0.19    * frac_exh * 0.19,     # intermediate IVOCs from anthropogenic
+          "ORGJ_A"  : 0.19    * frac_exh * 0.81,     # accumulation mode
+          "ORGI_BB" : 0.05    * frac_exh * 0.19,     # organic mass from biomass burning
+          "ORGJ_BB" : 0.05    * frac_exh * 0.81,     # ORGI = ORGI_A + ORGI_BB
+          "ECI"     : 0.38    * frac_exh * 0.94,
+          "ECJ"     : 0.38    * frac_exh * 0.06,
+          "SO4I"    : 0.03    * frac_exh * 0.136,
+          "SO4J"    : 0.03    * frac_exh * 0.864,
           "NO3I"    : 0.012   * frac_exh * 0.23,
           "NO3J"    : 0.012   * frac_exh * 0.77,
-          "PM25I"   : 0.334   * frac_exh * 0.25,     # other fine fractions
-          "PM25J"   : 0.334   * frac_exh * 0.75
+          "PM25I"   : 0.3     * frac_exh * 0.25,     # other fine fractions
+          "PM25J"   : 0.3     * frac_exh * 0.75
           }
 
-pm_spc_res = {# According to SPECIATE Data Browser 5.3 
-              # https://www.epa.gov/air-emissions-modeling/speciate-0
+pm_spc_res = {# 
           "PM_10"   : (1 - frac_res) * 0.50,
           "SO4C"    : (1 - frac_res) * 0.15,
           "NO3C"    : (1 - frac_res) * 0.10,
