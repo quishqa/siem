@@ -78,157 +78,52 @@ mol_w = {"CO"    : 12+16,                 # Carbon monoxide
         }
 
 # =============================================================================
-# Emission Factors (g km^-1) by fuel consumption, vehicle type, and resuspension
+# Emission Factors (g km^-1) by fuel consumption and vehicle type
 # =============================================================================
 print(f"Processing emissions for {scen}.")
 # Please edit your emission factors
 
 ef = pd.DataFrame.from_dict(### THIS IS AN EXAMPLE ###
-    #                 ---------- LDV ---------- | --------------- HDV ----------------- | --- Motorbyke ---
-    #                 Gasohol   Ethanol  Flex     Truck-D   Bus-D     IB-d      Bus-EV   Motor G   Mot Flex
-    columns =        ['v1'   , 'v2'   , 'v3'   , 'v4a'  ,  'v4b'  ,  'v4c'  ,  'v4d'  , 'v6a'  ,   'v6b' ],
-    data={ #         -------------------------------------------------------------------------------------
-        'exa_co':     [6.5000,  6.5000,  6.5000,  4.9500,   4.9500,   4.9500,   0.0000, 10.4000,  10.4000],
-        'exa_co2':    [206.00,  206.00,  206.00,  738.00,   738.00,   738.00,   0.0000,  206.00,   206.00],
-        'exa_nox':    [0.5000,  0.5000,  0.5000,  9.8100,   9.8100,   9.8100,   0.0000,  0.1200,   0.1200],
-        'exa_so2':    [0.0008,  0.0008,  0.0008,  0.0480,   0.0480,   0.0480,   0.0000,  0.0097,   0.0093],
-        'exa_c2h5oh': [0.1000,  0.2534,  0.1000,  0.0000,   0.0000,   0.0000,   0.0000,  0.0790,   0.3050],
-        'exa_hcho':   [0.0074,  0.0107,  0.0074,  0.0360,   0.0360,   0.0360,   0.0000,  0.0074,   0.0074],
-        'exa_ald':    [0.0101,  0.0304,  0.0101,  0.0360,   0.0360,   0.0360,   0.0000,  0.0101,   0.0101],
-        'exa_pm' :    [0.0612,  0.0612,  0.0612,  0.3665,   0.3665,   0.3665,   0.0000,  0.0612,   0.0612],
-        'res_pm' :    [0.0367,  0.0367,  0.0367,  0.2290,   0.2290,   0.2290,   0.2290,  0.0000,   0.0000],
-        'exa_voc':    [1.1700,  2.1700,  1.5000,  2.0500,   2.0500,   2.0500,   0.0000,  1.4100,   1.4100],
-        'vap_voc':    [2.0000,  0.2120,  0.0540,  0.0000,   0.0000,   0.0000,   0.0000,  1.2000,   1.2000],
-        'liq_voc':    [0.2300,  0.2500,  0.2400,  0.0000,   0.0000,   0.0000,   0.0000,  0.2300,   0.2400]
+    #                  LDV --| - HDV -| Motorbyke 
+    columns =        ['v1'   , 'v4a'  ,  'v6a' ],
+    data={ #         ---------------------------
+        'exa_co':     [6.5000,  4.9500, 10.4000],
+        'exa_nox':    [0.5000,  9.8100,  0.1200],
+        'exa_so2':    [0.0008,  0.0480,  0.0097],
+        'exa_pm' :    [0.0612,  0.3665,  0.0612],
+        'exa_voc':    [1.1700,  2.0500,  1.4100]
           },
     orient='index'
     )
 
-ef.loc['voc'] = ef.loc[['exa_voc','vap_voc','liq_voc'],:].sum()
-
-
-#> LDV (Light-Duty Vehicle) -> Gasohol, Ethanol, Flex -------------------------
+#> LDV (Light-Duty Vehicle) ---------------------------------------------------
 # v1 - LDV EF           (g km^-1                        , g mol^-1)
 gasohol_ef = {"CO":     (ef.loc['exa_co'    , 'v1' ]    , mol_w["CO"]),   # Carbon monoxide
               "NO":     (ef.loc['exa_nox'   , 'v1' ]*.95, mol_w["NO"]),   # Nitrogen oxide
               "NO2":    (ef.loc['exa_nox'   , 'v1' ]*.05, mol_w["NO2"]),  # Nitrogen dioxide
               "SO2":    (ef.loc['exa_so2'   , 'v1' ]    , mol_w["SO2"]),  # Sulfur dioxide
-              "C2H5OH": (ef.loc['exa_c2h5oh', 'v1' ]    , mol_w["C2H5OH"]), # Ethanol 
-              "HCHO":   (ef.loc['exa_hcho'  , 'v1' ]    , mol_w["HCHO"]), # HCHOaldehyde (HCHO)
-              "ALD" :   (ef.loc['exa_ald'   , 'v1' ]    , mol_w["ALD" ]), # Acetaldehyde (CH3CHO)
               "VOC":    (ef.loc['voc'       , 'v1' ]    , mol_w["VOC"]),  # Volatile Organic Compounds (exhaust + vapor + liquid)
               "PM":     (ef.loc['exa_pm'    , 'v1' ]    , mol_w["PM"]),   # Exhaust particulate matter
               }
 
-# v2 - LDV EF           (g km^-1                        , g mol^-1)
-ethanol_ef = {"CO":     (ef.loc['exa_co'    , 'v2' ]    , mol_w["CO"]),   # Carbon monoxide
-              "NO":     (ef.loc['exa_nox'   , 'v2' ]*.95, mol_w["NO"]),   # Nitrogen oxide
-              "NO2":    (ef.loc['exa_nox'   , 'v2' ]*.05, mol_w["NO2"]),  # Nitrogen dioxide
-              "SO2":    (ef.loc['exa_so2'   , 'v2' ]    , mol_w["SO2"]),  # Sulfur dioxide
-              "C2H5OH": (ef.loc['exa_c2h5oh', 'v2' ]    , mol_w["C2H5OH"]), # Ethanol 
-              "HCHO":   (ef.loc['exa_hcho'  , 'v2' ]    , mol_w["HCHO"]), # HCHOaldehyde (HCHO)
-              "ALD" :   (ef.loc['exa_ald'   , 'v2' ]    , mol_w["ALD" ]), # Acetaldehyde (CH3CHO)
-              "VOC":    (ef.loc['voc'       , 'v2' ]    , mol_w["VOC"]),  # Volatile Organic Compounds (exhaust + vapor + liquid)
-              "PM":     (ef.loc['exa_pm'    , 'v2' ]    , mol_w["PM"]),   # Exhaust particulate matter
-              }
-
-# v3 - LDV EF           (g km^-1                        , g mol^-1)
-flex_ef    = {"CO":     (ef.loc['exa_co'    , 'v3' ]    , mol_w["CO"]),   # Carbon monoxide
-              "NO":     (ef.loc['exa_nox'   , 'v3' ]*.95, mol_w["NO"]),   # Nitrogen oxide
-              "NO2":    (ef.loc['exa_nox'   , 'v3' ]*.05, mol_w["NO2"]),  # Nitrogen dioxide
-              "SO2":    (ef.loc['exa_so2'   , 'v3' ]    , mol_w["SO2"]),  # Sulfur dioxide
-              "C2H5OH": (ef.loc['exa_c2h5oh', 'v3' ]    , mol_w["C2H5OH"]), # Ethanol 
-              "HCHO":   (ef.loc['exa_hcho'  , 'v3' ]    , mol_w["HCHO"]), # HCHOaldehyde (HCHO)
-              "ALD" :   (ef.loc['exa_ald'   , 'v3' ]    , mol_w["ALD" ]), # Acetaldehyde (CH3CHO)
-              "VOC":    (ef.loc['voc'       , 'v3' ]    , mol_w["VOC"]),  # Volatile Organic Compounds (exhaust + vapor + liquid)
-              "PM":     (ef.loc['exa_pm'    , 'v3' ]    , mol_w["PM"]),   # Exhaust particulate matter
-              }
-
-# v123 - LDV EF         (g km^-1  , g mol^-1)     Resuspension
-ldv_res_ef = {"CO":     (0.0      , mol_w["CO"]),                         # Carbon monoxide
-              "NO":     (0.0      , mol_w["NO"]),                         # Nitrogen oxide
-              "NO2":    (0.0      , mol_w["NO2"]),                        # Nitrogen dioxide
-              "SO2":    (0.0      , mol_w["SO2"]),                        # Sulfur dioxide
-              "C2H5OH": (0.0      , mol_w["C2H5OH"]),                     # Ethanol 
-              "HCHO":   (0.0      , mol_w["HCHO"]),                       # HCHOaldehyde (HCHO)
-              "ALD" :   (0.0      , mol_w["ALD" ]),                       # Acetaldehyde (CH3CHO)
-              "VOC":    (0.0      , mol_w["VOC"]),                        # Volatile Organic Compounds (exhaust + vapor + liquid)
-              "PM":     (ef.loc['res_pm', 'v1' ]   , mol_w["PM"]),        # Resuspension particulate matter
-              }
-
-#> High-Duty Vehicles -> Truck (Diesel), Bus (Diesel), Urban Bus (Diesel) -----
+#> High-Duty Vehicles ---------------------------------------------------------
 # v4a - HDV EF               (g km^-1                        , g mol^-1)
 diesel_truck_ef = {"CO":     (ef.loc['exa_co'    , 'v4a']    , mol_w["CO"]),   # Carbon monoxide
                    "NO":     (ef.loc['exa_nox'   , 'v4a']*.95, mol_w["NO"]),   # Nitrogen oxide
                    "NO2":    (ef.loc['exa_nox'   , 'v4a']*.05, mol_w["NO2"]),  # Nitrogen dioxide
                    "SO2":    (ef.loc['exa_so2'   , 'v4a']    , mol_w["SO2"]),  # Sulfur dioxide
-                   "C2H5OH": (ef.loc['exa_c2h5oh', 'v4a']    , mol_w["C2H5OH"]), # Ethanol 
-                   "HCHO":   (ef.loc['exa_hcho'  , 'v4a']    , mol_w["HCHO"]), # HCHOaldehyde (HCHO)
-                   "ALD" :   (ef.loc['exa_ald'   , 'v4a']    , mol_w["ALD" ]), # Acetaldehyde (CH3CHO)
                    "VOC":    (ef.loc['voc'       , 'v4a']    , mol_w["VOC"]),  # Volatile Organic Compounds (exhaust + vapor + liquid)
                    "PM":     (ef.loc['exa_pm'    , 'v4a']    , mol_w["PM"]),   # Exhaust particulate matter
                   }
 
-# v4b - HDV EF               (g km^-1                        , g mol^-1)
-diesel_urban_ef = {"CO":     (ef.loc['exa_co'    , 'v4b']    , mol_w["CO"]),   # Carbon monoxide
-                   "NO":     (ef.loc['exa_nox'   , 'v4b']*.95, mol_w["NO"]),   # Nitrogen oxide
-                   "NO2":    (ef.loc['exa_nox'   , 'v4b']*.05, mol_w["NO2"]),  # Nitrogen dioxide
-                   "SO2":    (ef.loc['exa_so2'   , 'v4b']    , mol_w["SO2"]),  # Sulfur dioxide
-                   "C2H5OH": (ef.loc['exa_c2h5oh', 'v4b']    , mol_w["C2H5OH"]), # Ethanol 
-                   "HCHO":   (ef.loc['exa_hcho'  , 'v4b']    , mol_w["HCHO"]), # HCHOaldehyde (HCHO)
-                   "ALD" :   (ef.loc['exa_ald'   , 'v4b']    , mol_w["ALD" ]), # Acetaldehyde (CH3CHO)
-                   "VOC":    (ef.loc['voc'       , 'v4b']    , mol_w["VOC"]),  # Volatile Organic Compounds (exhaust + vapor + liquid)
-                   "PM":     (ef.loc['exa_pm'    , 'v4b']    , mol_w["PM"]),   # Exhaust particulate matter
-                  }
-
-# v4c - HDV EF               (g km^-1                        , g mol^-1)
-diesel_inter_ef = {"CO":     (ef.loc['exa_co'    , 'v4c']    , mol_w["CO"]),   # Carbon monoxide
-                   "NO":     (ef.loc['exa_nox'   , 'v4c']*.95, mol_w["NO"]),   # Nitrogen oxide
-                   "NO2":    (ef.loc['exa_nox'   , 'v4c']*.05, mol_w["NO2"]),  # Nitrogen dioxide
-                   "SO2":    (ef.loc['exa_so2'   , 'v4c']    , mol_w["SO2"]),  # Sulfur dioxide
-                   "C2H5OH": (ef.loc['exa_c2h5oh', 'v4c']    , mol_w["C2H5OH"]), # Ethanol 
-                   "HCHO":   (ef.loc['exa_hcho'  , 'v4c']    , mol_w["HCHO"]), # HCHOaldehyde (HCHO)
-                   "ALD" :   (ef.loc['exa_ald'   , 'v4c']    , mol_w["ALD" ]), # Acetaldehyde (CH3CHO)
-                   "VOC":    (ef.loc['voc'       , 'v4c']    , mol_w["VOC"]),  # Volatile Organic Compounds (exhaust + vapor + liquid)
-                   "PM":     (ef.loc['exa_pm'    , 'v4c']    , mol_w["PM"]),   # Exhaust particulate matter
-                  }
-
-# v4 - HDV EF                (g km^-1  , g mol^-1)     Resuspension
-hdv_res_ef      = {"CO":     (0.0      , mol_w["CO"]),                         # Carbon monoxide
-                   "NO":     (0.0      , mol_w["NO"]),                         # Nitrogen oxide
-                   "NO2":    (0.0      , mol_w["NO2"]),                        # Nitrogen dioxide
-                   "SO2":    (0.0      , mol_w["SO2"]),                        # Sulfur dioxide
-                   "C2H5OH": (0.0      , mol_w["C2H5OH"]),                     # Ethanol 
-                   "HCHO":   (0.0      , mol_w["HCHO"]),                       # HCHOaldehyde (HCHO)
-                   "ALD" :   (0.0      , mol_w["ALD" ]),                       # Acetaldehyde (CH3CHO)
-                   "VOC":    (0.0      , mol_w["VOC"]),                        # Volatile Organic Compounds (exhaust + vapor + liquid)
-                   "PM":     (ef.loc['res_pm' ,'v4a']   , mol_w["PM"]),        # Resuspension particulate matter
-                  }
-
-#> Motorbike Vehicles -> Gasoline, Ethanol ------------------------------------
-#> Emission factors used in LAPAt model in ncl
+#> Motorbike Vehicles ---------------------------------------------------------
 # v6a - Motorbike EF          (g km^-1                        , g mol^-1)  
 gasohol_mbike_ef = {"CO":     (ef.loc['exa_co'    , 'v6a']    , mol_w["CO"]),  # Carbon monoxide
                     "NO":     (ef.loc['exa_nox'   , 'v6a']*.95, mol_w["NO"]),  # Nitrogen oxide
                     "NO2":    (ef.loc['exa_nox'   , 'v6a']*.05, mol_w["NO2"]), # Nitrogen dioxide
                     "SO2":    (ef.loc['exa_so2'   , 'v6a']    , mol_w["SO2"]), # Sulfur dioxide
-                    "C2H5OH": (ef.loc['exa_c2h5oh', 'v6a']    , mol_w["C2H5OH"]),# Ethanol 
-                    "HCHO":   (ef.loc['exa_hcho'  , 'v6a']    , mol_w["HCHO"]),# HCHOaldehyde (HCHO)
-                    "ALD" :   (ef.loc['exa_ald'   , 'v6a']    , mol_w["ALD" ]),# Acetaldehyde (CH3CHO)
                     "VOC":    (ef.loc['voc'       , 'v6a']    , mol_w["VOC"]), # Volatile Organic Compounds (exhaust + vapor + liquid)
                     "PM":     (ef.loc['exa_pm'    , 'v6a']    , mol_w["PM"]),  # Exhaust particulate matter
-                   }
-
-# v6b - Motorbike EF flexi    (g km^-1                        , g mol^-1)
-ethanol_mbike_ef = {"CO":     (ef.loc['exa_co'    , 'v6b']    , mol_w["CO"]),  # Carbon monoxide
-                    "NO":     (ef.loc['exa_nox'   , 'v6b']*.95, mol_w["NO"]),  # Nitrogen oxide
-                    "NO2":    (ef.loc['exa_nox'   , 'v6b']*.05, mol_w["NO2"]), # Nitrogen dioxide
-                    "SO2":    (ef.loc['exa_so2'   , 'v6b']    , mol_w["SO2"]), # Sulfur dioxide
-                    "C2H5OH": (ef.loc['exa_c2h5oh', 'v6b']    , mol_w["C2H5OH"]),# Ethanol 
-                    "HCHO":   (ef.loc['exa_hcho'  , 'v6b']    , mol_w["HCHO"]),# HCHOaldehyde (HCHO)
-                    "ALD" :   (ef.loc['exa_ald'   , 'v6b']    , mol_w["ALD" ]),# Acetaldehyde
-                    "VOC":    (ef.loc['voc'       , 'v6b']    , mol_w["VOC"]), # Volatile Organic Compounds (exhaust + vapor + liquid)
-                    "PM":     (ef.loc['exa_pm'    , 'v6b']    , mol_w["PM"]),  # Exhaust particulate matter
                    }
 
 # =============================================================================
@@ -277,26 +172,8 @@ pm_spc_exh = {# This is an example, edit with so much care
           "SO4J"    : 0.03    * frac_exh * 0.864,
           "NO3I"    : 0.01    * frac_exh * 0.23,
           "NO3J"    : 0.01    * frac_exh * 0.77,
-          "PM25I"   : 0.3     * frac_exh * 0.25,     # other fine fractions        
-          "PM25J"   : 0.3     * frac_exh * 0.75
-          }
-
-pm_spc_res = {# This is an example 
-          "PM_10"   : (1 - frac_res) * 0.50,
-          "SO4C"    : (1 - frac_res) * 0.15,
-          "NO3C"    : (1 - frac_res) * 0.10,
-          "ECC"     : (1 - frac_res) * 0.20,
-          "ORGC"    : (1 - frac_res) * 0.05,
-          "ORGI"    : 0.18    * frac_res * 0.01,
-          "ORGJ"    : 0.18    * frac_res * 0.99,
-          "ECI"     : 0.05    * frac_res * 0.01,
-          "ECJ"     : 0.05    * frac_res * 0.99,
-          "SO4I"    : 0.1000  * frac_res * 0.01,
-          "SO4J"    : 0.1000  * frac_res * 0.99,
-          "NO3I"    : 0.0150  * frac_res * 0.01,
-          "NO3J"    : 0.0150  * frac_res * 0.99,
-          "PM25I"   : 0.6410  * frac_res * 0.01,
-          "PM25J"   : 0.6410  * frac_res * 0.99
+          "PM25I"   : 0.42    * frac_exh * 0.25,     # other fine fractions        
+          "PM25J"   : 0.42    * frac_exh * 0.75
           }
 
 # =============================================================================
@@ -316,34 +193,6 @@ gasohol_ldv = EmissionSource(name="LDV with gasohol",
                              voc_spc = voc_spc.gaso.to_dict(),
                              pm_spc = pm_spc_exh )
 
-
-ethanol_ldv = EmissionSource(name="LDV with ethanol",
-                             number= fleet * ethanol_fv,
-                             use_intensity = ldv_use,
-                             pol_ef = ethanol_ef,
-                             spatial_proxy = proxy_ldv,
-                             temporal_prof = daily_profile.ldv,
-                             voc_spc = voc_spc.etha.to_dict(),
-                             pm_spc = pm_spc_exh )
-
-flex_ldv    = EmissionSource(name="LDV with flex   ",
-                             number= fleet * flex_fv,
-                             use_intensity = ldv_use,
-                             pol_ef = flex_ef,
-                             spatial_proxy = proxy_ldv,
-                             temporal_prof = daily_profile.ldv,
-                             voc_spc = voc_spc.flex.to_dict(),
-                             pm_spc = pm_spc_exh )
-
-res_ldv     = EmissionSource(name="LDV with resuspension",
-                             number= fleet * (gasohol_fv + ethanol_fv + flex_fv),
-                             use_intensity = ldv_use,
-                             pol_ef = ldv_res_ef,
-                             spatial_proxy = proxy_ldv,
-                             temporal_prof = daily_profile.ldv,
-                             voc_spc = voc_spc.flex.to_dict(),
-                             pm_spc = pm_spc_res )
-
 #> HDV ------------------------------------------------------------------------
 trucks      = EmissionSource(name="Trucks with diesel",
                              number= fleet * trucks_fv,
@@ -353,33 +202,6 @@ trucks      = EmissionSource(name="Trucks with diesel",
                              temporal_prof = daily_profile.hdv,
                              voc_spc = voc_spc.diesel.to_dict(),
                              pm_spc = pm_spc_exh )
-
-urban_bus   = EmissionSource(name="Urban bus with diesel",
-                             number= fleet * urban_bus_fv,
-                             use_intensity = urb_use,
-                             pol_ef = diesel_urban_ef,
-                             spatial_proxy = proxy_hdv,
-                             temporal_prof = daily_profile.hdv,
-                             voc_spc = voc_spc.diesel.to_dict(),
-                             pm_spc = pm_spc_exh )
-
-intercity   = EmissionSource(name="Road bus with diesel",
-                             number= fleet * intercity_fv,
-                             use_intensity = int_use,
-                             pol_ef = diesel_inter_ef,
-                             spatial_proxy = proxy_hdv,
-                             temporal_prof = daily_profile.hdv,
-                             voc_spc = voc_spc.diesel.to_dict(),
-                             pm_spc = pm_spc_exh )
-
-res_hdv     = EmissionSource(name="HDV with resuspension",
-                             number= fleet * (trucks_fv + urban_bus_fv + intercity_fv),
-                             use_intensity = (tru_use*trucks_fv + urb_use*urban_bus_fv + int_use*intercity_fv)/(trucks_fv + urban_bus_fv + intercity_fv),
-                             pol_ef = hdv_res_ef,
-                             spatial_proxy = proxy_hdv,
-                             temporal_prof = daily_profile.hdv,
-                             voc_spc = voc_spc.diesel.to_dict(),
-                             pm_spc = pm_spc_res )
 
 #> Motorbikes -----------------------------------------------------------------
 
@@ -392,24 +214,11 @@ gasohol_bike = EmissionSource(name="Motorbikes with gasohol",
                               voc_spc = voc_spc.gaso.to_dict(),
                               pm_spc = pm_spc_exh )
 
-ethanol_bike = EmissionSource(name="Motorbikes with ethanol",
-                              number= fleet * ethabike_fv,
-                              use_intensity = mote_use,
-                              pol_ef = ethanol_mbike_ef,
-                              spatial_proxy = proxy_ldv,
-                              temporal_prof = daily_profile.ldv,
-                              voc_spc = voc_spc.etha.to_dict(),
-                              pm_spc = pm_spc_exh )
-
-
 # =============================================================================
 # Merge sources using the GroupSources function
 # =============================================================================
 
-road_sources = GroupSources(sources_list = [gasohol_ldv, ethanol_ldv, flex_ldv,
-                                              res_ldv, trucks, urban_bus,
-                                              intercity, res_hdv,
-                                              gasohol_bike, ethanol_bike])
+road_sources = GroupSources(sources_list = [gasohol_ldv, trucks, gasohol_bike])
 
 
 road_emiss   = road_sources.to_wrfchemi(wrfinput = wrfinput,

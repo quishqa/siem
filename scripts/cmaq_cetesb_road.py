@@ -65,7 +65,6 @@ mol_w = {"CO"    : 12+16,                 # Carbon monoxide
          "NO"    : 14+12,                 # Nitrogen oxide    
          "NO2"   : 14+12*2,               # Nitrogen dioxide    
          "SO2"   : 32+16*2,               # Sulfur dioxide                      
-         "NH3"   : 14+3,                  # Ammonia                             
          "VOC"   : 100,                   # Volatile Organic Compounds          
          "VOC_INV":1,                     #                                     
          "PM"    : 1,                     # Particulate matter                  
@@ -76,39 +75,22 @@ mol_w = {"CO"    : 12+16,                 # Carbon monoxide
 # =============================================================================
 print(f"Processing emissions for {scen}.")
 
-# 1. LDV exh, res, vap, liq (EDIT HERE)
-# where exh, res, vap, liq are sources (exhaust, resuspension, vapor, liquid)
-ldv_inv   = pd.DataFrame.from_dict(# Units are in Gg (gigagrams or kilotonnes)
-            columns = [     'exh',    'res' ,    'vap',   'liq'],
-            data    = {#---------| ---------|---------|--------|
-            'CO'    : [   50.0000,        0 ,       0 ,      0 ],
-            'NO'    : [   95.0000,        0 ,       0 ,      0 ],
-            'NO2'   : [   10.0000,        0 ,       0 ,      0 ],
-            'SO2'   : [    1.0000,        0 ,       0 ,      0 ],
-            'VOC'   : [   50.0000,        0 ,  20.000 , 10.000 ],
-            'PM'    : [    1.0000,    0.625 ,       0 ,      0 ],
-            }, orient = 'index'
-)
-
-hdv_inv   = pd.DataFrame.from_dict(
-            columns = [     'exh',      'res'],
+inv   = pd.DataFrame.from_dict(# Units are in Gg (gigagrams or kilotonnes)
+            columns = [     'ldv',     'hdv' ],
             data    = {#---------| -----------
-            'CO'    : [   25.000 ,          0],
-            'NO'    : [  150.0000,          0],
-            'NO2'   : [   15.0000,          0],
-            'SO2'   : [    2.000 ,          0],
-            'VOC'   : [   10.000 ,          0],
-            'PM'    : [    3.000 ,    1.5000 ],
+            'CO'    : [   50.0000,    25.000 ],
+            'NO'    : [   95.0000,   150.000 ],
+            'NO2'   : [   10.0000,    15.000 ],
+            'SO2'   : [    1.0000,     2.000 ],
+            'VOC'   : [   50.0000,    10.000 ],
+            'PM'    : [    1.0000,     3.000 ]
             }, orient = 'index'
 )
 
-ldv_inv.loc['VOC_INV']  = ldv_inv.loc['VOC', :]
-hdv_inv.loc['VOC_INV']  = hdv_inv.loc['VOC', :]
+inv.loc['VOC_INV']  = inv.loc['VOC', :]
 
 # Emissions to domain fleet circulation
-ldv_inv *= fleet_domain / fleet_cetesb
-hdv_inv *= fleet_domain / fleet_cetesb
-inv      = (ldv_inv + hdv_inv).sum(axis=1)
+inv *= fleet_domain / fleet_cetesb
 
 # to normalize for spatial distribution (each proxy sum to 1) !!! IMPORTANT ¡¡¡        
 proxy_ldv /= proxy_ldv.sum()
@@ -118,12 +100,8 @@ proxy_hdv /= proxy_hdv.sum()
 # Point emissions require xr.Dataset(), so we calculate from each xr.DataArray()
 # -----------------------------------------------------------------------------
 
-exh_ldv_src = xr.Dataset({para:ldv_inv.loc[para,'exh'] * proxy_ldv for para in ldv_inv.index})
-res_ldv_src = xr.Dataset({para:ldv_inv.loc[para,'res'] * proxy_ldv for para in ldv_inv.index})
-vap_ldv_src = xr.Dataset({para:ldv_inv.loc[para,'vap'] * proxy_ldv for para in ldv_inv.index})
-liq_ldv_src = xr.Dataset({para:ldv_inv.loc[para,'liq'] * proxy_ldv for para in ldv_inv.index})
-exh_hdv_src = xr.Dataset({para:hdv_inv.loc[para,'exh'] * proxy_hdv for para in hdv_inv.index})
-res_hdv_src = xr.Dataset({para:hdv_inv.loc[para,'res'] * proxy_hdv for para in hdv_inv.index})
+exh_ldv_src = xr.Dataset({para:inv.loc[para,'ldv'] * proxy_ldv for para in inv.index})
+exh_hdv_src = xr.Dataset({para:inv.loc[para,'hdv'] * proxy_hdv for para in inv.index})
 
 # =============================================================================
 print(f"Emission speciation for VOC and PM by fuel and vehicle for {scen}")
@@ -142,69 +120,14 @@ voc_spc_exh = pd.DataFrame.from_dict(# CB6 mechanism
         'PAR':        [0.4630,  1.1300,  0.4430  ],
         'OLE':        [0.0765,  0.0000,  0.2966  ],
         'ETH':        [0.3416,  0.9489,  0.3189  ],
-        'ETHY':       [0.3416,  0.9489,  0.3189  ],
         'ETOH':       [0.6051,  0.0000,  0.0000  ],
         'FORM':       [0.0211,  0.0164,  0.0585  ],
         'ALD2':       [0.0196,  0.0318,  0.0399  ],
-        'ISOP':       [0.0046,  0.0000,  0.0000  ],
         'TOL':        [0.1405,  0.0151,  0.2351  ],
         'XYLMN':      [0.1575,  0.0395,  0.0084  ],
-        'MEOH':       [0.0018,  0.0055,  3.0E-6  ],
         'ALDX':       [0.1291,  0.0000,  0.0000  ],
         'BENZ':       [0.0384,  0.0000,  0.0142  ],
         'IOLE':       [0.0196,  0.0000,  0.0196  ],
-          },
-    orient='index'
-    )
-
-voc_spc_vap = pd.DataFrame.from_dict(# CB6 mechanism                                
-    #                 ------ (mol/100 g VOC) --------                           
-    #                 LDV                 HDV                                   
-    #                 Gas-E25   Eth95     Diesel B10                            
-    columns =        ['gaso' ,  'etha',  'diesel'],
-    data={ #         ---------------------------------                          
-        'ETHA':       [0.0250,  0.0000,  0.0000  ],
-        'PRPA':       [0.2400,  0.0000,  0.0000  ],
-        'PAR':        [1.1100,  0.0000,  0.0000  ],
-        'OLE':        [0.0000,  0.0000,  0.0000  ],
-        'ETH':        [0.0382,  0.0000,  0.0000  ],
-        'ETHY':       [0.0382,  0.0000,  0.0000  ],
-        'ETOH':       [0.3500,  2.1706,  0.0000  ],
-        'FORM':       [0.0000,  0.0000,  0.0000  ],
-        'ALD2':       [0.0000,  0.0000,  0.0000  ],
-        'ISOP':       [0.0000,  0.0000,  0.0000  ],
-        'TOL':        [0.0850,  0.0000,  0.0000  ],
-        'XYLMN':      [0.0000,  0.0000,  0.0000  ],
-        'MEOH':       [0.0000,  0.0022,  0.0000  ],
-        'ALDX':       [0.0000,  0.0000,  0.0000  ],
-        'BENZ':       [0.0000,  0.0000,  0.0000  ],
-        'IOLE':       [0.0000,  0.0000,  0.0000  ],
-          },
-    orient='index'
-    )
-
-voc_spc_liq = pd.DataFrame.from_dict(# CB6 mechanism
-    #                 ------ (mol/100 g VOC) --------
-    #                 LDV                 HDV
-    #                 Gas-E25   Eth95     Diesel B10
-    columns =        ['gaso' ,  'etha',  'diesel'],
-    data={ #         ---------------------------------
-        'ETHA':       [0.0000,  0.0000,  0.0000  ],
-        'PRPA':       [0.2132,  0.0000,  0.0000  ],
-        'PAR':        [0.4190,  0.0000,  0.0000  ],
-        'OLE':        [0.1926,  0.0000,  0.0000  ],
-        'ETH':        [0.0000,  0.0000,  0.0000  ],
-        'ETHY':       [0.0000,  0.0000,  0.0000  ],
-        'ETOH':       [0.6051,  2.1706,  0.0000  ],
-        'FORM':       [0.0000,  0.0000,  0.0000  ],
-        'ALD2':       [0.0595,  0.0000,  0.0000  ],
-        'ISOP':       [0.0011,  0.0000,  0.0000  ],
-        'TOL':        [0.0584,  0.0000,  0.0000  ],
-        'XYLMN':      [0.1193,  0.0000,  0.0000  ],
-        'MEOH':       [0.0000,  0.0022,  0.0000  ],
-        'ALDX':       [0.0595,  0.0000,  0.0000  ],
-        'BENZ':       [0.0000,  0.0000,  0.0000  ],
-        'IOLE':       [0.0000,  0.0000,  0.0000  ],
           },
     orient='index'
     )
@@ -219,20 +142,11 @@ pm_spc_exh = {
           "PMOTHR": 0.338   * frac_exh,
           }
 
-pm_spc_res = {
-          "PMC"   : 1 - frac_res,
-          "POC"   : 0.12    * frac_res,
-          "PEC"   : 0.11    * frac_res
-          "PSO4"  : 0.01    * frac_res,
-          "PNO3"  : 0.01    * frac_res,
-          "PMOTHR": 0.75    * frac_res,
-          }
-
 # =============================================================================
 # Emission calculations (PointSources function)                    ok rev by AD  
 # =============================================================================
 # 1. LDV        -> Gasohol, Ethanol, Flex
-# 2. Motorbikes -> Gasohol and Flex
+# 2. HDV        -> Diesel
 
 gaso_exh = PointSources(name = "LDV_exh_gasohol",
                         point_emiss = exh_ldv_src * (gaso_frac+flex_frac*gaso_flex),
@@ -248,42 +162,6 @@ etha_exh = PointSources(name = "LDV_exh_ethanol",
                         voc_spc = voc_spc_exh.etha.to_dict(),
                         pm_spc = pm_spc_exh)
 
-gaso_vap = PointSources(name = "LDV_vap_gasohol",
-                        point_emiss = vap_ldv_src * (gaso_frac+flex_frac*gaso_flex),
-                        pol_emiss   = mol_w,
-                        temporal_prof = daily_profile.ldv,
-                        voc_spc = voc_spc_vap.gaso.to_dict(),
-                        pm_spc = pm_spc_exh)
-
-etha_vap = PointSources(name = "LDV_vap_ethanol",
-                        point_emiss = vap_ldv_src * (etha_frac+flex_frac*etha_flex),
-                        pol_emiss   = mol_w,
-                        temporal_prof = daily_profile.ldv,
-                        voc_spc = voc_spc_vap.etha.to_dict(),
-                        pm_spc = pm_spc_exh)
-
-gaso_liq = PointSources(name = "LDV_liq_gasohol",
-                        point_emiss = liq_ldv_src * (gaso_frac+flex_frac*gaso_flex),
-                        pol_emiss   = mol_w,
-                        temporal_prof = daily_profile.ldv,
-                        voc_spc = voc_spc_liq.gaso.to_dict(),
-                        pm_spc = pm_spc_exh)
-
-etha_liq = PointSources(name = "LDV_liq_ethanol",
-                        point_emiss = liq_ldv_src * (etha_frac+flex_frac*etha_flex),
-                        pol_emiss   = mol_w,
-                        temporal_prof = daily_profile.ldv,
-                        voc_spc = voc_spc_liq.etha.to_dict(),
-                        pm_spc = pm_spc_exh)
-
-ldv_res  = PointSources(name = "LDV_with_res",
-                        point_emiss = res_ldv_src,
-                        pol_emiss   = mol_w,
-                        temporal_prof = daily_profile.ldv,
-                        voc_spc = voc_spc_exh.gaso.to_dict(),
-                        pm_spc = pm_spc_res)
-
-# 2. HDV        -> Diesel
 hdv_exh = PointSources(name = "HDV with diesel",
                         point_emiss = exh_hdv_src,
                         pol_emiss   = mol_w,
@@ -291,55 +169,14 @@ hdv_exh = PointSources(name = "HDV with diesel",
                         voc_spc = voc_spc_exh.diesel.to_dict(),
                         pm_spc = pm_spc_exh)
 
-hdv_res  = PointSources(name = "HDV with res",
-                        point_emiss = res_hdv_src,
-                        pol_emiss   = mol_w,
-                        temporal_prof = daily_profile.hdv,
-                        voc_spc = voc_spc_exh.diesel.to_dict(),
-                        pm_spc = pm_spc_res)
-
-
 # =============================================================================
 # Merge sources using the GroupSources function
 # ============================================================================= 
-road_sources  = GroupSources(sources_list = [gaso_exh, etha_exh,           # ok rev AD
-                                             gaso_vap, etha_vap,
-                                             gaso_liq, etha_liq,
-                                             ldv_res,
-                                             hdv_exh,  hdv_res
-                                             ])
+road_sources  = GroupSources(sources_list = [gaso_exh, hdv_exh])
 
-ldv_sources   = GroupSources(sources_list = [gaso_exh, etha_exh,           # ok rev AD
-                                             gaso_vap, etha_vap,
-                                             gaso_liq, etha_liq,
-                                             ldv_res
-                                             ])
-
-hdv_sources   = GroupSources(sources_list = [hdv_exh, hdv_res              # ok rev AD
-                                             ])
-
-ldv_emiss     =   ldv_sources.to_cmaq(wrfinput = wrfinput,
-                                      griddesc_path = proj_path + f"GRIDDESC_{GridName}",
-                                      btrim = -1,
-                                      start_date = date_start,
-                                      end_date   = date_end,
-                                      week_profile = week_profile.frac,
-                                      write_netcdf = True,
-                                      path = "../results/" +GridName+'_'+APPL + '_'+ scen + '_' + 'ldv'
-                                      )
-
-hdv_emiss     =   hdv_sources.to_cmaq(wrfinput = wrfinput,
-                                      griddesc_path = proj_path + f"GRIDDESC_{GridName}",
-                                      btrim = -1,
-                                      start_date = date_start,
-                                      end_date = date_end,
-                                      week_profile = week_profile.frac,
-                                      write_netcdf = True,
-                                      path = "../results/" +GridName+'_'+APPL + '_'+ scen + '_' + 'hdv'
-                                      )
 road_emiss    =  road_sources.to_cmaq(wrfinput = wrfinput,
                                       griddesc_path = proj_path + f"GRIDDESC_{GridName}",
-                                      btrim = -1,
+                                      btrim =  0,
                                       start_date = date_start,
                                       end_date = date_end,
                                       week_profile = week_profile.frac,
