@@ -215,7 +215,8 @@ def create_date_s19(start_date: str, periods: int = 24) -> np.ndarray:
 
 
 def prepare_wrfchemi_netcdf(speciated_wrfchemi: xr.Dataset,
-                            wrfinput: xr.Dataset) -> xr.Dataset:
+                            wrfinput: xr.Dataset,
+                            start_date: str) -> xr.Dataset:
     """
     Transform wrfchemi dataset into wrfchemi Netcdf format.
 
@@ -225,6 +226,8 @@ def prepare_wrfchemi_netcdf(speciated_wrfchemi: xr.Dataset,
         Speciated wrfchemi dataset with species with attributes.
     wrfinput : xr.Dataset
         wrfinput open with xr.open_dataset.
+    start_date : str
+        Start date of emissions files in %Y-%m-%d format.
 
     Returns
     -------
@@ -233,13 +236,15 @@ def prepare_wrfchemi_netcdf(speciated_wrfchemi: xr.Dataset,
         Same dimensions and global attributes.
 
     """
+    start_date_formated = f'{start_date}_00:00:00'
+
     wrfchemi = (speciated_wrfchemi
                 .assign_coords(emissions_zdim=0)
                 .expand_dims("emissions_zdim")
                 .transpose("Time", "emissions_zdim",
                            "south_north", "west_east"))
     wrfchemi["Times"] = xr.DataArray(
-        create_date_s19(wrfinput.START_DATE, wrfchemi.sizes["Time"]),
+            create_date_s19(start_date_formated, wrfchemi.sizes["Time"]),
         dims=["Time"],
         coords={"Time": wrfchemi.Time.values}
     )
@@ -252,6 +257,8 @@ def prepare_wrfchemi_netcdf(speciated_wrfchemi: xr.Dataset,
         wrfchemi.attrs[attr_name] = attr_value
 
     wrfchemi.attrs["TITLE"] = "OUTPUT FROM LAPAT PREPROCESSOR"
+    wrfchemi.attrs["START_DATE"] = start_date_formated
+    wrfchemi.attrs["SIMULATION_START_DATE"] = start_date_formated
 
     return wrfchemi
 

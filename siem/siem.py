@@ -321,7 +321,8 @@ class EmissionSource:
                                                  cell_area, wrfinput, voc_name,
                                                  pm_name)
         wrfchemi_netcdf = wemi.prepare_wrfchemi_netcdf(speciated_emiss,
-                                                       wrfinput)
+                                                       wrfinput,
+                                                       start_date)
 
         if write_netcdf:
             wemi.write_wrfchemi_netcdf(wrfchemi_netcdf, path)
@@ -552,7 +553,7 @@ class PointSources:
                                                  self.pm_spc, cell_area,
                                                  wrfinput)
         wrfchemi_netcdf = wemi.prepare_wrfchemi_netcdf(point_speciated,
-                                                       wrfinput)
+                                                       wrfinput, start_date)
         if write_netcdf:
             wemi.write_wrfchemi_netcdf(wrfchemi_netcdf, path)
         return wrfchemi_netcdf
@@ -733,7 +734,7 @@ class GroupSources:
         if write_netcdf:
             wrfchemi = wrfchemi.sum(dim="source", keep_attrs=True)
             wrfchemi["Times"] = xr.DataArray(
-                wemi.create_date_s19(wrfinput.START_DATE,
+                    wemi.create_date_s19(f'{start_date}_00:00:00',
                                      wrfchemi.sizes["Time"]),
                 dims=["Time"],
                 coords={"Time": wrfchemi.Time.values}

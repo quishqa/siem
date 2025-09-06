@@ -25,14 +25,15 @@ def test_prepare_wrfchemi_netcdf() -> None:
                                  np.random.normal(1, 0.5, size=24),
                                  voc_species,
                                  pm_species)
-
+    
+    start_date = '2024-01-01'
     speciated = test_source.spatiotemporal_emission(test_source.pol_ef.keys(),
                                                     9)
     wrfchemi = transform_wrfchemi_units(speciated, test_source.pol_ef)
     wrfchemi = speciate_wrfchemi(wrfchemi, voc_species, pm_species,
                                  9, wrfinput, "VOC", "PM")
 
-    wrfchemi_netcdf = prepare_wrfchemi_netcdf(wrfchemi.copy(), wrfinput)
+    wrfchemi_netcdf = prepare_wrfchemi_netcdf(wrfchemi.copy(), wrfinput, start_date)
 
     assert isinstance(wrfchemi_netcdf, xr.Dataset)
     # assert len(wrfchemi_netcdf.Times) == 24
