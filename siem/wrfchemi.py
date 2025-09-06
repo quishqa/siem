@@ -215,7 +215,8 @@ def create_date_s19(start_date: str, periods: int = 24) -> np.ndarray:
 
 
 def prepare_wrfchemi_netcdf(speciated_wrfchemi: xr.Dataset,
-                            wrfinput: xr.Dataset) -> xr.Dataset:
+                            wrfinput: xr.Dataset,
+                            start_date: str) -> xr.Dataset:
     """
     Transform wrfchemi dataset into wrfchemi Netcdf format.
 
@@ -225,6 +226,8 @@ def prepare_wrfchemi_netcdf(speciated_wrfchemi: xr.Dataset,
         Speciated wrfchemi dataset with species with attributes.
     wrfinput : xr.Dataset
         wrfinput open with xr.open_dataset.
+    start_date : str
+        Start date of emissions files
 
     Returns
     -------
@@ -239,7 +242,7 @@ def prepare_wrfchemi_netcdf(speciated_wrfchemi: xr.Dataset,
                 .transpose("Time", "emissions_zdim",
                            "south_north", "west_east"))
     wrfchemi["Times"] = xr.DataArray(
-        create_date_s19(wrfinput.START_DATE, wrfchemi.sizes["Time"]),
+            create_date_s19(f'{start_date}_00:00:00', wrfchemi.sizes["Time"]),
         dims=["Time"],
         coords={"Time": wrfchemi.Time.values}
     )
