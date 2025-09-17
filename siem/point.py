@@ -220,4 +220,5 @@ def read_point_sources(point_path: str, geo_path: str, sep: str = "\t",
 
     emiss_in_grid = create_emiss_point(point_sources, wrf_grid)
     emiss_in_grid = calculate_centroid(emiss_in_grid, geo_path)
+    emiss_in_grid = emiss_in_grid.drop(['LAT', 'LON'], axis = 1)
     return point_emiss_to_xarray(emiss_in_grid)
