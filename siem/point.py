@@ -126,8 +126,7 @@ def retrive_proj_from(geogrid_path: str):
 
 
 def calculate_centroid(emiss_point: gpd.GeoDataFrame,
-                       geo_path: str, lat_name: str,
-                       lon_name: str) -> pd.DataFrame:
+                       geo_path: str) -> pd.DataFrame:
     """
     Calculate centroid of each WRF domain grid cell.
 
@@ -249,5 +248,5 @@ def read_point_sources(point_path: str, geo_path: str, ncol: int, nrow: int,
     point_sources = gpd.clip(point_sources, wrf_grid)
 
     emiss_in_grid = create_emiss_point(point_sources, wrf_grid)
-    emiss_in_grid = calculate_centroid(emiss_in_grid, geo_path, lat_name, lon_name)
+    emiss_in_grid = calculate_centroid(emiss_in_grid, geo_path)
     return point_emiss_to_xarray(emiss_in_grid, ncol, nrow)
