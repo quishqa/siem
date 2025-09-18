@@ -11,6 +11,7 @@ from siem.point import (create_gpd_from, create_emiss_point,
 def test_calculate_centroid() -> None:
     geo_path = "./tests/test_data/geo_em.d01.siem_test.nc"
     geo = xr.open_dataset(geo_path)
+    _, nrow, ncol = geo.XLAT_M.shape
     wrf_grid = create_wrf_grid(geo_path,
                                save=False)
     lat = np.arange(geo.XLAT_M.min(), geo.XLAT_M.max(), 0.05)
@@ -34,6 +35,6 @@ def test_calculate_centroid() -> None:
 
     emiss_centroid = calculate_centroid(emiss_point, geo_path)
 
-    emiss_ready = point_emiss_to_xarray(emiss_centroid)
+    emiss_ready = point_emiss_to_xarray(emiss_centroid, ncol, nrow)
 
     assert isinstance(emiss_ready, xr.Dataset)

@@ -12,6 +12,7 @@ def test_transform_cmaq_units_point() -> None:
     """
     geo_path = "./tests/test_data/geo_em.d01.siem_test.nc"
     geo = xr.open_dataset(geo_path)
+    _, nrow, ncol = geo.XLAT_M.shape
     lat = np.arange(geo.XLAT_M.min(), geo.XLAT_M.max(), 0.05)
     lon = np.linspace(geo.XLONG_M.min(), geo.XLONG_M.max(), len(lat))
     so2 = np.random.random(len(lat)) * 10
@@ -28,6 +29,7 @@ def test_transform_cmaq_units_point() -> None:
     sample.to_csv("sample_geo.csv", sep="\t", index=False)
 
     emiss_ready = read_point_sources("sample_geo.csv", geo_path,
+                                     ncol, nrow,
                                      "\t", "LAT", "LON")
     os.remove("sample_geo.csv")
     pols_mw = {"no2": 28, "so2": 32 + 2 * 16, "PM": 1}
