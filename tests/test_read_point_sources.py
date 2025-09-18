@@ -8,6 +8,7 @@ from siem.point import read_point_sources
 def test_read_point_sources() -> None:
     geo_path = "./tests/test_data/geo_em.d01.siem_test.nc"
     geo = xr.open_dataset(geo_path)
+    _, nrow, ncol = geo.XLAT_M.shape
     # Testing points outside domain
     lat = np.arange(geo.XLAT_M.min() + 2.5, geo.XLAT_M.max() + 2.5, 0.05)
     lon = np.linspace(geo.XLONG_M.min() + 2.5, geo.XLONG_M.max() + 2.5, len(lat))
@@ -23,6 +24,7 @@ def test_read_point_sources() -> None:
     sample.to_csv("sample_geo.csv", sep="\t", index=False)
 
     emiss_ready = read_point_sources("sample_geo.csv", geo_path,
+                                     ncol, nrow,
                                      "\t", "LAT", "LON")
     os.remove("sample_geo.csv")
 
