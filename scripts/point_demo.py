@@ -42,6 +42,7 @@ if __name__ == "__main__":
     wrfinput_path = "../data/wrfinput_d01_siem_test"
     emiss_path = "../data/point_emiss_veih.csv"
     geo = xr.open_dataset(geogrid_path)
+    _,nrow, ncol = geo.XLAT_M.shape
     wrfinput = xr.open_dataset(wrfinput_path)
     emiss = create_sample_data(geo)
     emiss.to_csv("../data/point_emiss_veih.csv", sep="\t")
@@ -61,7 +62,8 @@ if __name__ == "__main__":
     temporal_profile = np.random.random(24)
     point_source = read_point_sources(point_path = emiss_path,
                                       geo_path = geogrid_path,
-                                     sep='\t', lat_name = 'LAT',
+                                      ncol=ncol, nrow=nrow,
+                                      sep='\t', lat_name = 'LAT',
                                       lon_name='LON')
     my_spc = PointSources(name="test source",
                           point_emiss = point_source,
