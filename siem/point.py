@@ -150,17 +150,23 @@ def calculate_centroid(emiss_point: gpd.GeoDataFrame,
     emiss_point_proj["centro"] = emiss_point_proj.centroid.to_crs("EPSG:4326")
     emiss_point_proj["x"] = emiss_point_proj.centro.x.round(4)
     emiss_point_proj["y"] = emiss_point_proj.centro.y.round(4)
-    return emiss_point_proj.drop(["geometry", "centro", "ID", lat_name, lon_name], axis=1)
+    return emiss_point_proj.drop(["geometry", "centro", "ID"], axis=1)
 
-
-def point_emiss_to_xarray(emiss_point_proj: pd.DataFrame) -> xr.Dataset:
+def pol_column_to_xarray(emiss_point_proj: pd.DataFrame, pol_col: str,
+                     ncol: int, nrow: int) -> xr.DataArray:
     """
-    Transform point sources dataframe into a xr.Dataset.
+    Transform pollutant column to xr.DataArray
 
     Parameters
     ----------
     emiss_point_proj : pd.DataFrame
         Total emissions in cell grid with centroid.
+    pol_col : str 
+        Pollutant column name.
+    ncol: int
+        Number of columns of wrfinput.
+    nrow: int
+        Number of rows of wrfinput.
 
     Returns
     -------
@@ -168,29 +174,52 @@ def point_emiss_to_xarray(emiss_point_proj: pd.DataFrame) -> xr.Dataset:
         Total emission in xr.Dataset.
 
     """
-    lon1d = emiss_point_proj.x.round(5).unique()
-    lat1d = emiss_point_proj.y.round(5).unique()
-    lon, lat = np.meshgrid(lon1d, lat1d)
+    lat = (emiss_point_proj['y'].values.reshape(nrow, ncol))
+    lon = (emiss_point_proj['x'].values.reshape(nrow, ncol))
+    pol = (emiss_point_proj[pol_col].values.reshape(nrow, ncol))
 
-    emiss_point_proj = emiss_point_proj.rename(
-        columns={"y": "south_north", "x": "west_east"}
+    pol_xa = xr.DataArray(
+        pol,
+        dims=('south_north', 'west_east'),
+        coords={
+            'XLAT': (('south_north', 'west_east'), lat),
+            'XLONG': (('south_north', 'west_east'), lon)
+        }
     )
-
-    coords = {"XLONG": (("south_north", "west_east"), lon),
-              "XLAT": (("south_north", "west_east"), lat)}
-    emiss_point_proj.set_index(["south_north", "west_east"], inplace=True)
-    emiss_point = emiss_point_proj.to_xarray()
-    emiss_point = (
-        emiss_point
-        .assign_coords(coords)
-        .drop_vars(["south_north", "west_east"])
-    )
-    return emiss_point
+    pol_xa.name = pol_col
+    return pol_xa
 
 
-def read_point_sources(point_path: str, geo_path: str, sep: str = "\t",
-                       lat_name: str = "LAT", lon_name: str = "LON"
-                       ) -> xr.Dataset:
+def point_emiss_to_xarray(emiss_point_proj: pd.DataFrame,
+                          ncol: int, nrow: int) -> xr.Dataset:
+    """
+    Transform point sources dataframe into a xr.Dataset.
+
+    Parameters
+    ----------
+    emiss_point_proj : pd.DataFrame
+        Total emissions in cell grid with centroid.
+    ncol: int
+        Number of columns of wrfinput.
+    nrow: int
+        Number of rows of wrfinput.
+
+    Returns
+    -------
+    xr.Dataset
+        Total emission in xr.Dataset.
+
+    """
+    pol_names = emiss_point_proj.columns.to_list()
+    pol_names = [pol for pol in pol_names if pol not in ['x', 'y']]
+    emiss_point = [pol_column_to_xarray(emiss_point_proj, pol, ncol, nrow)
+                   for pol in pol_names]
+    return xr.merge(emiss_point)
+
+
+def read_point_sources(point_path: str, geo_path: str, ncol: int, nrow: int,
+                       sep: str = "\t", lat_name: str = "LAT",
+                       lon_name: str = "LON") -> xr.Dataset:
     """
     Read point sources .csv file to produces a xr.Dataset.
 
@@ -221,4 +250,4 @@ def read_point_sources(point_path: str, geo_path: str, sep: str = "\t",
 
     emiss_in_grid = create_emiss_point(point_sources, wrf_grid)
     emiss_in_grid = calculate_centroid(emiss_in_grid, geo_path, lat_name, lon_name)
-    return point_emiss_to_xarray(emiss_in_grid)
+    return point_emiss_to_xarray(emiss_in_grid, ncol, nrow)
