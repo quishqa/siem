@@ -12,7 +12,7 @@ It contains the following functions:
     - `create_date_s19(start_date, periods)` - Returns date in s19 type.
     - `prepare_wrfchemi_netcdf(speciated_wrfchemi, wrfinput)` - Returns a xr.Dataset with wrfchemi format (attributes). 
     - `create_wrfchemi_name(wrfchemi)` - Return file name based on the number of periods.
-    - `write_netcdf(wrfchemi_netcdf, file_name, path)` - Write wrfchemi file on disk in NETCDF3_64BIT.
+    - `write_netcdf(wrfchemi_netcdf, file_name, path)` - Write wrfchemi file on disk.
     - `write_wrfchemi_netcdf(wrfchemi_netcdf, path)` - Write wrfchemi file on disk based on Times variable.
 
 """
@@ -288,7 +288,7 @@ def create_wrfchemi_name(wrfchemi: xr.Dataset) -> str | tuple:
 
 
 def write_netcdf(wrfchemi_netcdf: xr.Dataset, file_name: str,
-                 path: str = "../results/") -> None:
+                 nc_format: str, path: str = "../results/") -> None:
     """
     Save netcdf file.
 
@@ -298,6 +298,8 @@ def write_netcdf(wrfchemi_netcdf: xr.Dataset, file_name: str,
         wrfchemi dataset in WRF-Chem wrfchemi netcdf format.
     file_name : str
         wrfchemi file names.
+    nc_format : str
+        wrfchemi netCDF file format.
     path : str
         Path to save  netcdf.
 
@@ -308,10 +310,11 @@ def write_netcdf(wrfchemi_netcdf: xr.Dataset, file_name: str,
                                   "Times": {"char_dim_name": "DateStrLen"}
                               },
                               unlimited_dims={"Time": True},
-                              format="NETCDF3_64BIT")
+                              format=nc_format)
 
 
 def write_wrfchemi_netcdf(wrfchemi_netcdf: xr.Dataset,
+                          nc_format: str,
                           path: str) -> None:
     """
     Save the wrfchemi in WRF-Chem netcdf format in netcdf file.
@@ -320,6 +323,8 @@ def write_wrfchemi_netcdf(wrfchemi_netcdf: xr.Dataset,
     ----------
     wrfchemi_netcdf : xr.Dataset
         wrfchemi dataset in WRF-Chem wrfchemi netcdf format.
+    nc_format : str
+        wrfchemi netCDF file format.
     path : str
         Location to save the wrfchemi file.
 
@@ -328,9 +333,10 @@ def write_wrfchemi_netcdf(wrfchemi_netcdf: xr.Dataset,
         file_names = create_wrfchemi_name(wrfchemi_netcdf)
         wrfchemi00z = wrfchemi_netcdf.isel(Time=slice(0, 12))
         wrfchemi12z = wrfchemi_netcdf.isel(Time=slice(12, 24))
-        write_netcdf(wrfchemi00z, file_names[0], path)
-        write_netcdf(wrfchemi12z, file_names[1], path)
+        write_netcdf(wrfchemi00z, file_names[0], nc_format, path)
+        write_netcdf(wrfchemi12z, file_names[1], nc_format, path)
     else:
         write_netcdf(wrfchemi_netcdf,
                      create_wrfchemi_name(wrfchemi_netcdf),
+                     nc_format,
                      path)
