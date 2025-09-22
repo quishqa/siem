@@ -8,6 +8,7 @@ from siem.point import read_point_sources
 def test_PointSources_total_emiss() -> None:
     geo_path = "./tests/test_data/geo_em.d01.siem_test.nc"
     geo = xr.open_dataset(geo_path)
+    _, nrow, ncol = geo.XLAT_M.shape
     lat = np.arange(geo.XLAT_M.min(), geo.XLAT_M.max(), 0.05)
     lon = np.linspace(geo.XLONG_M.min(), geo.XLONG_M.max(), len(lat))
     so2 = np.random.random(len(lat)) * 10
@@ -38,6 +39,8 @@ def test_PointSources_total_emiss() -> None:
     my_point_sources = read_point_sources(
             point_path="sample_geo.csv",
             geo_path=geo_path,
+            ncol=ncol,
+            nrow=nrow,
             sep="\t")
     my_point_source = PointSources(name="Test sources",
                                    point_emiss=my_point_sources,

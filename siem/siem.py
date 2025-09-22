@@ -91,6 +91,8 @@ class EmissionSource:
         total_emiss = em.calculate_emission(self.number,
                                             self.use_intensity,
                                             self.pol_ef[pol_name][0])
+        # units of total_emiss in g day^-1
+
         if ktn_year:
             return total_emiss * 365 / 10 ** 9
         return total_emiss
@@ -211,6 +213,7 @@ class EmissionSource:
                     week_profile: list[float] = [1],
                     pm_name: str = "PM", voc_name: str = "VOC",
                     write_netcdf: bool = False,
+                    nc_format: str = 'NETCDF3_64BIT',
                     path: str = "../results") -> xr.Dataset:
         """Create WRF-Chem emission file (wrfchemi).
 
@@ -222,6 +225,7 @@ class EmissionSource:
             pm_name: PM name in pol_ef keys.
             voc_name: VOC name in pol_ef keys
             write_netcdf: Write the NetCDF file.
+            nc_format: wrfchemi NetCDF file format.
             path: Location to save wrfchemi.
 
         Returns:
@@ -243,10 +247,11 @@ class EmissionSource:
                                                  cell_area, wrfinput, voc_name,
                                                  pm_name)
         wrfchemi_netcdf = wemi.prepare_wrfchemi_netcdf(speciated_emiss,
-                                                       wrfinput)
+                                                       wrfinput,
+                                                       start_date)
 
         if write_netcdf:
-            wemi.write_wrfchemi_netcdf(wrfchemi_netcdf, path)
+            wemi.write_wrfchemi_netcdf(wrfchemi_netcdf, nc_format, path)
         return wrfchemi_netcdf
 
     def to_cmaq(self, wrfinput: xr.Dataset, griddesc_path: str,
@@ -392,6 +397,7 @@ class PointSources:
                     week_profile: list[float] = [1],
                     pm_name: str = "PM", voc_name: str = "VOC",
                     write_netcdf: bool = False,
+                    nc_format: str = 'NETCDF3_64BIT',
                     path: str = "../results/"
                     ) -> xr.Dataset:
         """Create WRF-Chem emission file.
@@ -404,16 +410,18 @@ class PointSources:
             pm_name: PM name in pol_emiss.
             voc_name: VOC name in pol_emiss.
             write_netcdf: Write wrfchemi netCDF.
+            nc_format: wrfchemi NetCDF file format.
             path: Location to save wrfchemi files.
 
         Returns:
             Emission file in wrfchemi netCDF format.
         """
         cell_area = (wrfinput.DX / 1000) ** 2
-        point = self.spatial_emission
-        point_spc = wemi.transform_wrfchemi_units_point(point, self.pol_emiss,
-                                                        cell_area)
-        point_spc_time = temp.split_by_time_from(point_spc, self.temporal_prof)
+        point_gd = em.ktn_year_to_g_day(self.spatial_emission)            # g day^-1
+        point_gh = temp.split_by_time_from(point_gd, self.temporal_prof)  # g hr^-1
+        point_spc_time = wemi.transform_wrfchemi_units_point(point_gh,
+                                                             self.pol_emiss,
+                                                             cell_area)
         if len(week_profile) == 7:
             point_spc_time = temp.split_by_weekday(point_spc_time,
                                                    week_profile,
@@ -423,9 +431,9 @@ class PointSources:
                                                  self.pm_spc, cell_area,
                                                  wrfinput)
         wrfchemi_netcdf = wemi.prepare_wrfchemi_netcdf(point_speciated,
-                                                       wrfinput)
+                                                       wrfinput, start_date)
         if write_netcdf:
-            wemi.write_wrfchemi_netcdf(wrfchemi_netcdf, path)
+            wemi.write_wrfchemi_netcdf(wrfchemi_netcdf, nc_format, path)
         return wrfchemi_netcdf
 
     def to_cmaq(self, wrfinput: xr.Dataset, griddesc_path: str,
@@ -454,11 +462,11 @@ class PointSources:
             Values are Daset in CMAQ emission file netcdf format.
         """
         cell_area = (wrfinput.DX / 1000) ** 2
-        spatio_temporal = self.spatial_emission
+        point_gd = em.ktn_year_to_g_day(self.spatial_emission)      # g day^-1
         cmaq_temp_prof = cmaq.to_25hr_profile(self.temporal_prof)
-
-        point_time = temp.split_by_time_from(spatio_temporal,
+        point_time = temp.split_by_time_from(point_gd,              # g hr^-1
                                              cmaq_temp_prof)
+
         point_time_units = cmaq.transform_cmaq_units_point(point_time,
                                                            self.pol_emiss,
                                                            pm_name)
@@ -536,6 +544,7 @@ class GroupSources:
                     week_profile: list[float] = [1],
                     pm_name: str = "PM", voc_name: str = "VOC",
                     write_netcdf: bool = False,
+                    nc_format: str = 'NETCDF3_64BIT',
                     path: str = "../results") -> xr.Dataset:
         """Create WRF-Chem emission file.
 
@@ -547,6 +556,7 @@ class GroupSources:
             pm_name: PM name in emissions.
             voc_name: VOC name in emissions.
             write_netcdf: Save wrfchemi file.
+            nc_format: wrfchemi NetCDF file.
             path: Location to save wrfchemi file.
 
         Returns:
@@ -561,12 +571,12 @@ class GroupSources:
         if write_netcdf:
             wrfchemi = wrfchemi.sum(dim="source", keep_attrs=True)
             wrfchemi["Times"] = xr.DataArray(
-                wemi.create_date_s19(wrfinput.START_DATE,
+                    wemi.create_date_s19(f'{start_date}_00:00:00',
                                      wrfchemi.sizes["Time"]),
                 dims=["Time"],
                 coords={"Time": wrfchemi.Time.values}
             )
-            wemi.write_wrfchemi_netcdf(wrfchemi, path=path)
+            wemi.write_wrfchemi_netcdf(wrfchemi, nc_format, path=path)
         return wrfchemi
 
     def to_cmaq(self, wrfinput: xr.Dataset, griddesc_path: str,

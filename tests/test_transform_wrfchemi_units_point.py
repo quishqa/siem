@@ -7,13 +7,18 @@ from siem.wrfchemi import transform_wrfchemi_units_point
 
 
 def test_transform_wrfchemi_units_point() -> None:
+    """
+    assuming emission units are in g per hour after temporal_profile
+    """
     geo_path = "./tests/test_data/geo_em.d01.siem_test.nc"
     geo = xr.open_dataset(geo_path)
+    _, nrow, ncol = geo.XLAT_M.shape
     lat = np.arange(geo.XLAT_M.min(), geo.XLAT_M.max(), 0.05)
     lon = np.linspace(geo.XLONG_M.min(), geo.XLONG_M.max(), len(lat))
     so2 = np.random.random(len(lat)) * 10
     no2 = np.random.random(len(lat)) * 100
     pm = np.random.random(len(lat)) * 100
+    cell_area = 1 # km
 
     sample = pd.DataFrame.from_dict({
         "LAT": lat,
@@ -25,6 +30,7 @@ def test_transform_wrfchemi_units_point() -> None:
     sample.to_csv("sample_geo.csv", sep="\t", index=False)
 
     emiss_ready = read_point_sources("sample_geo.csv", geo_path,
+                                     ncol, nrow,
                                      "\t", "LAT", "LON")
     os.remove("sample_geo.csv")
     pols_mw = {"no2": 28, "so2": 32 + 2 * 16, "PM": 1}
@@ -32,8 +38,8 @@ def test_transform_wrfchemi_units_point() -> None:
                                                        pols_mw,
                                                        1)
 
-    pm_factor = 1000 * 1000 * 10 ** 6 / (365 * 24 * 3600)
-    so2_factor = 1000 * 1000 / (365 * 24 * (32 + 2 * 16))
+    pm_factor =  1E6 / (cell_area * 1E6 * 3600)   # g hr^-1 to ug m^-2 s^-1
+    so2_factor = 1 / ( (32 + 2 * 16) * cell_area) # g hr^-1 to mol km^-2 hr^-1
 
     assert isinstance(emiss_ready_units, xr.Dataset)
     assert (emiss_ready.so2 * so2_factor).sum() - emiss_ready_units.so2.sum() <= 1e-10

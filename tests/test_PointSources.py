@@ -11,6 +11,7 @@ def test_PointSources() -> None:
     geo_path = "./tests/test_data/geo_em.d01.siem_test.nc"
     wrfinput_path = "./wrfpoint_emiss.csv"
     geo = xr.open_dataset(geo_path)
+    _, nrow, ncol = geo.XLAT_M.shape
     lat = np.arange(geo.XLAT_M.min(), geo.XLAT_M.max(), 0.05)
     lon = np.linspace(geo.XLONG_M.min(), geo.XLONG_M.max(), len(lat))
     so2 = np.random.random(len(lat)) * 10
@@ -40,6 +41,8 @@ def test_PointSources() -> None:
     temporal_profile = np.random.random(24)
     my_point_emiss = read_point_sources(point_path="sample_geo.csv",
                                         geo_path=geo_path,
+                                        ncol = ncol,
+                                        nrow = nrow,
                                         sep="\t",
                                         lat_name="LAT",
                                         lon_name="LON")
@@ -52,3 +55,5 @@ def test_PointSources() -> None:
     os.remove("sample_geo.csv")
     assert(isinstance(my_point_source, PointSources))
     assert(isinstance(my_point_source.spatial_emission, xr.Dataset))
+    assert len(my_point_emiss.south_north)== nrow
+    assert len(my_point_emiss.west_east) == ncol

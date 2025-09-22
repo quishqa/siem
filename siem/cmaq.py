@@ -32,8 +32,7 @@ import pandas as pd
 import xarray as xr
 import PseudoNetCDF as pnc
 import datetime as dt
-from siem.emiss import (speciate_emission, ktn_year_to_g_seg,
-                        ktn_year_to_mol_seg)
+from siem.emiss import speciate_emission
 from siem.user import check_create_savedir
 
 
@@ -163,8 +162,8 @@ def transform_cmaq_units(spatial_emiss: xr.Dataset,
     """Transform emission into CMAQ emission file units.
 
     Args:
-        spatial_emiss: Spatial distributed emission.
-        pol_ef_mw: Keys are emitted species. Values are the molecular weight.
+        spatial_emiss: Spatial distributed emission in g hr^-1.
+        pol_ef_mw: Keys are emitted species. Values are the molecular weight, for PM = 1.
         cell_area: wrfinput cell are in km^2.
         pm_name: PM name in pol_ef_mw.
 
@@ -172,15 +171,12 @@ def transform_cmaq_units(spatial_emiss: xr.Dataset,
         Emitted species (not speciated) in CMAQ units.
     """
     for pol_name, pol_mw in pol_ef_mw.items():
-        if pol_name == pm_name:
-            spatial_emiss[pol_name] = (spatial_emiss[pol_name] *
-                                       cell_area / pol_mw[1] / 3600)
+        spatial_emiss[pol_name] *= (cell_area / pol_mw[1] / 3600)
     return spatial_emiss
-
 
 def transform_cmaq_units_point(spatial_emiss: xr.Dataset, pol_mw: dict,
                                pm_name: str = "PM") -> xr.Dataset:
-    """Transform point emission units in kTn (Gg) per year emission into CMAQ emission units.
+    """Transform point emission units in g per hour emission into CMAQ emission units.
 
     Args:
         spatial_emiss: Spatial distributed emissions.
@@ -190,13 +186,9 @@ def transform_cmaq_units_point(spatial_emiss: xr.Dataset, pol_mw: dict,
     Returns:
         Emitted species (not speciated) in CMAQ units.
     """
-    emiss_units = spatial_emiss.copy()
     for pol_name, pol_mw in pol_mw.items():
-        if pol_name == pm_name:
-            emiss_units[pol_name] = ktn_year_to_g_seg(emiss_units[pol_name])
-        emiss_units[pol_name] = ktn_year_to_mol_seg(emiss_units[pol_name],
-                                                    pol_mw)
-    return emiss_units
+        spatial_emiss[pol_name] /=  (pol_mw * 3600) # g hr^-1 to mol s^-1
+    return spatial_emiss
 
 
 def speciate_cmaq(spatial_emiss_units: xr.Dataset,

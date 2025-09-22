@@ -7,8 +7,12 @@ from siem.cmaq import transform_cmaq_units_point
 
 
 def test_transform_cmaq_units_point() -> None:
+    """
+    emissions in g hr^-1 to CMAQ units
+    """
     geo_path = "./tests/test_data/geo_em.d01.siem_test.nc"
     geo = xr.open_dataset(geo_path)
+    _, nrow, ncol = geo.XLAT_M.shape
     lat = np.arange(geo.XLAT_M.min(), geo.XLAT_M.max(), 0.05)
     lon = np.linspace(geo.XLONG_M.min(), geo.XLONG_M.max(), len(lat))
     so2 = np.random.random(len(lat)) * 10
@@ -25,6 +29,7 @@ def test_transform_cmaq_units_point() -> None:
     sample.to_csv("sample_geo.csv", sep="\t", index=False)
 
     emiss_ready = read_point_sources("sample_geo.csv", geo_path,
+                                     ncol, nrow,
                                      "\t", "LAT", "LON")
     os.remove("sample_geo.csv")
     pols_mw = {"no2": 28, "so2": 32 + 2 * 16, "PM": 1}
@@ -32,8 +37,8 @@ def test_transform_cmaq_units_point() -> None:
                                                    pols_mw,
                                                    1)
 
-    pm_factor = 1000 * 1000 * 1000 / (365 * 24 * 3600)
-    so2_factor = 1000 * 1000 * 1000/ (365 * 24 * 3600 * (32 + 2 * 16))
+    pm_factor = 1 /  3600                   # g hr^-1 to g s^-1
+    so2_factor = 1/ (3600 * (32 + 2 * 16))  # g hr^-1 to mol s^-1
 
     assert isinstance(emiss_ready_units, xr.Dataset)
     assert (emiss_ready.so2 * so2_factor).sum() - emiss_ready_units.so2.sum() <= 1e-10
