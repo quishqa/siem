@@ -13,7 +13,6 @@ It contains the following functions:
     - `read_point_sources(point_path, geo_path, sep, lat_name, lon_name)` - Returns: spatial distributed point sources emissions to use PointSources class.
 """
 
-import numpy as np
 import pandas as pd
 import geopandas as gpd
 import xarray as xr
@@ -22,9 +21,12 @@ from siem.proxy import create_wrf_grid, configure_grid_spatial
 from wrf import getvar, get_cartopy
 
 
-def create_gpd_from(point_src_path: str, sep: str = "\t",
-                    lat_name: str = "LAT", lon_name: str = "LON",
-                    ) -> gpd.GeoDataFrame:
+def create_gpd_from(
+    point_src_path: str,
+    sep: str = "\t",
+    lat_name: str = "LAT",
+    lon_name: str = "LON",
+) -> gpd.GeoDataFrame:
     """Read point emiss csv.
 
     Read .csv file with latitude and longitude of point sources,
@@ -42,20 +44,21 @@ def create_gpd_from(point_src_path: str, sep: str = "\t",
     point_sources = pd.read_csv(point_src_path, sep=sep)
     point_sources = gpd.GeoDataFrame(
         point_sources,
-        geometry=gpd.points_from_xy(point_sources[lon_name],
-                                    point_sources[lat_name]),
-        crs="EPSG:4326")
+        geometry=gpd.points_from_xy(point_sources[lon_name], point_sources[lat_name]),
+        crs="EPSG:4326",
+    )
     if "Unnamed: 0" in point_sources.columns:
         return point_sources.drop(["Unnamed: 0", lat_name, lon_name], axis=1)
     return point_sources.drop([lat_name, lon_name], axis=1)
 
 
-def calculate_sum_points(point_src: gpd.GeoDataFrame,
-                         wrf_grid: gpd.GeoDataFrame) -> pd.DataFrame:
+def calculate_sum_points(
+    point_src: gpd.GeoDataFrame, wrf_grid: gpd.GeoDataFrame
+) -> pd.DataFrame:
     """Calculate sum of emissions from each point sources in a wrf grid cell.
 
     Args:
-        point_src: GeoDataFrame of point sources. 
+        point_src: GeoDataFrame of point sources.
         wrf_grid: WRF domain grid
 
     Returns:
@@ -66,8 +69,9 @@ def calculate_sum_points(point_src: gpd.GeoDataFrame,
     return points_in_grid.drop(["geometry"], axis=1)
 
 
-def create_emiss_point(point_src: gpd.GeoDataFrame,
-                       wrf_grid: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def create_emiss_point(
+    point_src: gpd.GeoDataFrame, wrf_grid: gpd.GeoDataFrame
+) -> gpd.GeoDataFrame:
     """Create emiss point.
 
     Complete wrf grid cell with no point sources emissions with 0.
@@ -85,7 +89,7 @@ def create_emiss_point(point_src: gpd.GeoDataFrame,
 
 
 def retrive_proj_from(geogrid_path: str):
-    """ Extract projection of geo_em.d0x.nc file.
+    """Extract projection of geo_em.d0x.nc file.
 
     Args:
         geogrid_path: Location of geo_em.d0x.nc file.
@@ -98,16 +102,15 @@ def retrive_proj_from(geogrid_path: str):
     return get_cartopy(hgt)
 
 
-def calculate_centroid(emiss_point: gpd.GeoDataFrame,
-                       geo_path: str) -> pd.DataFrame:
+def calculate_centroid(emiss_point: gpd.GeoDataFrame, geo_path: str) -> pd.DataFrame:
     """Calculate centroid of each WRF domain grid cell.
 
     Args:
-        emiss_point: Total emissions in each wrf domain cell.    
+        emiss_point: Total emissions in each wrf domain cell.
         geo_path : Location of geo_em.d0x.nc file.
 
     Returns:
-       A DataFrame with total emissions from point sources with cell centroid coordinates. 
+       A DataFrame with total emissions from point sources with cell centroid coordinates.
     """
     wrf_proj = retrive_proj_from(geo_path)
     emiss_point_proj = emiss_point.to_crs(wrf_proj)
@@ -117,11 +120,13 @@ def calculate_centroid(emiss_point: gpd.GeoDataFrame,
     emiss_point_proj["y"] = emiss_point_proj.centro.y.round(4)
     return emiss_point_proj.drop(["geometry", "centro", "ID"], axis=1)
 
-def pol_column_to_xarray(emiss_point_proj: pd.DataFrame, pol_col: str,
-                         ncol: int, nrow: int) -> xr.DataArray:
+
+def pol_column_to_xarray(
+    emiss_point_proj: pd.DataFrame, pol_col: str, ncol: int, nrow: int
+) -> xr.DataArray:
     """Transform pollutant column to xr.DataArray
 
-    Args:    
+    Args:
         emiss_point_proj: Total emissions in cell grid with centroid.
         pol_col: Pollutant column name.
         ncol: Number of columns of wrfinput.
@@ -130,24 +135,25 @@ def pol_column_to_xarray(emiss_point_proj: pd.DataFrame, pol_col: str,
     Returns:
         Total emission of a pollutant in xr.DataArray.
     """
-    lat = (emiss_point_proj['y'].values.reshape(nrow, ncol))
-    lon = (emiss_point_proj['x'].values.reshape(nrow, ncol))
-    pol = (emiss_point_proj[pol_col].values.reshape(nrow, ncol))
+    lat = emiss_point_proj["y"].values.reshape(nrow, ncol)
+    lon = emiss_point_proj["x"].values.reshape(nrow, ncol)
+    pol = emiss_point_proj[pol_col].values.reshape(nrow, ncol)
 
     pol_xa = xr.DataArray(
         pol,
-        dims=('south_north', 'west_east'),
+        dims=("south_north", "west_east"),
         coords={
-            'XLAT': (('south_north', 'west_east'), lat),
-            'XLONG': (('south_north', 'west_east'), lon)
-        }
+            "XLAT": (("south_north", "west_east"), lat),
+            "XLONG": (("south_north", "west_east"), lon),
+        },
     )
     pol_xa.name = pol_col
     return pol_xa
 
 
-def point_emiss_to_xarray(emiss_point_proj: pd.DataFrame,
-                          ncol: int, nrow: int) -> xr.Dataset:
+def point_emiss_to_xarray(
+    emiss_point_proj: pd.DataFrame, ncol: int, nrow: int
+) -> xr.Dataset:
     """Transform point sources dataframe into a xr.Dataset.
 
     Args:
@@ -158,15 +164,22 @@ def point_emiss_to_xarray(emiss_point_proj: pd.DataFrame,
     Returns: Total emission in xr.Dataset.
     """
     pol_names = emiss_point_proj.columns.to_list()
-    pol_names = [pol for pol in pol_names if pol not in ['x', 'y']]
-    emiss_point = [pol_column_to_xarray(emiss_point_proj, pol, ncol, nrow)
-                   for pol in pol_names]
+    pol_names = [pol for pol in pol_names if pol not in ["x", "y"]]
+    emiss_point = [
+        pol_column_to_xarray(emiss_point_proj, pol, ncol, nrow) for pol in pol_names
+    ]
     return xr.merge(emiss_point)
 
 
-def read_point_sources(point_path: str, geo_path: str, ncol: int, nrow: int,
-                       sep: str = "\t", lat_name: str = "LAT",
-                       lon_name: str = "LON") -> xr.Dataset:
+def read_point_sources(
+    point_path: str,
+    geo_path: str,
+    ncol: int,
+    nrow: int,
+    sep: str = "\t",
+    lat_name: str = "LAT",
+    lon_name: str = "LON",
+) -> xr.Dataset:
     """
     Read point sources .csv file to produces a xr.Dataset.
 
