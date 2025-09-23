@@ -2,8 +2,28 @@ site_name: "SIEM: SImplified Emission Model"
 site_url: https://quishqa.github.io
 theme:
   name: material
+  palette:
+    scheme: slate
+    primary: green
+    accent: deep purple
   font:
     text: MerriWeather Sans
     code: Red Hat Mono
 plugins:
   - mkdocstrings
+markdown_extensions:
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
