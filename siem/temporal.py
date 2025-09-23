@@ -11,13 +11,15 @@ It contains the following functions:
     - `assign_factor_simulation_days(date_start, date_end, week_profile, is_cmaq)` - Returns: simulation days table with the correct weekday weight according to the day.
     - `split_by_weekday(emiss_day, weekday_profile, date_start, date_end)` - Returns: emissions temporally distributed by day of the week.
 """
+
 import xarray as xr
 import numpy as np
 import pandas as pd
 
 
-def split_by_time(spatial_emiss: xr.DataArray,
-                  temporal_profile: list[float]) -> xr.DataArray:
+def split_by_time(
+    spatial_emiss: xr.DataArray, temporal_profile: list[float]
+) -> xr.DataArray:
     """Distribute temporally one pollutant emission.
 
     Temporal disaggregation of a pollutant emission.
@@ -35,14 +37,14 @@ def split_by_time(spatial_emiss: xr.DataArray,
     """
     emiss_time = xr.concat(
         [spatial_emiss * time for time in temporal_profile],
-        dim=pd.Index(np.arange(len(temporal_profile)),
-                     name="Time")
+        dim=pd.Index(np.arange(len(temporal_profile)), name="Time"),
     )
     return emiss_time
 
 
-def split_by_time_from(spatial_sources: xr.Dataset,
-                       temporal_profile: list[float]) -> xr.Dataset:
+def split_by_time_from(
+    spatial_sources: xr.Dataset, temporal_profile: list[float]
+) -> xr.Dataset:
     """Distribute temporally all pollutant emission.
 
     Temporal disaggregation of many pollutant emissions.
@@ -59,8 +61,10 @@ def split_by_time_from(spatial_sources: xr.Dataset,
         Pollutants emissions distributed by time.
     """
     spatial = spatial_sources.copy()
-    spatio_temporal = {pol: split_by_time(spatial, temporal_profile)
-                       for pol, spatial in spatial.items()}
+    spatio_temporal = {
+        pol: split_by_time(spatial, temporal_profile)
+        for pol, spatial in spatial.items()
+    }
     return xr.merge(spatio_temporal.values())
 
 
@@ -82,9 +86,9 @@ def transform_week_profile_df(weekday_profile: list[float]) -> pd.DataFrame:
     return week
 
 
-def assign_factor_simulation_days(date_start: str, date_end: str,
-                                  week_profile: list[float],
-                                  is_cmaq: bool = False) -> pd.DataFrame:
+def assign_factor_simulation_days(
+    date_start: str, date_end: str, week_profile: list[float], is_cmaq: bool = False
+) -> pd.DataFrame:
     """Match the weekly weight to each day of the simulation period.
 
     Args:
@@ -105,10 +109,9 @@ def assign_factor_simulation_days(date_start: str, date_end: str,
     return days_factor
 
 
-def split_by_weekday(emiss_day: xr.Dataset,
-                     weekday_profile: list[float],
-                     date_start: str,
-                     date_end: str) -> xr.Dataset:
+def split_by_weekday(
+    emiss_day: xr.Dataset, weekday_profile: list[float], date_start: str, date_end: str
+) -> xr.Dataset:
     """Apply week profile to 24 hour emissions Dataset.
 
     Args:
@@ -120,10 +123,10 @@ def split_by_weekday(emiss_day: xr.Dataset,
     Returns:
         Emission with weekly variation.
     """
-    days_factor = assign_factor_simulation_days(date_start, date_end,
-                                                weekday_profile)
-    days_emiss = {day: emiss_day * factor
-                  for day, factor in enumerate(days_factor.frac)}
+    days_factor = assign_factor_simulation_days(date_start, date_end, weekday_profile)
+    days_emiss = {
+        day: emiss_day * factor for day, factor in enumerate(days_factor.frac)
+    }
     days_emiss_all = xr.concat(days_emiss.values(), dim="Time")
     days_emiss_all["Time"] = np.arange(days_emiss_all.sizes["Time"])
     return days_emiss_all

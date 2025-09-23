@@ -16,9 +16,9 @@ import typing
 import xarray as xr
 
 
-def calculate_emission(number_source: int | float,
-                       use_intensity: float,
-                       pol_ef: float) -> float:
+def calculate_emission(
+    number_source: int | float, use_intensity: float, pol_ef: float
+) -> float:
     """Calculate pollutant total emission. Be aware of units.
 
     Args:
@@ -32,9 +32,12 @@ def calculate_emission(number_source: int | float,
     return number_source * use_intensity * pol_ef
 
 
-def speciate_emission(spatio_temporal: xr.DataArray,
-                      pol_name: str, pol_species: typing.Dict[str, float],
-                      cell_area: int | float) -> xr.Dataset:
+def speciate_emission(
+    spatio_temporal: xr.DataArray,
+    pol_name: str,
+    pol_species: typing.Dict[str, float],
+    cell_area: int | float,
+) -> xr.Dataset:
     """Speciate pollutant emission into other pollutant species.
 
     Args:
@@ -62,5 +65,5 @@ def ktn_year_to_g_day(spatial_emiss: xr.DataArray) -> xr.DataArray:
 
     Returns: Total emission in g day^-1.
     """
-    convert_factor = 1E9 / 365
+    convert_factor = 1e9 / 365
     return spatial_emiss * convert_factor

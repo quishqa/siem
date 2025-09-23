@@ -9,6 +9,7 @@ It allows the following functions:
 
 import os
 
+
 def check_create_savedir(save_path: str) -> None:
     """Create a directory to save if not exists.
 
@@ -19,8 +20,7 @@ def check_create_savedir(save_path: str) -> None:
         Create a new directory to save.
     """
     if not os.path.isdir(save_path):
-        print('Missing directory, creating directory')
+        print("Missing directory, creating directory")
         os.makedirs(save_path)
-    print(f'Saving in {save_path}')
+    print(f"Saving in {save_path}")
     return None
-

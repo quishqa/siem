@@ -45,8 +45,7 @@ def get_domain_extension(geo_em_path: str = "../data/geo_em.d02.nc") -> tuple:
     return (north, south, east, west)
 
 
-def get_highway_query(highway_types: list[str],
-                      add_links: bool = False) -> str:
+def get_highway_query(highway_types: list[str], add_links: bool = False) -> str:
     """List to OSMx query.
 
     Create the custom query based on highways types to use in OSMx package.
@@ -63,18 +62,19 @@ def get_highway_query(highway_types: list[str],
         highway_links = [f"{st}_link" for st in highway_types]
         highway_types += highway_links
 
-    cf = ('[' + '"highway"' + "~" +
-          '"' + "|".join(highway_types) +
-          '"' + ']')
+    cf = "[" + '"highway"' + "~" + '"' + "|".join(highway_types) + '"' + "]"
     print(f"The custom filter is:\n {cf}")
     return cf
 
 
-def download_highways(geo_em_path: str, highway_types: str,
-                      add_links: bool = False,
-                      save: bool = True,
-                      save_path: str = "../data/partial",
-                      file_name: str = "highway"):
+def download_highways(
+    geo_em_path: str,
+    highway_types: str,
+    add_links: bool = False,
+    save: bool = True,
+    save_path: str = "../data/partial",
+    file_name: str = "highway",
+):
     """Download highways types contain in WRF domains.
 
     Args:
@@ -90,19 +90,18 @@ def download_highways(geo_em_path: str, highway_types: str,
     """
     north, south, east, west = get_domain_extension(geo_em_path)
     custom_filter = get_highway_query(highway_types, add_links)
-    highways = ox.graph_from_bbox(north, south, east, west,
-                                  network_type="drive",
-                                  custom_filter=custom_filter)
+    highways = ox.graph_from_bbox(
+        north, south, east, west, network_type="drive", custom_filter=custom_filter
+    )
     if save:
         check_create_savedir(save_path)
-        ox.save_graphml(highways,
-                        filepath=f"{save_path}/domain_{file_name}.graphml")
+        ox.save_graphml(highways, filepath=f"{save_path}/domain_{file_name}.graphml")
     return highways
 
 
-def download_point_sources(geo_em_path: str, tags: dict,
-                           save: bool = True,
-                           save_path: str = "../data/partial"):
+def download_point_sources(
+    geo_em_path: str, tags: dict, save: bool = True, save_path: str = "../data/partial"
+):
     """Download OSM amenities.
 
     Download point sources like fuel stations or restaurants.
@@ -120,17 +119,14 @@ def download_point_sources(geo_em_path: str, tags: dict,
         Point amenities in shapefile.
     """
     north, south, east, west = get_domain_extension(geo_em_path)
-    point_sources = ox.features_from_bbox(north, south, east, west,
-                                          tags=tags)
+    point_sources = ox.features_from_bbox(north, south, east, west, tags=tags)
     point_sources_shp = point_sources[["name", "geometry"]].centroid
     print(f"Point sources: {len(point_sources_shp)}")
 
     if save:
         check_create_savedir(save_path)
         source_type = list(tags.values())[0]
-        point_sources_shp.to_file(
-            f"{save_path}/point_source_{source_type}.shp"
-        )
+        point_sources_shp.to_file(f"{save_path}/point_source_{source_type}.shp")
     return point_sources_shp
 
 
@@ -139,7 +135,7 @@ def create_grid(geo_em: xr.Dataset) -> gpd.GeoDataFrame:
 
     Create grid based of geo_em.d0X.nc file. It is compatible with
     Mercator and Lambert projections.
-    
+
     Based on:
         <https://gis.stackexchange.com/questions/414617/creating-polygon-grid-from-point-grid-using-geopandas>.
 
@@ -159,12 +155,7 @@ def create_grid(geo_em: xr.Dataset) -> gpd.GeoDataFrame:
 
     left = lower = slice(None, -1)
     upper = right = slice(1, None)
-    corners = [
-        [lower, left],
-        [lower, right],
-        [upper, right],
-        [upper, left]
-    ]
+    corners = [[lower, left], [lower, right], [upper, right], [upper, left]]
 
     xy = np.empty((n, 4, 2))
 
@@ -177,8 +168,9 @@ def create_grid(geo_em: xr.Dataset) -> gpd.GeoDataFrame:
     return grid_wrf
 
 
-def create_wrf_grid(geo_em_path: str, save: bool = True,
-                    save_path: str = "../data/partial") -> gpd.GeoDataFrame:
+def create_wrf_grid(
+    geo_em_path: str, save: bool = True, save_path: str = "../data/partial"
+) -> gpd.GeoDataFrame:
     """Create WRF domain grid.
 
     Args:
@@ -198,8 +190,9 @@ def create_wrf_grid(geo_em_path: str, save: bool = True,
     return wrf_grid
 
 
-def configure_grid_spatial(wrf_grid: gpd.GeoDataFrame,
-                           proxy: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+def configure_grid_spatial(
+    wrf_grid: gpd.GeoDataFrame, proxy: gpd.GeoDataFrame
+) -> gpd.GeoDataFrame:
     """Prepare wrf grid for spatial operations.
 
     Add CRS to WRF grid and added ID, preparing grid to be intercepted
@@ -217,11 +210,13 @@ def configure_grid_spatial(wrf_grid: gpd.GeoDataFrame,
     return wrf_grid
 
 
-def calculate_points_grid(wrf_grid: gpd.GeoDataFrame,
-                          proxy: gpd.GeoDataFrame,
-                          to_pre: bool = True,
-                          save_pre: str = "../data",
-                          file_name: str = "my_src") -> gpd.GeoDataFrame:
+def calculate_points_grid(
+    wrf_grid: gpd.GeoDataFrame,
+    proxy: gpd.GeoDataFrame,
+    to_pre: bool = True,
+    save_pre: str = "../data",
+    file_name: str = "my_src",
+) -> gpd.GeoDataFrame:
     """Calculate number of points (osm amenities) in each wrf grid cells.
 
     Args:
@@ -234,25 +229,23 @@ def calculate_points_grid(wrf_grid: gpd.GeoDataFrame,
     Returns:
        Number of points in each cell grid.
     """
-    wrf_grid_ready = configure_grid_spatial(wrf_grid,
-                                            proxy)
+    wrf_grid_ready = configure_grid_spatial(wrf_grid, proxy)
     proxy_in_grid = gpd.clip(proxy, wrf_grid_ready)
     # From:
     # https://stackoverflow.com/questions/69644523/count-points-in-polygon-and-write-result-to-geodataframe
-    points_in_grid = (wrf_grid_ready
-                      .sjoin(proxy_in_grid)
-                      .groupby("ID")
-                      .count()
-                      .geometry
-                      .rename("n_sources"))
+    points_in_grid = (
+        wrf_grid_ready.sjoin(proxy_in_grid)
+        .groupby("ID")
+        .count()
+        .geometry.rename("n_sources")
+    )
     points_in_dom = wrf_grid.join(points_in_grid).fillna(0)
     if to_pre:
         check_create_savedir(save_pre)
         points_in_dom["x"] = points_in_dom.centroid.geometry.x
         points_in_dom["y"] = points_in_dom.centroid.geometry.y
         points_in_dom[["x", "y", "n_sources"]].to_csv(
-            f"{save_pre}/points_{file_name}.csv",
-            sep=" ", header=False
+            f"{save_pre}/points_{file_name}.csv", sep=" ", header=False
         )
     return points_in_dom
 
@@ -261,7 +254,7 @@ def load_osmx_to_gdfs(osmx_path: str) -> gpd.GeoDataFrame:
     """Load osmx highways (graph.ml) to gpd.GeoDataFrame.
 
     Args:
-        osmx_path: Location of highways type data. 
+        osmx_path: Location of highways type data.
 
     Returns:
         Highways in GeoDataFrame.
@@ -270,18 +263,20 @@ def load_osmx_to_gdfs(osmx_path: str) -> gpd.GeoDataFrame:
     return ox.graph_to_gdfs(sp, nodes=False, edges=True)
 
 
-def calculate_highway_grid(wrf_grid: gpd.GeoDataFrame,
-                           proxy: gpd.GeoDataFrame,
-                           to_pre: bool = True,
-                           save_pre: str = "../data/",
-                           file_name: str = "my_src") -> gpd.GeoDataFrame:
+def calculate_highway_grid(
+    wrf_grid: gpd.GeoDataFrame,
+    proxy: gpd.GeoDataFrame,
+    to_pre: bool = True,
+    save_pre: str = "../data/",
+    file_name: str = "my_src",
+) -> gpd.GeoDataFrame:
     """Sum of highways length inside wrf grid cell.
 
     Calculate sum of highways longitude inside WRF grid cell.
     This will produce a proxy for spatially distribute vehicular emissions.
 
     Args:
-        wrf_grid: WRF domain grid.    
+        wrf_grid: WRF domain grid.
         proxy: Highways shapefile.
         to_pre: If needed to prepare spatial proxy.
         save_pre: Location to save file.
@@ -294,13 +289,9 @@ def calculate_highway_grid(wrf_grid: gpd.GeoDataFrame,
 
     highway = proxy[["highway", "length", "geometry"]]
     highway = gpd.clip(highway, wrf_grid_ready)
-    highway_grid = gpd.overlay(highway, wrf_grid_ready,
-                               how="intersection")
+    highway_grid = gpd.overlay(highway, wrf_grid_ready, how="intersection")
     highway_grid = highway_grid.dissolve("ID")
-    highway_grid["longKm"] = (highway_grid
-                              .geometry
-                              .to_crs("EPSG:32733")
-                              .length / 1000)
+    highway_grid["longKm"] = highway_grid.geometry.to_crs("EPSG:32733").length / 1000
 
     highway_dom = wrf_grid.join(highway_grid[["longKm"]]).fillna(0)
 
@@ -309,7 +300,6 @@ def calculate_highway_grid(wrf_grid: gpd.GeoDataFrame,
         highway_dom["x"] = highway_dom.geometry.centroid.x
         highway_dom["y"] = highway_dom.geometry.centroid.y
         highway_dom[["x", "y", "longKm"]].to_csv(
-            f"{save_pre}/highways_{file_name}.csv",
-            sep=" ", header=False
+            f"{save_pre}/highways_{file_name}.csv", sep=" ", header=False
         )
     return highway_dom

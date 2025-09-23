@@ -82,8 +82,7 @@ def create_date_limits(date: str, fmt: str = "%Y-%m-%d") -> tuple:
     return (start_julian, end_julian)
 
 
-def create_hour_matrix(date: int, hour: int, n_var: int
-                       ) -> np.ndarray:
+def create_hour_matrix(date: int, hour: int, n_var: int) -> np.ndarray:
     """Create hour matrix.
 
     First column is date in julian. The second column is the hours.
@@ -134,8 +133,8 @@ def create_tflag_variable(date: str, n_var: int) -> xr.DataArray:
         attrs={
             "units": "<YYYYDD,HHMMSS>",
             "long_name": "TFLAG",
-            "var_desc": f'{"Timestep-valid flags:  (1) YYYYDDD or (2) HHMMSS":<80}'
-        }
+            "var_desc": f"{'Timestep-valid flags:  (1) YYYYDDD or (2) HHMMSS':<80}",
+        },
     )
     tflag.name = "TFLAG"
     return tflag
@@ -155,10 +154,12 @@ def to_25hr_profile(temporal_profile: list[float]) -> list[float]:
     return prof_25h
 
 
-def transform_cmaq_units(spatial_emiss: xr.Dataset,
-                         pol_ef_mw: typing.Dict[str, float],
-                         cell_area: float,
-                         pm_name: str = "PM") -> xr.Dataset:
+def transform_cmaq_units(
+    spatial_emiss: xr.Dataset,
+    pol_ef_mw: typing.Dict[str, float],
+    cell_area: float,
+    pm_name: str = "PM",
+) -> xr.Dataset:
     """Transform emission into CMAQ emission file units.
 
     Args:
@@ -171,11 +172,13 @@ def transform_cmaq_units(spatial_emiss: xr.Dataset,
         Emitted species (not speciated) in CMAQ units.
     """
     for pol_name, pol_mw in pol_ef_mw.items():
-        spatial_emiss[pol_name] *= (cell_area / pol_mw[1] / 3600)
+        spatial_emiss[pol_name] *= cell_area / pol_mw[1] / 3600
     return spatial_emiss
 
-def transform_cmaq_units_point(spatial_emiss: xr.Dataset, pol_mw: dict,
-                               pm_name: str = "PM") -> xr.Dataset:
+
+def transform_cmaq_units_point(
+    spatial_emiss: xr.Dataset, pol_mw: dict, pm_name: str = "PM"
+) -> xr.Dataset:
     """Transform point emission units in g per hour emission into CMAQ emission units.
 
     Args:
@@ -187,15 +190,18 @@ def transform_cmaq_units_point(spatial_emiss: xr.Dataset, pol_mw: dict,
         Emitted species (not speciated) in CMAQ units.
     """
     for pol_name, pol_mw in pol_mw.items():
-        spatial_emiss[pol_name] /=  (pol_mw * 3600) # g hr^-1 to mol s^-1
+        spatial_emiss[pol_name] /= pol_mw * 3600  # g hr^-1 to mol s^-1
     return spatial_emiss
 
 
-def speciate_cmaq(spatial_emiss_units: xr.Dataset,
-                  voc_species: typing.Dict[str, float],
-                  pm_species: typing.Dict[str, float],
-                  cell_area: float,
-                  voc_name: str = "VOC", pm_name: str = "PM") -> xr.Dataset:
+def speciate_cmaq(
+    spatial_emiss_units: xr.Dataset,
+    voc_species: typing.Dict[str, float],
+    pm_species: typing.Dict[str, float],
+    cell_area: float,
+    voc_name: str = "VOC",
+    pm_name: str = "PM",
+) -> xr.Dataset:
     """Speciate VOC and PM emission already in CMAQ units.
 
     Args:
@@ -209,19 +215,20 @@ def speciate_cmaq(spatial_emiss_units: xr.Dataset,
     Returns:
         Speciated emission in CMAQ units.
     """
-    speciated_cmaq = speciate_emission(spatial_emiss_units,
-                                       voc_name, voc_species,
-                                       cell_area)
-    speciated_cmaq = speciate_emission(speciated_cmaq, pm_name,
-                                       pm_species, cell_area)
+    speciated_cmaq = speciate_emission(
+        spatial_emiss_units, voc_name, voc_species, cell_area
+    )
+    speciated_cmaq = speciate_emission(speciated_cmaq, pm_name, pm_species, cell_area)
     return speciated_cmaq
 
 
-def add_cmaq_emission_attrs(speciated_cmaq: xr.Dataset,
-                            voc_species: typing.Dict[str, float],
-                            pm_species: typing.Dict[str, float],
-                            pm_name: str = "PM",
-                            voc_name: str = "VOC") -> xr.Dataset:
+def add_cmaq_emission_attrs(
+    speciated_cmaq: xr.Dataset,
+    voc_species: typing.Dict[str, float],
+    pm_species: typing.Dict[str, float],
+    pm_name: str = "PM",
+    voc_name: str = "VOC",
+) -> xr.Dataset:
     """Add attributes to emission species variables.
 
     Args:
@@ -239,7 +246,7 @@ def add_cmaq_emission_attrs(speciated_cmaq: xr.Dataset,
         speciated_cmaq[pol].attrs["units"] = "moles/s"
         if (pol == pm_name) or (pol in pm_species.keys()):
             speciated_cmaq[pol].attrs["units"] = "g/s"
-        if (pol in ["IOLE", "VOC_INV", "NVOL"]):
+        if pol in ["IOLE", "VOC_INV", "NVOL"]:
             speciated_cmaq[pol].attrs["units"] = "g/s"
         speciated_cmaq[pol].attrs["long_name"] = f"{pol:<16}"
         speciated_cmaq[pol].attrs["var_desc"] = f"{var_desc:<80}"
@@ -256,13 +263,15 @@ def create_var_list_attrs(speciated_cmaq_attrs: xr.Dataset) -> list[str]:
     Returns:
         List of emission species.
     """
-    var_list = [f"{pol:<16}" for pol in speciated_cmaq_attrs.data_vars
-                if pol != "TFLAG"]
+    var_list = [
+        f"{pol:<16}" for pol in speciated_cmaq_attrs.data_vars if pol != "TFLAG"
+    ]
     return "".join(var_list)
 
 
-def create_global_attrs(speciated_cmaq_attr: xr.Dataset,
-                        griddesc_path: str) -> typing.Dict:
+def create_global_attrs(
+    speciated_cmaq_attr: xr.Dataset, griddesc_path: str
+) -> typing.Dict:
     """Create the global attributes for the emission file.
 
     Args:
@@ -276,17 +285,16 @@ def create_global_attrs(speciated_cmaq_attr: xr.Dataset,
     now_date = dt.datetime.now()
 
     global_attrs = {}
-    global_attrs["IOAPI_VERSION"] = f"{'ioapi-3.2: $Id: init3.F90 98 2018-04-05 14:35:07Z coats $':<80}"
+    global_attrs["IOAPI_VERSION"] = (
+        f"{'ioapi-3.2: $Id: init3.F90 98 2018-04-05 14:35:07Z coats $':<80}"
+    )
     global_attrs["EXEC_ID"] = f"{'?' * 16:<80}"
     global_attrs["FTYPE"] = np.int32(1)
     global_attrs["CDATE"] = calculate_julian(pd.to_datetime(now_date))
-    global_attrs["CTIME"] = int(
-        f"{now_date.hour}{now_date.minute}{now_date.second}")
+    global_attrs["CTIME"] = int(f"{now_date.hour}{now_date.minute}{now_date.second}")
     global_attrs["WDATE"] = calculate_julian(pd.to_datetime(now_date))
-    global_attrs["WTIME"] = int(
-        f"{now_date.hour}{now_date.minute}{now_date.second}")
-    global_attrs["SDATE"] = speciated_cmaq_attr.TFLAG.isel(
-        TSTEP=0, VAR=0).values[0]
+    global_attrs["WTIME"] = int(f"{now_date.hour}{now_date.minute}{now_date.second}")
+    global_attrs["SDATE"] = speciated_cmaq_attr.TFLAG.isel(TSTEP=0, VAR=0).values[0]
     global_attrs["STIME"] = 0
     global_attrs["TSTEP"] = 10000
     global_attrs["NTHIK"] = 1
@@ -316,12 +324,16 @@ def create_global_attrs(speciated_cmaq_attr: xr.Dataset,
     return global_attrs
 
 
-def prepare_netcdf_cmaq(speciated_cmaq: xr.Dataset, date: str,
-                        griddesc_path: str, btrim: int,
-                        voc_species: typing.Dict[str, float],
-                        pm_species: typing.Dict[str, float],
-                        pm_name: str = "PM",
-                        voc_name: str = "VOC") -> xr.Dataset:
+def prepare_netcdf_cmaq(
+    speciated_cmaq: xr.Dataset,
+    date: str,
+    griddesc_path: str,
+    btrim: int,
+    voc_species: typing.Dict[str, float],
+    pm_species: typing.Dict[str, float],
+    pm_name: str = "PM",
+    voc_name: str = "VOC",
+) -> xr.Dataset:
     """Prepare speciated emission dataset into CMAQ emission netcdf format.
 
     Args:
@@ -337,28 +349,25 @@ def prepare_netcdf_cmaq(speciated_cmaq: xr.Dataset, date: str,
     Returns:
         Speiciated dataset with CMAQ emission netcdf format.
     """
-    speciated_cmaq = add_cmaq_emission_attrs(speciated_cmaq,
-                                             voc_species,
-                                             pm_species,
-                                             pm_name,
-                                             voc_name)
+    speciated_cmaq = add_cmaq_emission_attrs(
+        speciated_cmaq, voc_species, pm_species, pm_name, voc_name
+    )
     speciated_cmaq = speciated_cmaq.rename_dims(
         {"Time": "TSTEP", "west_east": "COL", "south_north": "ROW"}
     )
     speciated_cmaq = speciated_cmaq.drop_vars(["Time", "XLAT", "XLONG"])
-    speciated_cmaq = (speciated_cmaq
-                      .expand_dims("LAY")
-                      .transpose("TSTEP", "LAY", "ROW", "COL"))
+    speciated_cmaq = speciated_cmaq.expand_dims("LAY").transpose(
+        "TSTEP", "LAY", "ROW", "COL"
+    )
     n_vars = len(speciated_cmaq.data_vars)
     speciated_cmaq["TFLAG"] = create_tflag_variable(date, n_vars)
 
     ori_row, ori_col = speciated_cmaq.sizes["ROW"], speciated_cmaq.sizes["COL"]
     speciated_cmaq = speciated_cmaq.isel(
         ROW=slice(btrim + 1, ori_row - (btrim + 1)),
-        COL=slice(btrim + 1, ori_col - (btrim + 1))
+        COL=slice(btrim + 1, ori_col - (btrim + 1)),
     )
-    speciated_cmaq.attrs = create_global_attrs(speciated_cmaq,
-                                               griddesc_path)
+    speciated_cmaq.attrs = create_global_attrs(speciated_cmaq, griddesc_path)
     return speciated_cmaq
 
 
@@ -371,20 +380,12 @@ def create_cmaq_file_name(cmaq_nc: xr.Dataset) -> str:
     Returns:
         Emission file name with DATE.
     """
-    file_date = (cmaq_nc
-                 .TFLAG
-                 .isel(TSTEP=0, VAR=0)
-                 .isel({"DATE-TIME": 0})
-                 .values)
-    date = (dt.datetime
-            .strptime(str(file_date), "%Y%j")
-            .date()
-            .strftime("%Y%m%d"))
-    return f'cmaq_emissions_{date}.nc'
+    file_date = cmaq_nc.TFLAG.isel(TSTEP=0, VAR=0).isel({"DATE-TIME": 0}).values
+    date = dt.datetime.strptime(str(file_date), "%Y%j").date().strftime("%Y%m%d")
+    return f"cmaq_emissions_{date}.nc"
 
 
-def save_cmaq_file(cmaq_nc: xr.Dataset,
-                   path: str = "../results/") -> None:
+def save_cmaq_file(cmaq_nc: xr.Dataset, path: str = "../results/") -> None:
     """Save CMAQ file.
 
     Args:
@@ -393,10 +394,10 @@ def save_cmaq_file(cmaq_nc: xr.Dataset,
 
     """
     check_create_savedir(path)
-    file_name = f'{path}/{create_cmaq_file_name(cmaq_nc)}'
-    cmaq_nc.to_netcdf(file_name,
-                      unlimited_dims={"TSTEP": True},
-                      format="NETCDF3_CLASSIC")
+    file_name = f"{path}/{create_cmaq_file_name(cmaq_nc)}"
+    cmaq_nc.to_netcdf(
+        file_name, unlimited_dims={"TSTEP": True}, format="NETCDF3_CLASSIC"
+    )
 
 
 def merge_cmaq_source_emiss(cmaq_sources_day: typing.Dict) -> xr.Dataset:
@@ -408,17 +409,17 @@ def merge_cmaq_source_emiss(cmaq_sources_day: typing.Dict) -> xr.Dataset:
     Returns:
         CMAQ emission dataset with a source dimension.
     """
-    add_day_dimension = {source: xr.concat(emiss.values(),
-                                           pd.Index(emiss.keys(), name="day"))
-                         for source, emiss in cmaq_sources_day.items()}
-    day_source_dimension = xr.concat(add_day_dimension.values(),
-                                     pd.Index(add_day_dimension.keys(),
-                                              name="source"))
+    add_day_dimension = {
+        source: xr.concat(emiss.values(), pd.Index(emiss.keys(), name="day"))
+        for source, emiss in cmaq_sources_day.items()
+    }
+    day_source_dimension = xr.concat(
+        add_day_dimension.values(), pd.Index(add_day_dimension.keys(), name="source")
+    )
     return day_source_dimension
 
 
-def sum_cmaq_sources(day_source_dimension: xr.Dataset
-                     ) -> typing.Dict[str, xr.Dataset]:
+def sum_cmaq_sources(day_source_dimension: xr.Dataset) -> typing.Dict[str, xr.Dataset]:
     """Get total emission from different sources. For GroupSources.
 
     Args:
@@ -427,15 +428,16 @@ def sum_cmaq_sources(day_source_dimension: xr.Dataset
     Returns:
         Keys are days and values the sum emission of different sources.
     """
-    sum_sources = day_source_dimension.sum(dim="source",
-                                           keep_attrs=True)
-    sum_sources_by_day = {day: sum_sources.sel(day=day)
-                          for day in sum_sources.day.values}
+    sum_sources = day_source_dimension.sum(dim="source", keep_attrs=True)
+    sum_sources_by_day = {
+        day: sum_sources.sel(day=day) for day in sum_sources.day.values
+    }
     return sum_sources_by_day
 
 
-def update_tflag_sources(sum_sources_by_day: typing.Dict[str, xr.Dataset]
-                         ) -> typing.Dict[str, xr.Dataset]:
+def update_tflag_sources(
+    sum_sources_by_day: typing.Dict[str, xr.Dataset],
+) -> typing.Dict[str, xr.Dataset]:
     """Update TFLAG variables of total emission from diferent sources.
 
     Args:
@@ -445,11 +447,11 @@ def update_tflag_sources(sum_sources_by_day: typing.Dict[str, xr.Dataset]
         Keys are days and values the sum emission of different sources
         with correct TFLAG value.
     """
-    sum_sources_by_day = {day: emis.drop_vars(["day", "TFLAG"])
-                          for day, emis in sum_sources_by_day.items()}
+    sum_sources_by_day = {
+        day: emis.drop_vars(["day", "TFLAG"])
+        for day, emis in sum_sources_by_day.items()
+    }
     for day, sum_source in sum_sources_by_day.items():
-        sum_source["TFLAG"] = create_tflag_variable(day,
-                                                    len(sum_source.data_vars))
-        sum_source.attrs["SDATE"] = sum_source.TFLAG.isel(
-            TSTEP=0, VAR=0).values[0]
+        sum_source["TFLAG"] = create_tflag_variable(day, len(sum_source.data_vars))
+        sum_source.attrs["SDATE"] = sum_source.TFLAG.isel(TSTEP=0, VAR=0).values[0]
     return sum_sources_by_day
