@@ -99,3 +99,32 @@ and PM (Particulate Matter).
     It is required to have "VOC" and "PM" keys on the dictionary,
     as they will be latter speciated. If there is no information, you can zero them by
     using `VOC: (0, 100)` or `PM: (0, 1)`. Also, **PM molecular weight is always 1**.
+
+### VOC and PM speciation
+
+Many chemical mechanisms and aerosol modules use different species for both VOC and PM.
+`siem` speciation is based on **percentage of total emissions**.
+The speciation is also saved in a `dict()`,
+where the keys are the VOC or PM species of the selected chemical mechanism or module aerosol,
+and the values are the percentage of the total VOC or PM emissions.
+
+For example, for CBMZ and MOSAIC we can have:
+
+```python
+gasoline_voc_cbmz = {
+    "ETH": 0.282625, "HC3": 0.435206, "HC5": 0.158620,
+    "HC8": 0.076538, "OL2": 0.341600, "OLT": 0.143212,
+    "OLI": 0.161406, "ISO": 0.004554, "TOL": 0.140506,
+    "XYL": 0.157456, "KET": 0.000083, "CH3OH": 0.001841
+}
+
+gasoline_pm_mosaic = {
+    "PM25I": 0.032,
+    "PM25J": 0.096,
+    "SO4I": 0.0024,
+    "SO4J": 0.0156,
+    ....
+}
+```
+
+Therefore, `siem` can be used for different chemical mechanism as the speciation is defined by the user and the available information.
