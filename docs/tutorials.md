@@ -39,11 +39,12 @@ The first column is the **id**, the second column is the **longitude**, the thir
 and the fourth column is the weight of the emissions sources.
 
 So, to prepare these file to be used in `EmissionSource`, we use the `read_spatial_proxy()` function from the `spatial` module.
+Let's imagine that the proxy represents the gasoline vehicles.
 
 ```python
 from siem.spatial import read_spatial_proxy
 
-spatial_proxy = read_spatial_proxy(
+gasoline_spatial_proxy = read_spatial_proxy(
   proxy_path='./spatial_proxy.csv',
   shape=(100, 100),
   col_names=['id', 'x', 'y', 'emiss_weight'],
@@ -145,7 +146,7 @@ gasoline = EmissionSource(
     number=1_000_000,
     use_intensity= 13_495/365,  # km day ^ -1
     pol_ef=gasoline_ef,
-    spatial_proxy=spatial_proxy,
+    spatial_proxy=gasoline_spatial_proxy,
     temporal_profile=temp_prof,
     voc_spc=gasoline_voc_cbmz,
     pm_spc=gasoline_pm_mosaic
@@ -153,7 +154,7 @@ gasoline = EmissionSource(
 ```
 
 We can create another object with the information of diesel vehicles.
-Let's asume that there are **40 000** diesel vehicles that run the same as the gasoline vehicles.
+Let us assume that there are **40 000** diesel vehicles that run the same as the gasoline vehicles.
 
 ```python
 diesel = EmissionSource(
@@ -161,9 +162,16 @@ diesel = EmissionSource(
     number=40_000,
     use_intensity= 13_495/365,  # km day ^ -1
     pol_ef=diesel_ef,
-    spatial_proxy=spatial_proxy,
+    spatial_proxy=diesel_spatial_proxy,
     temporal_profile=diesel_temp_prof,
     voc_spc=diesel_voc_cbmz,
     pm_spc=diesel_pm_mosaic
 )
 ```
+
+!!! note "About the diesel `EmissionSource`"
+
+    Notice that `diesel` is define using different attributes
+    (i.e. different spatial proxy, temporal profile, speciation, etc).
+    If you have the information each EmissionSource can have different 
+    attributes, otherwise, you can repeat the attributes for other EmissionSource.
