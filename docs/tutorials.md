@@ -128,3 +128,42 @@ gasoline_pm_mosaic = {
 ```
 
 Therefore, `siem` can be used for different chemical mechanism as the speciation is defined by the user and the available information.
+
+## Creating an `EmissionSource` object
+
+Once we have and prepare the emission information, we can now create the object.
+In the following example,
+We will create an `EmissionSource` object that save information of all the **gasoline vehicles** of a city.
+Let's imagine that there are **1 000 000 of these vehicles**, and on average they run **13 495 km per year**.
+So:
+
+```python
+from siem.siem import EmissionSource
+
+gasoline = EmissionSource(
+    name="Gasoline vehicles",
+    number=1_000_000,
+    use_intensity= 13_495/365,  # km day ^ -1
+    pol_ef=gasoline_ef,
+    spatial_proxy=spatial_proxy,
+    temporal_profile=temp_prof,
+    voc_spc=gasoline_voc_cbmz,
+    pm_spc=gasoline_pm_mosaic
+)
+```
+
+We can create another object with the information of diesel vehicles.
+Let's asume that there are **40 000** diesel vehicles that run the same as the gasoline vehicles.
+
+```python
+diesel = EmissionSource(
+    name="Diesel vehicles",
+    number=40_000,
+    use_intensity= 13_495/365,  # km day ^ -1
+    pol_ef=diesel_ef,
+    spatial_proxy=spatial_proxy,
+    temporal_profile=diesel_temp_prof,
+    voc_spc=diesel_voc_cbmz,
+    pm_spc=diesel_pm_mosaic
+)
+```
