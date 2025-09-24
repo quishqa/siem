@@ -1,4 +1,4 @@
-# siem: SImplied Emission Model
+# siem: SImplified Emission Model
 
 This is the SImplified Emission Model. 
 It is a python package to create the emission 
