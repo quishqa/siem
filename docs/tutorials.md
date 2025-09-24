@@ -169,9 +169,127 @@ diesel = EmissionSource(
 )
 ```
 
-!!! note "About the diesel `EmissionSource`"
+!!! note "About the diesel example"
 
     Notice that `diesel` is define using different attributes
     (i.e. different spatial proxy, temporal profile, speciation, etc).
     If you have the information each EmissionSource can have different 
     attributes, otherwise, you can repeat the attributes for other EmissionSource.
+
+## Creating an `PointSource` object
+
+Now, if you have an emission file in `.csv` with point information total emission (kT year^-1),
+you can use `PointSource` to load the emissions,
+but first you need to read the `.csv`
+
+### Reading point source `.csv` file
+
+We use the function `read_point_sources()` from `point` module to prepare our `.csv` file.
+This function will sum each of the point sources located inside domain cells.
+
+```python
+import xarray as xr
+from siem.point import read_point_sources
+
+geogrid = xr.open_dataset('./geo_em.d01.nc')
+_, nrow, ncol = geo.XLAT_M.shape
+
+point_dom = read_point_sources(
+  point_path='./city_industries.tsv',
+  geo_path='./geo_em.d01.nc',
+  ncol=ncol, 
+  nrow=nrow,
+  sep='\t', 
+  lat_name='LAT',
+  lon_name='LON'
+)
+```
+
+### Defining emission molecular weight
+
+Because the `.csv` file already have the total emissions calculate,
+we do not need the emission factors,
+`PointSource` only needs the molecular weight of the emissions.
+We define it using a `dict()`.
+
+```python
+pol_mw = {
+  'CO': 12 + 14,
+  'SO2': 32 + 2 * 16,
+  'NO2': 14 + 2 * 16,
+  'VOC': 100, 
+  'PM': 1
+}
+```
+
+!!! warning "About VOC and PM molecular weight"
+
+    As in the case of `EmissionSource`, it is required to have "VOC" and "PM" keys on the dictionary,
+    as they will be latter speciated.
+
+### Defining `PointSource`
+
+Now we can create our `PointSource` as following:
+
+```python
+city_point_source = PointSources(
+  name='City industries',
+  point_emiss=point_dom,
+  pol_emiss=pol_mw,
+  temporal_profile=ind_temp_prof,
+  voc_spc=ind_voc_cbmz,
+  pm_spc=ind_pm_cbmz
+)
+```
+
+`temporal_profile`, `voc_spc`, and `pm_spc` are defined the same as in `EmissionSource`.
+
+## Creating a `GroupSources` object
+
+Once you defined all the emissions sources in your domain,
+you need to group all of them to built the anthropogenic emission file require to run the air quality models.
+To that goal we used `GroupSources`.
+
+Following what we build in this tutorial, we can do the following:
+
+```python
+from siem.siem import GroupSources
+
+city_sources = [city_point_source, gasoline, diesel]
+city_anthro_emiss = GroupSources(city_sources)
+```
+
+That's it!
+
+Now if you want to create emission files for WRF-Chem, you can do:
+
+```python
+import xarray as xr
+wrfinput_d01 = xr.open_dataset('./wrfinput_d01')
+
+city_anthro_emiss.to_wrfchemi(
+  wrfinput=wrfinput_d01,
+  start_date='2025-10-01',
+  end_date='2025-10-01',
+  week_profile=week_profile,
+  write_netcdf=True
+)
+```
+
+And for CMAQ:
+
+```python
+import xarray as xr
+wrfinput_d01 = xr.open_dataset('./wrfinput_d01')
+
+
+city_anthro_emiss.to_wrfchemi(
+  wrfinput=wrfinput_d01,
+  griddesc_path='./GRIDDESC',
+  btrim=5,
+  start_date='2025-10-01',
+  end_date='2025-10-01',
+  week_profile= week_profile,
+  write_netcdf=True
+)
+```
