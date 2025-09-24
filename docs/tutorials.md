@@ -70,3 +70,32 @@ gasoline_temp_prof = [
 ```
 
 The temporal profile can also be a column of a data frame.
+
+### Pollutant emission factors
+
+The pollutant emission factors are defined using a `dict()`.
+The dictionary keys are the names of pollutants in the emission inventory.
+The dictionary values are a `tuple` where the first element is the emission factors (g day^-1),
+and the second element is the molecular weight (g mol^-1).
+
+Following the gasoline vehicles, we can define its emission factors as:
+
+```python
+gasoline_ef = {
+  "CO": (0.173, 28),
+  "NO": (0.010, 30),
+  "RCHO": (0.0005, 32),
+  "VOC": (0.012, 100),
+  "PM": (0.001,1)
+}
+```
+
+In this example, we define the emission factor of CO (carbon monoxide),
+NO (nitrogen monoxide), RCHO (aldehydes), VOC (Volatile Organic Compound),
+and PM (Particulate Matter).
+
+!!! warning "About VOC and PM emission factors"
+
+    It is required to have "VOC" and "PM" keys on the dictionary,
+    as they will be latter speciated. If there is no information, you can zero them by
+    using `VOC: (0, 100)` or `PM: (0, 1)`. Also, **PM molecular weight is always 1**.
