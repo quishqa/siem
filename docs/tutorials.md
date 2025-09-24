@@ -57,3 +57,16 @@ spatial_proxy = read_spatial_proxy(
 
 The temporal is just a list with at least 24 elements (hourly weight), one for each hour of the day.
 It has to be in **UTC**.
+
+For example a temporal profile for gasoline vehicles can be defined as:
+
+```python
+gasoline_temp_prof = [
+    0.020, 0.010, 0.010, 0.004, 0.003, 0.003,
+    0.010, 0.020, 0.050, 0.080, 0.080, 0.064,
+    0.060, 0.052, 0.050, 0.050, 0.050, 0.057,
+    0.070, 0.090, 0.090, 0.060, 0.040, 0.034
+    ]
+```
+
+The temporal profile can also be a column of a data frame.
