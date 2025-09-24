@@ -45,7 +45,7 @@ Let's imagine that the proxy represents the gasoline vehicles.
 from siem.spatial import read_spatial_proxy
 
 gasoline_spatial_proxy = read_spatial_proxy(
-  proxy_path='./spatial_proxy.csv',
+  proxy_path='./highways_data/highways_d01.csv',
   shape=(100, 100),
   col_names=['id', 'x', 'y', 'emiss_weight'],
   proxy='emiss_weight',
