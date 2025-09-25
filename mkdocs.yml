@@ -11,6 +11,7 @@ theme:
     code: Red Hat Mono
 plugins:
   - mkdocstrings
+  - search
 nav:
   - SIEM Docs: index.md
   - tutorials.md
