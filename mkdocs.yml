@@ -11,6 +11,12 @@ theme:
     code: Red Hat Mono
 plugins:
   - mkdocstrings
+nav:
+  - SIEM Docs: index.md
+  - tutorials.md
+  - How-to Guides: how-to-guides.md
+  - explanation.md
+  - reference.md
 markdown_extensions:
   - attr_list
   - pymdownx.emoji:

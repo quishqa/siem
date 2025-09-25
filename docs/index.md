@@ -9,7 +9,7 @@ It is inspired in the works of [Andrade et al. (2015)](https://www.frontiersin.o
 This documentation used the [diaxtasis](https://diataxis.fr/) approach.
 It is structured as follows:
 
-1. [Explanation](explanation.md): The motivation to create this package.
-2. [Tutorial](tutorials.md): Example to start creating your emissions.
-3. [How to guides](how-to-guides.md): Examples in more detailed about specific tasks.
+1. [Tutorial](tutorials.md): Example to start creating your emissions.
+2. [How to guides](how-to-guides.md): Examples in more detailed about specific tasks.
+3. [Explanation](explanation.md): The motivation to create this package.
 4. [Reference](reference.md): A guide of the classes and functions of the package.

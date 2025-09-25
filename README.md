@@ -1,11 +1,11 @@
 # siem: SImplied Emission Model
 
-This is the SImplified Emission Model. 
-It is a python package to create the emission 
+This is the SImplified Emission Model.
+It is a python package to create the emission
 file for [WRF-Chem](https://www2.acom.ucar.edu/wrf-chem) and [CMAQ](https://www.epa.gov/cmaq) air quality models.
 
-It is inspired on the work of [Andrade et al. (2015)](http://journal.frontiersin.org/Article/10.3389/fenvs.2015.00009/abstract), 
-[AAS4WRF](https://github.com/alvv1986/AAS4WRF), and [PyChEmiss](https://github.com/quishqa/PyChEmiss). 
+It is inspired on the work of [Andrade et al. (2015)](http://journal.frontiersin.org/Article/10.3389/fenvs.2015.00009/abstract),
+[AAS4WRF](https://github.com/alvv1986/AAS4WRF), and [PyChEmiss](https://github.com/quishqa/PyChEmiss).
 
 `siem` main objective is to create the emission file for cities with scarce emission data.
 
@@ -18,16 +18,19 @@ git clone git@github.com:quishqa/siem.git
 ```
 
 2. Enter the main folder and create the `siem` environment by using:
+
 ```
 conda env create -f environment.yml
 
 ```
+
 3. Finally, install `siem` by using:
+
 ```
 pip install -e .
 ```
 
-## How to use.
+## How to use
 
 `siem` has three classes: `EmissionSource`, `PointSource`, and `GroupSources`.
 
@@ -85,7 +88,7 @@ spatial_proxy = read_spatial_proxy(
 
 #### Temporal profile
 
-The temporal profile is just a list with at least 24 elements. 
+The temporal profile is just a list with at least 24 elements.
 One element for each hour of the day. Remeber that it has to be define __in UTC__.
 
 ```python
@@ -96,9 +99,10 @@ gasoline_temp_prof = [
     0.070, 0.090, 0.090, 0.060, 0.040, 0.034
     ]
 ```
+
 #### Pollutant emission factors
 
-The pollutant emission factors are defined using a `dict()`. 
+The pollutant emission factors are defined using a `dict()`.
 The keys are the names of pollutants in the emission inventory,
 and the values are a `tuple` with the emission factor (g day^-1) and the molecular weigth (g mol^-1).
 
@@ -110,14 +114,14 @@ gasoline_ef = {
 }
 ```
 
-In this example, we define the emission factor of CO, NO, RCHO, VOC, and PM. 
+In this example, we define the emission factor of CO, NO, RCHO, VOC, and PM.
 Notice that it is required to have "VOC" and "PM" in the dictionary as these pollutants will next be speciated.
 It there is no information about these pollutants you can just do `VOC: (0.0, 100)` or `PM: (0.0, 1)`.
 Also, the molecular weigth of PM is always 1.
 
 #### VOC and PM speciation
 
-Many chemical mechanism and aerosol modules use different species for both VOC and PM emissions. 
+Many chemical mechanism and aerosol modules use different species for both VOC and PM emissions.
 `siem` speciate based in percetange of total emission.
 We used a `dict()` to define the speciation.
 The keys are the VOC or PM species in the mechanism and the value, the percentage of total VOC or PM emitted.
@@ -139,8 +143,7 @@ gasoline_pm_mosaic = {
 }
 ```
 
-Therefore, `siem` can be used to define different speciations based on the chemical mechanism and the available information. 
-
+Therefore, `siem` can be used to define different speciations based on the chemical mechanism and the available information.
 
 #### Building the object
 
@@ -159,7 +162,8 @@ gasoline = EmissionSource(
     pm_spc=gasoline_pm_mosaic
 )
 ```
-And you can create other `EmissionSource` object, for example, 
+
+And you can create other `EmissionSource` object, for example,
 let's create a Diesel vehicle emissions:
 
 ```python
