@@ -1,5 +1,5 @@
 site_name: "SIEM: SImplified Emission Model"
-site_url: https://quishqa.github.io
+site_url: https://quishqa.github.io/siem
 theme:
   name: material
   palette:
