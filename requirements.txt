@@ -12,5 +12,4 @@ wrf-python
 pseudonetcdf==3.1.0
 pytest
 pytest-cov
-coverage
 coverage-badge~=1.1.0
