@@ -7,7 +7,6 @@ This modules defined the classes used by siem to create this emissions files:
     - `EmissionSource` - Class to spatially and temporal distribute emissions, especially vehicular emissions.
     - `PointSources` - Class to spatially and temporal distribute point sources from a .csv table.
     - `GroupSources` - Class to group EmissionSources and PointSources, useful to create one emission file.
-
 """
 
 import typing
@@ -26,48 +25,40 @@ class EmissionSource:
     A class used to represent and emission source to
     be estimated from spatial proxy.
 
-    Attributes
-    ----------
-    name : Name of Source.
-    number : Number of Sources.
-    use_intensity : Use intensity
-    pol_ef : Pollutant emission factors and molecular weight.
-    spatial_proxy : Spatial proxy to spatial distribute emissions.
-    temporal_prof : Temporal profile to temporal distribute emissions.
-    voc_spc : VOC species to speciate with their fraction.
-    pm_spc : PM speciest to speciate with their fraction.
-
+    Attributes:
+        name: Name of Source.
+        number: Number of Sources.
+        use_intensity: Use intensity
+        pol_ef: Pollutant emission factors and molecular weight.
+        spatial_proxy: Spatial proxy to spatial distribute emissions.
+        temporal_prof: Temporal profile to temporal distribute emissions.
+        voc_spc: VOC species to speciate with their fraction.
+        pm_spc: PM species to speciate with their fraction.
     """
 
-    def __init__(self, name: str, number: int | float, use_intensity: float,
-                 pol_ef: dict, spatial_proxy: xr.DataArray,
-                 temporal_prof: list[float], voc_spc: dict, pm_spc: dict):
-        """
-        Create the EmissionSource object.
+    def __init__(
+        self,
+        name: str,
+        number: int | float,
+        use_intensity: float,
+        pol_ef: dict,
+        spatial_proxy: xr.DataArray,
+        temporal_prof: list[float],
+        voc_spc: dict,
+        pm_spc: dict,
+    ):
+        """Create the EmissionSource object.
 
-        Parameters
-        ----------
-        name : str
-            Name of the source.
-        number : int | float
-            Number of sources (e.g., number of vehicles)
-        use_intensity : float
-            Emission source activity rate.
-        pol_ef : dict
-            Keys are pollutants in the inventory,
-            values are a tuple with pollutant emission factors
-            and molecular weight.
-        spatial_proxy : xr.DataArray
-            Proxy to spatially distribute emissions.
-        temporal_prof : list[float]
-            Hourly fractions to temporally distribute emissions.
-        voc_spc : dict
-            Keys are VOC species, and values are the fraction
-            of the total VOC.
-        pm_spc : dict
-            Keys are PM species, and values are the fraction
-            of the total PM.
-
+        Args:
+            name: Name of the source.
+            number: Number of sources (e.g., number of vehicles)
+            use_intensity: Emission source activity rate.
+            pol_ef: Keys are pollutants in the inventory.
+                Values are a tuple with pollutant emission factors and molecular weight.
+            spatial_proxy: Proxy to spatially distribute emissions.
+            temporal_prof: Hourly fractions to temporally distribute emissions.
+            voc_spc: Keys are VOC species.Values are the fraction of the total VOC.
+            pm_spc: Keys are PM species. Values are the fraction of the total PM.
         """
         self.name = name
         self.number = number
@@ -79,15 +70,12 @@ class EmissionSource:
         self.pm_spc = pm_spc
 
     def __str__(self):
-        """
-        Print summary of EmissionSource attributes.
+        """Print summary of EmissionSource attributes.
 
-        Returns
-        -------
+        Returns:
             Print name, number, pollutants,
             and VOC and PM species information
             from EmissionSource.
-
         """
         source_summary = (
             f"Source name: {self.name}\n"
@@ -99,102 +87,76 @@ class EmissionSource:
         return source_summary
 
     def total_emission(self, pol_name: str, ktn_year: bool = False) -> float:
-        """
-        Calculate total emission of a pollutant.
+        """Calculate total emission of a pollutant.
 
-        Parameters
-        ----------
-        pol_name : str
-            Pollutant name to calculate the total emission.
-        ktn_year : bool
-            If total is calculated in KTn (Gg) year^-1
+        Args:
+            pol_name: Pollutant name to calculate the total emission.
+            ktn_year: If total is calculated in KTn (Gg) year^-1
 
-        Returns
-        -------
+        Returns:
             Total emission of a pollutant.
-
         """
-        total_emiss = em.calculate_emission(self.number,
-                                            self.use_intensity,
-                                            self.pol_ef[pol_name][0])
+        total_emiss = em.calculate_emission(
+            self.number, self.use_intensity, self.pol_ef[pol_name][0]
+        )
         # units of total_emiss in g day^-1
 
         if ktn_year:
-            return total_emiss * 365 / 10 ** 9
+            return total_emiss * 365 / 10**9
         return total_emiss
 
     def report_emissions(self) -> pd.DataFrame:
-        """
-        Return the total emission for each pollutant in pol_ef.
+        """Return the total emission for each pollutant in pol_ef.
 
-        Returns
-        -------
-        pd.DataFrame
+        Returns:
             A table with pollutants as index and total emissions
             as columns.
-
         """
         total_emission = {
-            pol: self.total_emission(pol, ktn_year=True)
-            for pol in self.pol_ef.keys()
+            pol: self.total_emission(pol, ktn_year=True) for pol in self.pol_ef.keys()
         }
         total_emission = pd.DataFrame.from_dict(
             total_emission, orient="index", columns=["total_emiss"]
         )
         return total_emission
 
-    def spatial_emission(self, pol_name: str,
-                         cell_area: int | float) -> xr.DataArray:
+    def spatial_emission(self, pol_name: str, cell_area: int | float) -> xr.DataArray:
+        """Distribute one pollutant.
+
+        Args:
+            pol_name: Key value in pol_ef.
+            cell_area: Area of wrfinput.
+
+        Returns:
+            Spatially distributed emissions.
         """
-        Distribute one pollutant.
+        return spt.distribute_spatial_emission(
+            self.spatial_proxy,
+            self.number,
+            cell_area,
+            self.use_intensity,
+            self.pol_ef[pol_name][0],
+            pol_name,
+        )
 
-        Parameters
-        ----------
-        pol_name : str
-            Key value in pol_ef.
-        cell_area : int | float
-            Area of wrfinput.
+    def spatiotemporal_emission(
+        self, pol_names: str | list[str], cell_area: int | float, is_cmaq: bool = False
+    ) -> xr.DataArray:
+        """Spatial and temporal distribution of emissions.
 
-        Returns
-        -------
-        xr.DataArray
-            Espatially distributed emissions.
+        Args:
+            pol_names: Name or names of pollutants to distribute.
+            cell_area: Wrfinput cell area.
+            is_cmaq: If it will be used for CMAQ.
 
-        """
-        return spt.distribute_spatial_emission(self.spatial_proxy,
-                                               self.number,
-                                               cell_area,
-                                               self.use_intensity,
-                                               self.pol_ef[pol_name][0],
-                                               pol_name)
-
-    def spatiotemporal_emission(self, pol_names: str | list[str],
-                                cell_area: int | float,
-                                is_cmaq: bool = False) -> xr.DataArray:
-        """
-        Spatial and temporal distribution of emissions.
-
-        Parameters
-        ----------
-        pol_names : str | list[str]
-            Name or names of pollutants to distribute.
-        cell_area : int | float
-            Wrfinput cell area.
-        is_cmaq : bool
-            If it will be used for CMAQ.
-
-        Returns
-        -------
-        xr.DataArray
+        Returns:
             Spatial and temporal emission distribution.
-
         """
         if isinstance(pol_names, str):
             pol_names = [pol_names]
 
         spatial_emissions = {
-            pol: self.spatial_emission(pol, cell_area)
-            for pol in pol_names
+            pol: self.spatial_emission(pol, cell_area) for pol in pol_names
         }
 
         temp_prof = self.temporal_prof
@@ -207,190 +169,173 @@ class EmissionSource:
         }
         return xr.merge(spatio_temporal.values())
 
-    def speciate_emission(self, pol_name: str, pol_species: dict,
-                          cell_area: int | float,
-                          is_cmaq: bool = False) -> xr.DataArray:
-        """
-        Speciate one pollutant emissions. Used especially for VOC or NOX.
+    def speciate_emission(
+        self,
+        pol_name: str,
+        pol_species: dict,
+        cell_area: int | float,
+        is_cmaq: bool = False,
+    ) -> xr.DataArray:
+        """Speciate one pollutant emissions. Used especially for VOC or NOX.
 
-        Parameters
-        ----------
-        pol_name : str
-            Pollutant name in pol_ef to speciate.
-        pol_species : dict
-            Keys are pollutants speciated from pol_name.
-            Values are the fraction.
-        cell_area : int | float
-            wrfinput cell area km^2
-        is_cmaq : bool
-            If output is for CMAQ.
+        Args:
+            pol_name: Pollutant name in pol_ef to speciate.
+            pol_species: Keys are pollutants speciated from pol_name.
+                Values are the fraction.
+            cell_area: wrfinput cell area km^2
+            is_cmaq: If output is for CMAQ.
 
-        Returns
-        -------
-        xr.DataArray
+        Returns:
             Spatial and temporal distribution of speciated emission.
-
         """
-        spatio_temporal = self.spatiotemporal_emission(pol_name,
-                                                       cell_area, is_cmaq)
-        speciated_emiss = em.speciate_emission(spatio_temporal,
-                                               pol_name, pol_species,
-                                               cell_area)
+        spatio_temporal = self.spatiotemporal_emission(pol_name, cell_area, is_cmaq)
+        speciated_emiss = em.speciate_emission(
+            spatio_temporal, pol_name, pol_species, cell_area
+        )
         return speciated_emiss
 
-    def speciate_all(self, cell_area: int | float, voc_name: str = "VOC",
-                     pm_name: str = "PM", is_cmaq: bool = False) -> xr.Dataset:
-        """
-        Speciate VOC and PM.
+    def speciate_all(
+        self,
+        cell_area: int | float,
+        voc_name: str = "VOC",
+        pm_name: str = "PM",
+        is_cmaq: bool = False,
+    ) -> xr.Dataset:
+        """Speciate VOC and PM.
 
-        Parameters
-        ----------
-        cell_area : int | float
-            Wrfinput cell area.
-        voc_name : str
-            Name of VOC in pol_ef keys.
-        pm_name : str
-            Name of PM in pol_ef keys.
-        is_cmaq : bool
-            If output for CMAQ.
+        Args:
+            cell_area: wrfinput cell area.
+            voc_name: Name of VOC in pol_ef keys.
+            pm_name: Name of PM in pol_ef keys.
+            is_cmaq: If output for CMAQ.
 
-        Returns
-        -------
-        xr.Dataset
+        Returns:
             Spatial and temporal distributed emissions with
-            VOC and PM speaciated.
-
+            VOC and PM speciated.
         """
-        spatio_temporal = self.spatiotemporal_emission(self.pol_ef.keys(),
-                                                       cell_area, is_cmaq)
-        speciated_emiss = em.speciate_emission(spatio_temporal,
-                                               voc_name, self.voc_spc,
-                                               cell_area)
-        speciated_emiss = em.speciate_emission(speciated_emiss,
-                                               pm_name, self.pm_spc,
-                                               cell_area)
+        spatio_temporal = self.spatiotemporal_emission(
+            self.pol_ef.keys(), cell_area, is_cmaq
+        )
+        speciated_emiss = em.speciate_emission(
+            spatio_temporal, voc_name, self.voc_spc, cell_area
+        )
+        speciated_emiss = em.speciate_emission(
+            speciated_emiss, pm_name, self.pm_spc, cell_area
+        )
         return speciated_emiss
 
-    def to_wrfchemi(self, wrfinput: xr.Dataset,
-                    start_date: str, end_date: str,
-                    week_profile: list[float] = [1],
-                    pm_name: str = "PM", voc_name: str = "VOC",
-                    write_netcdf: bool = False,
-                    nc_format: str = 'NETCDF3_64BIT',
-                    path: str = "../results") -> xr.Dataset:
-        """
-        Create WRF-Chem emission file (wrfchemi).
+    def to_wrfchemi(
+        self,
+        wrfinput: xr.Dataset,
+        start_date: str,
+        end_date: str,
+        week_profile: list[float] = [1],
+        pm_name: str = "PM",
+        voc_name: str = "VOC",
+        write_netcdf: bool = False,
+        nc_format: str = "NETCDF3_64BIT",
+        path: str = "../results",
+    ) -> xr.Dataset:
+        """Create WRF-Chem emission file (wrfchemi).
 
-        Parameters
-        ----------
-        wrfinput : xr.Dataset
-            WRF-Chem wrfinput file.
-        start_date : str
-            Start date of emissions.
-        end_date : str
-            End date of emissions.
-        week_profile : list[float]
-            List of seven fraction of each week day.
-        pm_name : str
-            PM name in pol_ef keys.
-        voc_name : str
-            VOC name in pol_ef keys
-        write_netcdf : bool
-            Write the NetCDF file.
-        nc_format : str
-            wrfchemi netCDF file format.
-        path : str
-            Location to save wrfchemi.
+        Args:
+            wrfinput: WRF-Chem wrfinput file.
+            start_date: Start date of emissions.
+            end_date: End date of emissions.
+            week_profile: List of seven fraction of each week day.
+            pm_name: PM name in pol_ef keys.
+            voc_name: VOC name in pol_ef keys
+            write_netcdf: Write the NetCDF file.
+            nc_format: wrfchemi NetCDF file format.
+            path: Location to save wrfchemi.
 
-        Returns
-        -------
-        xr.Dataset
+        Returns:
             Dataset with wrfchemi netCDF format.
-
         """
         cell_area = (wrfinput.DX / 1000) ** 2
-        spatio_temporal = self.spatiotemporal_emission(self.pol_ef.keys(),
-                                                       cell_area)
+        spatio_temporal = self.spatiotemporal_emission(self.pol_ef.keys(), cell_area)
         if len(week_profile) == 7:
-            spatio_temporal = temp.split_by_weekday(spatio_temporal,
-                                                    week_profile,
-                                                    start_date,
-                                                    end_date)
-        spatio_temporal = wemi.transform_wrfchemi_units(spatio_temporal,
-                                                        self.pol_ef,
-                                                        pm_name)
-        speciated_emiss = wemi.speciate_wrfchemi(spatio_temporal,
-                                                 self.voc_spc, self.pm_spc,
-                                                 cell_area, wrfinput, voc_name,
-                                                 pm_name)
-        wrfchemi_netcdf = wemi.prepare_wrfchemi_netcdf(speciated_emiss,
-                                                       wrfinput,
-                                                       start_date)
+            spatio_temporal = temp.split_by_weekday(
+                spatio_temporal, week_profile, start_date, end_date
+            )
+        spatio_temporal = wemi.transform_wrfchemi_units(
+            spatio_temporal, self.pol_ef, pm_name
+        )
+        speciated_emiss = wemi.speciate_wrfchemi(
+            spatio_temporal,
+            self.voc_spc,
+            self.pm_spc,
+            cell_area,
+            wrfinput,
+            voc_name,
+            pm_name,
+        )
+        wrfchemi_netcdf = wemi.prepare_wrfchemi_netcdf(
+            speciated_emiss, wrfinput, start_date
+        )
 
         if write_netcdf:
             wemi.write_wrfchemi_netcdf(wrfchemi_netcdf, nc_format, path)
         return wrfchemi_netcdf
 
-    def to_cmaq(self, wrfinput: xr.Dataset, griddesc_path: str,
-                btrim: int, start_date: str, end_date: str,
-                week_profile: list[float] = [1],
-                pm_name: str = "PM", voc_name: str = "VOC",
-                write_netcdf: bool = False,
-                path: str = "../results") -> typing.Dict[str, xr.Dataset]:
-        """
-        Create CMAQ emission file.
+    def to_cmaq(
+        self,
+        wrfinput: xr.Dataset,
+        griddesc_path: str,
+        btrim: int,
+        start_date: str,
+        end_date: str,
+        week_profile: list[float] = [1],
+        pm_name: str = "PM",
+        voc_name: str = "VOC",
+        write_netcdf: bool = False,
+        path: str = "../results",
+    ) -> typing.Dict[str, xr.Dataset]:
+        """Create CMAQ emission file.
 
-        Parameters
-        ----------
-        wrfinput : xr.Dataset
-            wrfinput from WRF simulation.
-        griddesc_path : str
-            Location of GRIDDESC file.
-        btrim : int
-            BTRIM option in MCIP.
-        start_date : str
-            Start date of emission files.
-        end_date : str
-            End date of emission files.
-        week_profile : list[float]
-            List of seven fraction of each week day.
-        pm_name : str
-            PM name in pol_ef keys.
-        voc_name : str
-            VOC name in pol_ef keys.
-        write_netcdf : bool
-            Write the netCDF file.
-        path : str
-            Location to save CMAQ emission file.
+        Args:
+            wrfinput: wrfinput from WRF simulation.
+            griddesc_path: Location of GRIDDESC file.
+            btrim: BTRIM option in MCIP.
+            start_date: Start date of emission files.
+            end_date: End date of emission files.
+            week_profile: List of seven fraction of each week day.
+            pm_name: PM name in pol_ef keys.
+            voc_name: VOC name in pol_ef keys.
+            write_netcdf: Write the netCDF file.
+            path: Location to save CMAQ emission file.
 
-        Returns
-        -------
-        typing.Dict[str, xr.Dataset]
+        Returns:
             Keys are simulation days and values the emission file for CMAQ
             for that day.
-
         """
         cell_area = (wrfinput.DX / 1000) ** 2
-        spatio_temporal = self.spatiotemporal_emission(self.pol_ef.keys(),
-                                                       cell_area, is_cmaq=True)
-        spatio_temporal_units = cmaq.transform_cmaq_units(spatio_temporal,
-                                                          self.pol_ef,
-                                                          cell_area)
-        speciated_emiss = cmaq.speciate_cmaq(spatio_temporal_units,
-                                             self.voc_spc, self.pm_spc,
-                                             cell_area)
+        spatio_temporal = self.spatiotemporal_emission(
+            self.pol_ef.keys(), cell_area, is_cmaq=True
+        )
+        spatio_temporal_units = cmaq.transform_cmaq_units(
+            spatio_temporal, self.pol_ef, cell_area
+        )
+        speciated_emiss = cmaq.speciate_cmaq(
+            spatio_temporal_units, self.voc_spc, self.pm_spc, cell_area
+        )
 
         # TODO: Change it to a function
         for emi in speciated_emiss.data_vars:
             speciated_emiss[emi] = speciated_emiss[emi].astype("float32")
 
-        days_factor = temp.assign_factor_simulation_days(start_date, end_date,
-                                                         week_profile,
-                                                         is_cmaq=True)
+        days_factor = temp.assign_factor_simulation_days(
+            start_date, end_date, week_profile, is_cmaq=True
+        )
         cmaq_files = {
-            day: cmaq.prepare_netcdf_cmaq(speciated_emiss * fact,
-                                          day, griddesc_path, btrim,
-                                          self.voc_spc, self.pm_spc)
+            day: cmaq.prepare_netcdf_cmaq(
+                speciated_emiss * fact,
+                day,
+                griddesc_path,
+                btrim,
+                self.voc_spc,
+                self.pm_spc,
+            )
             for day, fact in zip(days_factor.day, days_factor.frac)
         }
         if write_netcdf:
@@ -408,38 +353,34 @@ class PointSources:
     kTn (Gg) year^-1
 
     Attributes
-    ----------
-    name : Name of the point emission sources.
-    spatial_emission : Spatially distributed emissions in simulation domain.
-    pol_emiss : Names of considered pollutants (columns).
-    temporal_prof : Temporal profile to temporal emission distribution.
-    voc_spc : VOC speciation dict. Keys are VOC species, values are fractions.
-    pm_spc : PM speciation dict. Keys are PM species, values are fractions.
-
+        name : Name of the point emission sources.
+        spatial_emission : Spatially distributed emissions in simulation domain.
+        pol_emiss : Names of considered pollutants (columns).
+        temporal_prof : Temporal profile to temporal emission distribution.
+        voc_spc : VOC speciation dict. Keys are VOC species, values are fractions.
+        pm_spc : PM speciation dict. Keys are PM species, values are fractions.
     """
 
-    def __init__(self, name: str, point_emiss: xr.Dataset,
-                 pol_emiss: dict, temporal_prof: list[float],
-                 voc_spc: dict, pm_spc: dict):
-        """
-        Create PointSource  object.
+    def __init__(
+        self,
+        name: str,
+        point_emiss: xr.Dataset,
+        pol_emiss: dict,
+        temporal_prof: list[float],
+        voc_spc: dict,
+        pm_spc: dict,
+    ):
+        """Create PointSource  object.
 
-        Parameters
-        ----------
-        name : str
-            Name of point sources emissions.
-        point_emiss : xr.Dataset
-            Points sources in table read with
-        pol_emiss : dict
-            Keys are columns in point_emiss.
-            values are the molecular weight.
-        temporal_prof : list[float]
-            Hourly fractions to temporally distribute emissions.
-        voc_spc : dict
-            Keys are VOC species. Values are fractions from the total VOC.
-        pm_spc : dict
-            Keys are PM species. Values are fractions from the total PM.
-
+        Args:
+            name: Name of point sources emissions.
+            point_emiss: Points sources in table read with
+            pol_emiss: Keys are columns in point_emiss.
+                Values are the molecular weight.
+            temporal_prof: Hourly fractions to temporally distribute emissions.
+            voc_spc: Keys are VOC species.
+                Values are fractions from the total VOC.
+            pm_spc: Keys are PM species. Values are fractions from the total PM.
         """
         self.name = name
         self.spatial_emission = point_emiss
@@ -449,15 +390,12 @@ class PointSources:
         self.pm_spc = pm_spc
 
     def __str__(self):
-        """
-        Print summary of PointSource attributes.
+        """Print summary of PointSource attributes.
 
-        Returns
-        -------
+        Returns:
             Print name, number, pollutants,
             and VOC and PM species information
             from EmissionSource.
-
         """
         source_summary = (
             f"Source name: {self.name}\n"
@@ -468,18 +406,13 @@ class PointSources:
         return source_summary
 
     def total_emission(self, pol_name: str) -> float:
-        """
-        Calculate total emission of a pollutant.
+        """Calculate total emission of a pollutant.
 
-        Parameters
-        ----------
-        pol_name : str
-            Pollutant name to calculate the total emission.
+        Args:
+            pol_name: Pollutant name to calculate the total emission.
 
-        Returns
-        -------
+        Returns:
             Total emission of a pollutant in KTn (Gg) year^-1
-
         """
         if pol_name in self.pol_emiss.keys():
             return self.spatial_emission[pol_name].sum().values
@@ -487,145 +420,129 @@ class PointSources:
             print(f"{pol_name} not include in data")
 
     def report_emissions(self) -> pd.DataFrame:
-        """
-        Return the total emission for each pollutant in pol_ef.
+        """Return the total emission for each pollutant in pol_ef.
 
-        Returns
-        -------
-        pd.DataFrame
+        Returns:
             A table with pollutants as index and total emissions
             as columns.
-
         """
         total_emission = {
-            pol: self.total_emission(pol)
-            for pol in self.pol_emiss.keys()
+            pol: self.total_emission(pol) for pol in self.pol_emiss.keys()
         }
         total_emission = pd.DataFrame.from_dict(
             total_emission, orient="index", columns=["total_emiss"]
         )
         return total_emission
 
-    def to_wrfchemi(self, wrfinput: xr.Dataset,
-                    start_date: str, end_date: str,
-                    week_profile: list[float] = [1],
-                    pm_name: str = "PM", voc_name: str = "VOC",
-                    write_netcdf: bool = False,
-                    nc_format: str = 'NETCDF3_64BIT',
-                    path: str = "../results/"
-                    ) -> xr.Dataset:
-        """
-        Create WRF-Chem emission file.
+    def to_wrfchemi(
+        self,
+        wrfinput: xr.Dataset,
+        start_date: str,
+        end_date: str,
+        week_profile: list[float] = [1],
+        pm_name: str = "PM",
+        voc_name: str = "VOC",
+        write_netcdf: bool = False,
+        nc_format: str = "NETCDF3_64BIT",
+        path: str = "../results/",
+    ) -> xr.Dataset:
+        """Create WRF-Chem emission file.
 
-        Parameters
-        ----------
-        wrfinput : xr.Dataset
-            WRF wrfinput.
-        start_date : str
-            Start date of emission.
-        end_date : str
-            End date of emission.
-        week_profile : list[float]
-            Emission weights of days of week.
-        pm_name : str
-            PM name in pol_emiss.
-        voc_name : str
-            VOC name in pol_emiss.
-        write_netcdf : bool
-            Write wrfchemi netCDF.
-        nc_format : str
-            wrfchemi netCDF file format.
-        path : str
-            Location to save wrfchemi files.
+        Args:
+            wrfinput: WRF wrfinput.
+            start_date: Start date of emission.
+            end_date: End date of emission.
+            week_profile: Emission weights of days of week.
+            pm_name: PM name in pol_emiss.
+            voc_name: VOC name in pol_emiss.
+            write_netcdf: Write wrfchemi netCDF.
+            nc_format: wrfchemi NetCDF file format.
+            path: Location to save wrfchemi files.
 
-        Returns
-        -------
-        xr.Dataset
+        Returns:
             Emission file in wrfchemi netCDF format.
-
         """
         cell_area = (wrfinput.DX / 1000) ** 2
-        point_gd = em.ktn_year_to_g_day(self.spatial_emission)            # g day^-1
+        point_gd = em.ktn_year_to_g_day(self.spatial_emission)  # g day^-1
         point_gh = temp.split_by_time_from(point_gd, self.temporal_prof)  # g hr^-1
-        point_spc_time = wemi.transform_wrfchemi_units_point(point_gh,
-                                                             self.pol_emiss,
-                                                             cell_area)
+        point_spc_time = wemi.transform_wrfchemi_units_point(
+            point_gh, self.pol_emiss, cell_area
+        )
         if len(week_profile) == 7:
-            point_spc_time = temp.split_by_weekday(point_spc_time,
-                                                   week_profile,
-                                                   start_date,
-                                                   end_date)
-        point_speciated = wemi.speciate_wrfchemi(point_spc_time, self.voc_spc,
-                                                 self.pm_spc, cell_area,
-                                                 wrfinput)
-        wrfchemi_netcdf = wemi.prepare_wrfchemi_netcdf(point_speciated,
-                                                       wrfinput, start_date)
+            point_spc_time = temp.split_by_weekday(
+                point_spc_time, week_profile, start_date, end_date
+            )
+        point_speciated = wemi.speciate_wrfchemi(
+            point_spc_time, self.voc_spc, self.pm_spc, cell_area, wrfinput
+        )
+        wrfchemi_netcdf = wemi.prepare_wrfchemi_netcdf(
+            point_speciated, wrfinput, start_date
+        )
         if write_netcdf:
             wemi.write_wrfchemi_netcdf(wrfchemi_netcdf, nc_format, path)
         return wrfchemi_netcdf
 
-    def to_cmaq(self, wrfinput: xr.Dataset, griddesc_path: str,
-                btrim: int, start_date: str, end_date: str,
-                week_profile: list[float] = [1],
-                pm_name: str = "PM", voc_name: str = "VOC",
-                write_netcdf: bool = False,
-                path: str = "../results") -> typing.Dict[str, xr.Dataset]:
+    def to_cmaq(
+        self,
+        wrfinput: xr.Dataset,
+        griddesc_path: str,
+        btrim: int,
+        start_date: str,
+        end_date: str,
+        week_profile: list[float] = [1],
+        pm_name: str = "PM",
+        voc_name: str = "VOC",
+        write_netcdf: bool = False,
+        path: str = "../results",
+    ) -> typing.Dict[str, xr.Dataset]:
         """Create CMAQ emission file.
 
         Create and save CMAQ emission file.
 
-        Parameters
-        ----------
-        wrfinput : xr.Dataset
-            WRF wrfinput.
-        griddesc_path : str
-            Location of GRIDDESC file.
-        btrim : int
-            BTRIM value in MCIP.
-        start_date : str
-            Start date of emission.
-        end_date : str
-            End date of emission.
-        week_profile : list[float]
-            Emission weights of days of week.
-        pm_name : str
-            PM name in pol_emiss.
-        voc_name : str
-            VOC name in pol_emiss.
-        write_netcdf : bool
-            Save CMAQ emission file.
-        path : str
-            Location to save CMAQ emission file.
-
-        Returns
-        -------
-        typing.Dict[str, xr.Dataset]
+        Args:
+            wrfinput: WRF wrfinput.
+            griddesc_path: Location of GRIDDESC file.
+            btrim: BTRIM value in MCIP.
+            start_date: Start date of emission.
+            end_date: End date of emission.
+            week_profile: Emission weights of days of week.
+            pm_name: PM name in pol_emiss.
+            voc_name: VOC name in pol_emiss.
+            write_netcdf: Save CMAQ emission file.
+            path: Location to save CMAQ emission file.
+        Returns:
             Keys are simulation day.
             Values are Daset in CMAQ emission file netcdf format.
-
         """
         cell_area = (wrfinput.DX / 1000) ** 2
-        point_gd = em.ktn_year_to_g_day(self.spatial_emission)      # g day^-1
+        point_gd = em.ktn_year_to_g_day(self.spatial_emission)  # g day^-1
         cmaq_temp_prof = cmaq.to_25hr_profile(self.temporal_prof)
-        point_time = temp.split_by_time_from(point_gd,              # g hr^-1
-                                             cmaq_temp_prof)
+        point_time = temp.split_by_time_from(
+            point_gd,  # g hr^-1
+            cmaq_temp_prof,
+        )
 
-        point_time_units = cmaq.transform_cmaq_units_point(point_time,
-                                                           self.pol_emiss,
-                                                           pm_name)
-        speciated_emiss = cmaq.speciate_cmaq(point_time_units,
-                                             self.voc_spc, self.pm_spc,
-                                             cell_area)
+        point_time_units = cmaq.transform_cmaq_units_point(
+            point_time, self.pol_emiss, pm_name
+        )
+        speciated_emiss = cmaq.speciate_cmaq(
+            point_time_units, self.voc_spc, self.pm_spc, cell_area
+        )
         for emi in speciated_emiss.data_vars:
             speciated_emiss[emi] = speciated_emiss[emi].astype("float32")
 
-        days_factor = temp.assign_factor_simulation_days(start_date, end_date,
-                                                         week_profile,
-                                                         is_cmaq=True)
+        days_factor = temp.assign_factor_simulation_days(
+            start_date, end_date, week_profile, is_cmaq=True
+        )
         cmaq_files = {
-            day: cmaq.prepare_netcdf_cmaq(speciated_emiss * fact,
-                                          day, griddesc_path, btrim,
-                                          self.voc_spc, self.pm_spc)
+            day: cmaq.prepare_netcdf_cmaq(
+                speciated_emiss * fact,
+                day,
+                griddesc_path,
+                btrim,
+                self.voc_spc,
+                self.pm_spc,
+            )
             for day, fact in zip(days_factor.day, days_factor.frac)
         }
         if write_netcdf:
@@ -635,33 +552,24 @@ class PointSources:
 
 
 class GroupSources:
-    """
-    A class that group EmissionSources and PointSources object.
+    """A class that group EmissionSources and PointSources object.
 
     Attributes
-    ----------
-    sources : A list of EmissionSources and PointSources objects.
-
+        sources_list: A list of EmissionSources and PointSources objects.
     """
 
     def __init__(self, sources_list: list[EmissionSource | PointSources]):
-        """
-        Create a GroupSource object.
+        """Create a GroupSource object.
 
-        Parameters
-        ----------
-        sources_list : list[EmissionSource | PointSources]
-            List with EmissionSource and PointSources to group.
-
+        Args:
+            sources_list: List with EmissionSource and PointSources to group.
         """
         self.sources = {source.name: source for source in sources_list}
 
     def __str__(self):
-        """
-        Print summary of GroupSources attributes.
+        """Print summary of GroupSources attributes.
 
-        Returns
-        -------
+        Returns:
             Print number and types of Sources.
         """
         type_of_sources = [type(source) for source in self.sources.values()]
@@ -672,130 +580,125 @@ class GroupSources:
         return source_summary
 
     def names(self):
-        """
-        Print names of source emission in GroupSources.
+        """Print names of source emission in GroupSources.
 
-        Returns
-        -------
+        Returns:
             Names of source emissions.
         """
         names = list(self.sources.keys())
         return names
 
     def report_emissions(self) -> pd.DataFrame:
-        """
-        Return the total emission for each pollutant in pol_emiss.
+        """Return the total emission for each pollutant in pol_emiss.
 
-        Returns
-        -------
-        pd.DataFrame
+        Returns:
             Table with emission source and pollutant as index.
-
         """
         total_emissions = {
-            src_name: src.report_emissions()
-            for src_name, src in self.sources.items()}
+            src_name: src.report_emissions() for src_name, src in self.sources.items()
+        }
         return pd.concat(total_emissions, names=["src", "pol"])
 
-    def to_wrfchemi(self, wrfinput: xr.Dataset,
-                    start_date: str, end_date: str,
-                    week_profile: list[float] = [1],
-                    pm_name: str = "PM", voc_name: str = "VOC",
-                    write_netcdf: bool = False,
-                    nc_format: str = 'NETCDF3_64BIT',
-                    path: str = "../results") -> xr.Dataset:
-        """
-        Create WRF-Chem emission file.
+    def to_wrfchemi(
+        self,
+        wrfinput: xr.Dataset,
+        start_date: str,
+        end_date: str,
+        week_profile: list[float] = [1],
+        pm_name: str = "PM",
+        voc_name: str = "VOC",
+        write_netcdf: bool = False,
+        nc_format: str = "NETCDF3_64BIT",
+        path: str = "../results",
+    ) -> xr.Dataset:
+        """Create WRF-Chem emission file.
 
-        Parameters
-        ----------
-        wrfinput : xr.Dataset
-            WRF-Chem wrfinput.
-        start_date : str
-            Start date of emission.
-        end_date : str
-            End date of emission.
-        week_profile : list[float]
-            Emission weights of days of week.
-        pm_name : str
-            PM name in emissions.
-        voc_name : str
-            VOC name in emissions.
-        write_netcdf : bool
-            Save wrfchemi file.
-        nc_format : str
-            wrfchemi netCDF file format.
-        path : str
-            Location to save wrfchemi file.
+        Args:
+            wrfinput: WRF-Chem wrfinput.
+            start_date: Start date of emission.
+            end_date: End date of emission.
+            week_profile: Emission weights of days of week.
+            pm_name: PM name in emissions.
+            voc_name: VOC name in emissions.
+            write_netcdf: Save wrfchemi file.
+            nc_format: wrfchemi NetCDF file.
+            path: Location to save wrfchemi file.
 
-        Returns
-        -------
-        xr.Dataset
+        Returns:
             Emission file in WRF-Chem wrfchemi netCDF format.
-
         """
-        wrfchemis = {source: emiss.to_wrfchemi(wrfinput, start_date, end_date,
-                                               week_profile, pm_name,
-                                               voc_name, write_netcdf=False)
-                     for source, emiss in self.sources.items()}
-        wrfchemi = xr.concat(wrfchemis.values(),
-                             pd.Index(wrfchemis.keys(), name="source"))
+        wrfchemis = {
+            source: emiss.to_wrfchemi(
+                wrfinput,
+                start_date,
+                end_date,
+                week_profile,
+                pm_name,
+                voc_name,
+                write_netcdf=False,
+            )
+            for source, emiss in self.sources.items()
+        }
+        wrfchemi = xr.concat(
+            wrfchemis.values(), pd.Index(wrfchemis.keys(), name="source")
+        )
         if write_netcdf:
             wrfchemi = wrfchemi.sum(dim="source", keep_attrs=True)
             wrfchemi["Times"] = xr.DataArray(
-                    wemi.create_date_s19(f'{start_date}_00:00:00',
-                                     wrfchemi.sizes["Time"]),
+                wemi.create_date_s19(f"{start_date}_00:00:00", wrfchemi.sizes["Time"]),
                 dims=["Time"],
-                coords={"Time": wrfchemi.Time.values}
+                coords={"Time": wrfchemi.Time.values},
             )
             wemi.write_wrfchemi_netcdf(wrfchemi, nc_format, path=path)
         return wrfchemi
 
-    def to_cmaq(self, wrfinput: xr.Dataset, griddesc_path: str,
-                btrim: int, start_date: str, end_date: str,
-                week_profile: list[float] = [1],
-                pm_name: str = "PM", voc_name: str = "VOC",
-                write_netcdf: bool = False,
-                path: str = "../results") -> typing.Dict[str, dict]:
+    def to_cmaq(
+        self,
+        wrfinput: xr.Dataset,
+        griddesc_path: str,
+        btrim: int,
+        start_date: str,
+        end_date: str,
+        week_profile: list[float] = [1],
+        pm_name: str = "PM",
+        voc_name: str = "VOC",
+        write_netcdf: bool = False,
+        path: str = "../results",
+    ) -> typing.Dict[str, dict]:
         """Create CMAQ emission file.
 
         Create CMAQ emission file. All EmissionSource and GroupSources
         need to have same speciation.
 
-        Parameters
-        ----------
-        wrfinput : xr.Dataset
-            WRF wrfinput file.
-        griddesc_path : str
-            Location of GRIDDESC file.
-        btrim : int
-            BTRIM value in MCIP.
-        start_date : str
-            Start date of emissions.
-        end_date : str
-            End date of emissions.
-        week_profile : list[float]
-            Emission weights of days of week.
-        pm_name : str
-            PM name in pol_ef or pol_emiss.
-        voc_name : str
-            VOC name in pol_ef or pol_emiss.
-        write_netcdf : bool
-            Save CMAQ emission file.
-        path : str
-            Location to save CMAQ emission file.
+        Args:
+            wrfinput: WRF wrfinput file.
+            griddesc_path: Location of GRIDDESC file.
+            btrim: BTRIM value in MCIP.
+            start_date: Start date of emissions.
+            end_date: End date of emissions.
+            week_profile: Emission weights of days of week.
+            pm_name: PM name in pol_ef or pol_emiss.
+            voc_name: VOC name in pol_ef or pol_emiss.
+            write_netcdf: Save CMAQ emission file.
+            path: Location to save CMAQ emission file.
 
-        Returns
-        -------
-        typing.Dict[str, dict]
+        Returns::
             Keys are emission days. Values are emission in CMAQ
             emission file netCDF format.
-
         """
-        cmaq_files = {source: emiss.to_cmaq(wrfinput, griddesc_path,
-                                            btrim, start_date, end_date,
-                                            week_profile, pm_name, voc_name)
-                      for source, emiss in self.sources.items()}
+        cmaq_files = {
+            source: emiss.to_cmaq(
+                wrfinput,
+                griddesc_path,
+                btrim,
+                start_date,
+                end_date,
+                week_profile,
+                pm_name,
+                voc_name,
+            )
+            for source, emiss in self.sources.items()
+        }
         cmaq_source_day = cmaq.merge_cmaq_source_emiss(cmaq_files)
         sum_sources = cmaq.sum_cmaq_sources(cmaq_source_day)
         cmaq_sum_by_day = cmaq.update_tflag_sources(sum_sources)

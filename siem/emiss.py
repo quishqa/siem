@@ -4,64 +4,50 @@
 This module provide functions to calculate emissions rates.
 
 The module contains the following functions:
-    - `calculate_emission(number_source, use_intensity, pol_ef)` - Returns the emission rate.
-    - `speciate_emission(spatio_temporal, pol_name, pol_species)` - Returns speciated pollutant (VOC or PM).
-    - `ktn_year_to_mol_hr(spatial_emiss, pol_mw)` - Returns emissions in mol hr^-1.
-    - `ktn_year_to_ug_seg(spatial_emiss)` - Returns emissions in ug s^-1.
-    - `ktn_year_to_mol_seg(spatial_emiss, pol_mw)` - Returns emissions in mol s^-1.
-    - `ktn_year_to_g_seg(spatial_emiss)` - Returns emissions in g s^-1.
-
+    - `calculate_emission(number_source, use_intensity, pol_ef)` - Returns: the emission rate.
+    - `speciate_emission(spatio_temporal, pol_name, pol_species)` - Returns: speciated pollutant (VOC or PM).
+    - `ktn_year_to_mol_hr(spatial_emiss, pol_mw)` - Returns: emissions in mol hr^-1.
+    - `ktn_year_to_ug_seg(spatial_emiss)` - Returns: emissions in ug s^-1.
+    - `ktn_year_to_mol_seg(spatial_emiss, pol_mw)` - Returns: emissions in mol s^-1.
+    - `ktn_year_to_g_seg(spatial_emiss)` - Returns: emissions in g s^-1.
 """
+
 import typing
 import xarray as xr
 
 
-def calculate_emission(number_source: int | float,
-                       use_intensity: float,
-                       pol_ef: float) -> float:
-    """
-    Calculate pollutant total emission. Be aware of units.
+def calculate_emission(
+    number_source: int | float, use_intensity: float, pol_ef: float
+) -> float:
+    """Calculate pollutant total emission. Be aware of units.
 
-    Parameters
-    ----------
-    number_source : int | float
-        Number of emission sources.
-    use_intensity : float
-        Activitity rate.
-    pol_ef : float
-        Emission factor.
+    Args:
+        number_source: Number of emission sources.
+        use_intensity: Activity rate.
+        pol_ef: Emission factor.
 
-    Returns
-    -------
-    float
+    Returns:
         Total pollutant emissions.
-
     """
     return number_source * use_intensity * pol_ef
 
 
-def speciate_emission(spatio_temporal: xr.DataArray,
-                      pol_name: str, pol_species: typing.Dict[str, float],
-                      cell_area: int | float) -> xr.Dataset:
-    """
-    Speciate pollutant emission into other pollutant species.
+def speciate_emission(
+    spatio_temporal: xr.DataArray,
+    pol_name: str,
+    pol_species: typing.Dict[str, float],
+    cell_area: int | float,
+) -> xr.Dataset:
+    """Speciate pollutant emission into other pollutant species.
 
-    Parameters
-    ----------
-    spatio_temporal : xr.DataArray
-        Spatial distribution of pollutant to speciate.
-    pol_name : str
-        Name of polluntat to speciate.
-    pol_species : dict
-        Keys are the new species and values the fraction of pol_name.
-    cell_area : int | float
-        Cell area of wrfinput.
+    Args:
+        spatio_temporal: Spatial distribution of pollutant to speciate.
+        pol_name: Name of pollutant to speciate.
+        pol_species: Keys are the new species and values the fraction of pol_name.
+        cell_area: Cell area of wrfinput.
 
-    Returns
-    -------
-    xr.Dataset
+    Returns:
         Speciated emissions.
-
     """
     for new_pol, pol_fraction in pol_species.items():
         spatio_temporal[new_pol] = spatio_temporal[pol_name] * pol_fraction
@@ -74,17 +60,10 @@ def ktn_year_to_g_day(spatial_emiss: xr.DataArray) -> xr.DataArray:
     Transform pollutant total emission from kTn or Gg per year
     to g day^-1. This is mainly used for species of Point sources.
 
-    Parameters
-    ----------
-    spatial_emiss : xr.DataArray
-        Spatial pollutant total emission in kTn year^-1.
-    pol_mw : float
+    Args:
+        spatial_emiss: Spatial pollutant total emission in kTn year^-1.
 
-    Returns
-    -------
-    xr.DataArray
-        Total emission in g day^-1.
-
+    Returns: Total emission in g day^-1.
     """
-    convert_factor = 1E9 / 365
+    convert_factor = 1e9 / 365
     return spatial_emiss * convert_factor
