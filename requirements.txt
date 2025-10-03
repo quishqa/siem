@@ -1,0 +1,12 @@
+bottleneck
+xarray
+netcdf4
+dask
+cartopy
+pytest
+coverage
+numpy
+hdbscan
+osmnx
+wrf-python
+pseudonetcdf==3.1.0
