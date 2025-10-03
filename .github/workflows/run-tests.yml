@@ -34,7 +34,7 @@ jobs:
         run: pip list
       - name: Run tests with pytest
         run: |
-          coverate run -m pytest -v -s
+          coverage run -m pytest -v -s
       # You only need to upload code coverage once to codecov unless you have a
       # more complex build that you need coverage for.
       - name: Upload coverage to Codecov
