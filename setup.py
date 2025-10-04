@@ -7,5 +7,6 @@ setup(
     author="Mario Gavidia-Calderón",
     author_email="mario.calderon@iag.usp.br",
     packages=find_packages(),
-    install_requires=[]
-    )
+    setup_requires=["numpy"],
+    install_requires=["numpy"],
+)
