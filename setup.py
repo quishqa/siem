@@ -1,5 +1,8 @@
 from setuptools import find_packages, setup
 
+with open("README.md", "r") as f:
+    long_description = f.read()
+
 setup(
     name="siem",
     version="0.0.1",
@@ -9,4 +12,5 @@ setup(
     packages=find_packages(),
     setup_requires=["numpy"],
     install_requires=["numpy"],
+    long_description=long_description,
 )
