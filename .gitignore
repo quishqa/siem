@@ -13,3 +13,5 @@ scripts/nohup.out
 scripts/download_*
 results/wrfchemi_*
 results/*nc
+dist/*
+build/*
