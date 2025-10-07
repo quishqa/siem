@@ -1,0 +1,37 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: 'siem: SImplified Emission Model'
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Mario Eduardo
+    family-names: Gavidia-Calderón
+    email: mario.calderon@iag.usp.br
+    orcid: 'https://orcid.org/0000-0002-7371-1116'
+  - given-names: Alejandro
+    family-names: Delgado-Peralta
+    email: aperalta@usp.br
+    orcid: 'https://orcid.org/0000-0002-4413-3732'
+  - given-names: Maria de Fatima
+    family-names: Andrade
+    email: maria.andrade@iag.usp.br
+    orcid: 'https://orcid.org/0000-0001-5351-8311'
+  - given-names: 'Edmilson '
+    family-names: Dias de Freitas
+    orcid: 'https://orcid.org/0000-0001-8783-2747'
+    email: edmilson.freitas@iag.usp.br
+identifiers:
+  - type: url
+    value: 'https://quishqa.github.io/siem/'
+repository-code: 'https://github.com/quishqa/siem/'
+keywords:
+  - WRF-CHEM
+  - CMAQ
+  - EMISSIONS
+  - AIR QUALITY
+  - AIR POLLUTION
+license: MIT
