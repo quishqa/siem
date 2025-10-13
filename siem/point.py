@@ -16,7 +16,6 @@ It contains the following functions:
 import pandas as pd
 import geopandas as gpd
 import xarray as xr
-from netCDF4 import Dataset
 from siem.proxy import create_wrf_grid, configure_grid_spatial
 import pyproj
 
@@ -101,22 +100,35 @@ def retrive_proj_from(geogrid_path: str):
     a = 6370000.0
     b = 6370000.0
 
-    lcc = pyproj.Proj(proj='lcc', lat_1=geo_ds.TRUELAT1, lat_2=geo_ds.TRUELAT2, 
-                      lat_0=geo_ds.MOAD_CEN_LAT, lon_0=geo_ds.STAND_LON, 
-                      a=a, b=b)
-    merc = pyproj.Proj(proj='merc', lon_0=geo_ds.STAND_LON, lat_ts=geo_ds.TRUELAT1,
-                       a=a, b=b)
-    stere = pyproj.Proj(proj='stere', lat_0=geo_ds.TRUELAT1, lon_0=geo_ds.STAND_LON,
-                        lat_ts=geo_ds.TRUELAT1, a=a, b=b)
-    latlon = pyproj.Proj(proj='longlat', lon_0=geo_ds.STAND_LON, a=a, b=b)
+    lcc = pyproj.Proj(
+        proj="lcc",
+        lat_1=geo_ds.TRUELAT1,
+        lat_2=geo_ds.TRUELAT2,
+        lat_0=geo_ds.MOAD_CEN_LAT,
+        lon_0=geo_ds.STAND_LON,
+        a=a,
+        b=b,
+    )
+    merc = pyproj.Proj(
+        proj="merc", lon_0=geo_ds.STAND_LON, lat_ts=geo_ds.TRUELAT1, a=a, b=b
+    )
+    stere = pyproj.Proj(
+        proj="stere",
+        lat_0=geo_ds.TRUELAT1,
+        lon_0=geo_ds.STAND_LON,
+        lat_ts=geo_ds.TRUELAT1,
+        a=a,
+        b=b,
+    )
+    latlon = pyproj.Proj(proj="longlat", lon_0=geo_ds.STAND_LON, a=a, b=b)
 
     proj_codes = {
-        1: lcc, # lambert
-        2: stere, # polar
-        3: merc, # merc 
-        6: latlon # latlon
+        1: lcc,  # lambert
+        2: stere,  # polar
+        3: merc,  # merc
+        6: latlon,  # latlon
     }
-    
+
     wrf_proj = proj_codes[geo_ds.MAP_PROJ]
     wrf_crs = pyproj.CRS.from_proj4(str(wrf_proj))
     return wrf_crs
