@@ -44,7 +44,8 @@ You can check the documentation for further details:
 
 - [Tutorials](https://quishqa.github.io/siem/tutorials/)
 - [How to guide](https://quishqa.github.io/siem/how-to-guides/)
+- Or you can check the `scripts` folder for examples.
 
-## Acknoledgement
+## Acknoledgements
 
 We thanks [IAG/USP](https://www.iag.usp.br/), [LAPAT](http://www.lapat.iag.usp.br/) and [MASTER](http://www.master.iag.usp.br/) labs!
