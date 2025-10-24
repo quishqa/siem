@@ -11,23 +11,16 @@ It is inspired on the work of [Andrade et al. (2015)](http://journal.frontiersin
 
 ## Installation
 
-1. Clone this repository:
+You can install `siem` using pip:
 
-```
-git clone git@github.com:quishqa/siem.git
-```
-
-2. Enter the main folder and create the `siem` environment by using:
-
-```
-conda env create -f environment.yml
-
+```bash
+pip install siem
 ```
 
-3. Finally, install `siem` by using:
+Or you can install the developing version by doing:
 
-```
-pip install -e .
+```bash
+pip install git+https://github.com/quishqa/siem.git
 ```
 
 ## How to use
