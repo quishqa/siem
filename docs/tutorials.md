@@ -3,21 +3,21 @@
 `siem` works with three classes to define our emissions:
 
 - `EmissionSource`: Mainly built to calculate and distribute vehicular emissions using a spatial proxy.
-- `PointSource`: Mainly built to distribute point emissions that are loaded in a table (i.e. `.csv` file).
-- `GroupSources`: Built to merge all the `EmissionSource` and `PointSource` object in one single object.
+- `PointSource`: Mainly built to distribute point emissions that are loaded in a table (i.e., `.csv` file).
+- `GroupSources`: Built to merge all the `EmissionSource` and `PointSource` objects into one single object.
 Useful to create the final emission that goes to the air quality model.
 
-Each of theses objects has the `.to_wrfchem` and `.to_cmaq` methods that allows to create the emission file for WRF-Chem and CMAQ respectively.
+Each of these objects has the `.to_wrfchem` and `.to_cmaq` methods that allow to create the emission file for WRF-Chem and CMAQ. respectively.
 
 ## Defining emissions attributes
 
-Because emissions varies in space, in time, in species, these factors need to be defined in `EmissionSource` and `PointSource` attributes.
+Because emissions vary in space, in time, in species, these factors need to be defined in `EmissionSource` and `PointSource` attributes.
 Let's start by explaining how to define them.
 
 ### Spatial proxy
 
-The spatial proxy is a file that have the weights (ratios) to spatially distribute an **n** number of sources (i.e. vehicles) in the simulation domain.
-For that reason it is required to have the same number of `west_east` and `south_north` points in the `wrfinput` file.
+The spatial proxy is a file that has the weights (ratios) to spatially distribute an **n** number of sources (e.g., vehicles) in the simulation domain.
+For that reason, it is required to have the same number of `west_east` and `south_north` points in the `wrfinput` file.
 
 A spatial proxy file has the following format:
 
@@ -38,7 +38,7 @@ A spatial proxy file has the following format:
 The first column is the **id**, the second column is the **longitude**, the third column is the **latitude**,
 and the fourth column is the weight of the emissions sources.
 
-So, to prepare these file to be used in `EmissionSource`, we use the `read_spatial_proxy()` function from the `spatial` module.
+So, to prepare these files to be used in `EmissionSource`, we use the `read_spatial_proxy()` function from the `spatial` module.
 Let's imagine that the proxy represents the gasoline vehicles.
 
 ```python
@@ -59,7 +59,7 @@ gasoline_spatial_proxy = read_spatial_proxy(
 The temporal is just a list with at least 24 elements (hourly weight), one for each hour of the day.
 It has to be in **UTC**.
 
-For example a temporal profile for gasoline vehicles can be defined as:
+For example, a temporal profile for gasoline vehicles can be defined as:
 
 ```python
 gasoline_temp_prof = [
@@ -79,7 +79,7 @@ The dictionary keys are the names of pollutants in the emission inventory.
 The dictionary values are a `tuple` where the first element is the emission factors (g day^-1),
 and the second element is the molecular weight (g mol^-1).
 
-Following the gasoline vehicles, we can define its emission factors as:
+Following the gasoline vehicle, we can define its emission factors as:
 
 ```python
 gasoline_ef = {
@@ -97,7 +97,7 @@ and PM (Particulate Matter).
 
 !!! warning "About VOC and PM emission factors"
 
-    It is required to have "VOC" and "PM" keys on the dictionary,
+    It is required to have "VOC" and "PM" keys in the dictionary,
     as they will be latter speciated. If there is no information, you can zero them by
     using `VOC: (0, 100)` or `PM: (0, 1)`. Also, **PM molecular weight is always 1**.
 
@@ -128,13 +128,13 @@ gasoline_pm_mosaic = {
 }
 ```
 
-Therefore, `siem` can be used for different chemical mechanism as the speciation is defined by the user and the available information.
+Therefore, `siem` can be used for different chemical mechanisms as the speciation is defined by the user and the available information.
 
 ## Creating an `EmissionSource` object
 
-Once we have and prepare the emission information, we can now create the object.
+Once we have prepared the emission information, we can now create the object.
 In the following example,
-We will create an `EmissionSource` object that save information of all the **gasoline vehicles** of a city.
+We will create an `EmissionSource` object that saves information of all the **gasoline vehicles** of a city.
 Let's imagine that there are **1 000 000 of these vehicles**, and on average they run **13 495 km per year**.
 So:
 
@@ -169,12 +169,12 @@ diesel = EmissionSource(
 )
 ```
 
-!!! note "About the diesel example"
+!!! Note "about the diesel example"
 
-    Notice that `diesel` is define using different attributes
-    (i.e. different spatial proxy, temporal profile, speciation, etc).
-    If you have the information each EmissionSource can have different 
-    attributes, otherwise, you can repeat the attributes for other EmissionSource.
+    Notice that `diesel` is defined using different attributes
+    (i.e., different spatial proxy, temporal profile, speciation, etc).
+    If you have the information, each `EmissionSource` can have different 
+    attributes; otherwise, you can repeat the attributes for other `EmissionSource`.
 
 ## Creating an `PointSource` object
 
@@ -207,7 +207,7 @@ point_dom = read_point_sources(
 
 ### Defining emission molecular weight
 
-Because the `.csv` file already have the total emissions calculate,
+Because the `.csv` file already has the total emissions calculated,
 we do not need the emission factors,
 `PointSource` only needs the molecular weight of the emissions.
 We define it using a `dict()`.
@@ -225,7 +225,7 @@ pol_mw = {
 !!! warning "About VOC and PM molecular weight"
 
     As in the case of `EmissionSource`, it is required to have "VOC" and "PM" keys on the dictionary,
-    as they will be latter speciated.
+    as they will be later speciated.
 
 ### Defining `PointSource`
 
@@ -246,9 +246,9 @@ city_point_source = PointSources(
 
 ## Creating a `GroupSources` object
 
-Once you defined all the emissions sources in your domain,
-you need to group all of them to built the anthropogenic emission file require to run the air quality models.
-To that goal we used `GroupSources`.
+Once you have defined all the emission sources in your domain,
+you need to group all of them to build the anthropogenic emission file required to run the air quality models.
+To that goal, we used `GroupSources`.
 
 Following what we build in this tutorial, we can do the following:
 
@@ -261,7 +261,7 @@ city_anthro_emiss = GroupSources(city_sources)
 
 That's it!
 
-Now if you want to create emission files for WRF-Chem, you can do:
+Now, if you want to create emission files for WRF-Chem, you can do:
 
 ```python
 import xarray as xr
