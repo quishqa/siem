@@ -21,3 +21,8 @@ But, `siem` offers other features:
 - Each emission source can have a different spatial distribution.
 - Early created for WRF-Chem, but now compatible with CMAQ.
 - As it is built in Python, subproducts can be easily modified (i.e., calculate total emissions, plot pollutant emissions, apply correction factors, etc).
+
+We acknowledge some limitations of `siem`, by now, which is manly two:
+
+- Emission sources are spatially distributed over the surface. So, if you want to analyze emissions from the aviation sector, you will need to modify the emission files to treat them as elevated sources.
+- Similar to the energy and industrial sectors related to the "Plume-In-Grid" (PinG) treatment in point sources, we only offer you a spatial distribution over the surface.
