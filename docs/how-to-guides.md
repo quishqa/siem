@@ -2,26 +2,26 @@
 
 ## How to create the spatial proxy
 
-`siem` comes with functions to create a spatial proxy for vehicular emissions using the [OpenStreetMap](https://www.openstreetmap.org/about) data.
-It follows the methodology to spatially distributes emissions described in [Andrade et al. (2015)](https://www.frontiersin.org/journals/environmental-science/articles/10.3389/fenvs.2015.00009/full).
+`siem` includes functions to create a spatial proxy for vehicular emissions using the [OpenStreetMap](https://www.openstreetmap.org/about) data.
+It follows the methodology to spatially distributed emissions described in [Andrade et al. (2015)](https://www.frontiersin.org/journals/environmental-science/articles/10.3389/fenvs.2015.00009/full).
 
-To create the spatial proxy we need to:
+To create the spatial proxy, we need to:
 
 - Download the highways data from OpenStreetMap.
 - Calculate proxy.
 
 ### Download highways data
 
-For this example we will download the `primary`, `motorway`, and `trunk` highways,
-to distributes our vehicular emissions.
+For this example, we will download the `primary`, `motorway`, and `trunk` highways,
+to distribute our vehicular emissions.
 
-!!! note "List of highways types to download"
+!!! Note: "List of highways types to download"
 
     You can see a list of highways to download from this site:
     [key:highways](https://wiki.openstreetmap.org/wiki/Key:highway).
     See what is the best highway to distribute the vehicular emissions.
 
-To this goal we use `download_highways()` function from `proxy` module.
+To this goal, we use `download_highways()` function from `proxy` module.
 
 ```python
 from siem.proxy import download_highways
@@ -39,7 +39,7 @@ city_highways = download_highways(
 )
 ```
 
-Depending on the domain size and the number of highways types it could take some time.
+Depending on the domain size and the number of highway types, it could take some time.
 It will save data in `./highway_data/partial/domain_highways_d01.graphml`
 
 !!! tip "The download could take a lot of time"
@@ -56,7 +56,7 @@ Now that you have the highways data, we need to calculate the proxy.
 That is, we need to calculate the weight in each domain cell.
 `siem` assume that the **number of vehicles** inside a domain cell is proportional to the **sum of highways lengths** inside that cell.
 
-To do this calculation, and create the proxy file ready to use in `EmissionSorce`,
+To do this calculation, and create the proxy file ready to use in `EmissionSource`,
 we use the `create_wrf_grid()`, `load_osmx_to_gdfs()`, and `calculate_highway_grid()` functions from `proxy` module.
 
 ```python
@@ -77,7 +77,7 @@ highways_in_grid = calculate_highway_grid(
 
 ```
 
-This script will create the `.csv` (`./highways_data/highways_d01.csv`) to be used in `EmissionSorce`.
+This script will create the `.csv` (`./highways_data/highways_d01.csv`) to be used in `EmissionSource`.
 
 ## How to create WRF-Chem emission file
 
@@ -96,7 +96,7 @@ gasoline = EmissionSource(
 )
 ```
 
-So, to create the emission file we can do:
+So, to create the emission file, we can do:
 
 ```python
 
@@ -119,10 +119,10 @@ This code chunk will produce the wrfchemi file in `io_style_emissions=1`.
 That is a standard emission file split in 12 hours: `wrfchemi_00z_d01` and `wrfchemi_12z_d01`.
 
 To create the wrfchemi file in `io_style_emissions=2`, we need to play with `start_date`, `end_date`, and `week_profile` arguments.
-First if we want emission for a week, we can change the range of the start and end dates.
+First, if we want emissions for a week, we can change the range of the start and end dates.
 
-But if we want to add a week of the day variation, for example, lets say that on the weekends we have half the emissions of the weekday,
-we can define this variations by a `list()` with seven elements going from Monday to Sunday.
+But if we want to add a week of the day variation, for example, let's say that on the weekends we have half the emissions of the weekday,
+we can define these variations by a `list()` with seven elements going from Monday to Sunday.
 
 ```python hl_lines="2 7 8"
 
@@ -151,16 +151,16 @@ and the weekends will have half the emissions of the week of the day.
     ```
     ndump -v Times wrfchemi_d01_2025-10-01_00
     ```
-    To check the number of times, and the start and end date of the emission files
-    Also to check the day of the week variation, you can use `ncview`.
+    To check the number of times, and the start and end date of the emission files.
+    Also, you can check the day of the week variation; to do that, use `ncview`.
 
 ## How to create CMAQ file
 
 Something similar is required to create the emission files for CMAQ.
-The main difference is the need of extra inputs, the **`GRIDDESC``** file and the **`BTRIM`** value.
-That is the output of MCIP outputs.
+The main difference is the need for extra inputs, the **`GRIDDESC``** file and the **`BTRIM`** value.
+That is the output of the MCIP outputs.
 
-In this case we use the `.to_cmaq()` method. Following the same example:
+In this case, we use the `.to_cmaq()` method. Following the same example:
 
 ```python hl_lines="6 7"
 
@@ -186,4 +186,4 @@ This will create a daily emission file, one for each day of the range between st
 !!! warning Week profile
 
     `to_cmaq()` requires a `week_profile` of at least 7 elements.
-    If there is no information available you can make a list full of ones.
+    If there is no information available, you can make a list full of ones.
